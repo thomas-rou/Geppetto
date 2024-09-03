@@ -1,0 +1,61 @@
+<div class="container">
+    <header>
+        <a href="#">
+            <h1>Multi-Robot Exploration System</h1>
+        </a>
+        <nav>
+            <ul>
+                <!-- <li><a href="#">Home</a></li> -->
+                <li><a href="#">Dashboard</a></li>
+                <li><a href="#">Logs</a></li>
+                <li><a id="theme-toggle">Toggle Theme</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <section class="control-panel">
+            <h2>Control Panel</h2>
+            <div class="controls">
+                <button id="start-mission">Start Mission</button>
+                <button id="stop-mission">Stop Mission</button>
+                <button id="return-home">Return Home</button>
+                <button id="update-software">Update Software</button>
+            </div>
+        </section>
+
+        <section class="status-display">
+            <h2>Robot Status</h2>
+            <div class="robot-status">
+                <div class="robot" id="robot1">
+                    <h3>Robot 1</h3>
+                    <p>Status: <span>Idle</span></p>
+                    <p>Battery: <span>100%</span></p>
+                    <p>Position: <span>(0,0)</span></p>
+                </div>
+                <div class="robot" id="robot2">
+                    <h3>Robot 2</h3>
+                    <p>Status: <span>Idle</span></p>
+                    <p>Battery: <span>100%</span></p>
+                    <p>Position: <span>(0,0)</span></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="map">
+            <h2>Exploration Map</h2>
+            <div id="map-display">
+                <!-- Dummy map for now -->
+                <p>Map will be displayed here.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <h4 class="team-name">Équipe 1</h4>
+        <p>
+            <span id="css-king">Omar BENZEKRI</span>, <span>Thomas ROULEAU</span>, <span>Abdul-Wahab CHAARANI</span>, <span>Ely Cheikh ABASS</span>, <span>Loïc NGUEMEGNE TEMENA</span>, <span>Ivan SAMOYLENKO</span>
+        </p>
+        <!-- <p>&copy; 2024 Multi-Robot Exploration System. All rights reserved.</p> -->
+    </footer>
+</div>
