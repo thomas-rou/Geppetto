@@ -8,7 +8,7 @@ export class ThemeService {
 
   toggleTheme() {
     this.isDarkMode = !this.isDarkMode;
-    const theme = this.isDarkMode ? 'dark-theme' : 'light-theme';
+    const theme = this.getCurrentTheme();
     document.documentElement.setAttribute('data-theme', theme);
   }
 
