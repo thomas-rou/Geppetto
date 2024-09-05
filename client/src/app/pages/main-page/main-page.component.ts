@@ -33,10 +33,8 @@ export class MainPageComponent implements AfterViewInit {
     this.renderer.listen(updateSoftwareBtn, 'click', () => {
       alert('Software updated!');
     });
-
-    const themeToggleBtn = this.el.nativeElement.querySelector('#theme-toggle');
-    this.renderer.listen(themeToggleBtn, 'click', () => {
-      this.themeService.toggleTheme();
-    });
+  }
+  toggleTheme() {
+    this.themeService.toggleTheme();
   }
 }
