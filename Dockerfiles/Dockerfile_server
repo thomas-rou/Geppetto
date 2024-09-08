@@ -1,0 +1,20 @@
+# Dockerfile
+
+# Use Node.js to build the app
+FROM node:20 AS build
+
+WORKDIR /client
+
+# Clone the repository
+RUN git clone https://github.com/thomas-rou/Geppetto.git
+RUN cd geppetto/server
+
+# Install dependencies
+RUN npm ci
+
+# Expose the port
+EXPOSE 3000
+
+
+# Start the app
+CMD ["npm", "start"]
