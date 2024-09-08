@@ -1,10 +1,9 @@
 import { Logger, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { DateController } from '@app/controllers/date/date.controller';
 import { DateService } from '@app/services/date/date.service';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { ExampleService } from '@app/services/example/example.service';
-import { ExampleController } from '@app/controllers/example/example.controller';
 
 @Module({
     imports: [
@@ -18,7 +17,7 @@ import { ExampleController } from '@app/controllers/example/example.controller';
         // }),
         // MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
     ],
-    controllers: [DateController, ExampleController],
+    controllers: [DateController],
     providers: [ChatGateway, DateService, ExampleService, Logger],
 })
 export class AppModule {}
