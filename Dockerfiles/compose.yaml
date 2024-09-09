@@ -1,9 +1,11 @@
 services:
   client:
-    build: .
+    build:
+      dockerfile: Dockerfile_client
     ports:
       - "4200:4200"
   server:
-    build: .
+    build:
+      dockerfile: Dockerfile_server
     ports:
       - "3000:3000"
