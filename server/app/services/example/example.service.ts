@@ -3,10 +3,8 @@ import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class ExampleService {
-
     constructor(
         private readonly dateService: DateService,
         private readonly logger: Logger,
-    ) {
-    }
+    ) {}
 }
