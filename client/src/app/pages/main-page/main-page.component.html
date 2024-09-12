@@ -6,8 +6,8 @@
         <nav>
             <ul>
                 <!-- <li><a href="#">Home</a></li> -->
-                <li><a href="#">Dashboard</a></li>
-                <li><a href="#">Logs</a></li>
+                <!-- <li><a href="#">Dashboard</a></li> -->
+                <li><a href="#">Settings</a></li>
          <li>
           <a (click)="toggleTheme()">Toggle Theme</a>
         </li>
@@ -19,10 +19,10 @@
         <section class="control-panel">
             <h2>Control Panel</h2>
             <div class="controls">
-                <button id="start-mission">Start Mission</button>
-                <button id="stop-mission">Stop Mission</button>
-                <button id="return-home">Return Home</button>
-                <button id="update-software">Update Software</button>
+                <button id="start-mission" (click)="startMission()">Start Mission</button>
+                <button id="stop-mission" (click)="stopMission()">Stop Mission</button>
+                <button id="return-home" (click)="returnHome()">Return Home</button>
+                <button id="update-software" (click)="updateSoftware()">Update Software</button>
             </div>
         </section>
 
@@ -30,16 +30,16 @@
             <h2>Robot Status</h2>
             <div class="robot-status">
                 <div class="robot" id="robot1">
-                    <h3>Robot 1</h3>
-                    <p>Status: <span>Idle</span></p>
-                    <p>Battery: <span>100%</span></p>
-                    <p>Position: <span>(0,0)</span></p>
+                    <button class="robot-name" title="Identifier">{{ robot1.name }}</button>
+                    <p>Status: <span>{{ robot1.status }}</span></p>
+                    <p>Battery: <span>{{ robot1.battery }}%</span></p>
+                    <p>Position: <span>({{ robot1.position.x }}, {{ robot1.position.y }})</span></p>
                 </div>
                 <div class="robot" id="robot2">
-                    <h3>Robot 2</h3>
-                    <p>Status: <span>Idle</span></p>
-                    <p>Battery: <span>100%</span></p>
-                    <p>Position: <span>(0,0)</span></p>
+                    <button class="robot-name" title="Identifier">{{ robot2.name }}</button>
+                    <p><span>Status:</span><span>{{ robot2.status }}</span></p>
+                    <p><span>Battery:</span><span>{{ robot2.battery }}%</span></p>
+                    <p><span>Position: </span><span>({{ robot2.position.x }}, {{ robot2.position.y }})</span></p>
                 </div>
             </div>
         </section>
@@ -51,16 +51,20 @@
                 <p>Map will be displayed here.</p>
             </div>
         </section>
+
+        <section class="logs">
+            <h2>Logs</h2>
+            <div id="log-terminal" class="terminal">
+            </div>
+        </section>
+        
     </main>
 
     <footer>
         <h4 class="team-name">Équipe 107</h4>
         <p>
-        <span>Ely Cheikh ABASS</span>, <span id="css-king">Omar BENZEKRI</span>,
-      <span>Abdul-Wahab CHAARANI</span>, <span>Thomas ROULEAU</span>,
-      <span>Ivan SAMOYLENKO</span>,
-      <span>Loïc NGUEMEGNE TEMENA</span>
+        <span>Ely Cheikh ABASS</span>, <span id="css-king">Omar BENZEKRI</span>, <span>Abdul-Wahab CHAARANI</span>, <span>Thomas ROULEAU</span>, <span>Ivan SAMOYLENKO</span>, <span>Loïc NGUEMEGNE TEMENA</span>
         </p>
-        <!-- <p>&copy; 2024 Multi-Robot Exploration System. All rights reserved.</p> -->
+        <!-- <p>&copy; Geppetto. All rights reserved.</p> -->
     </footer>
 </div>
