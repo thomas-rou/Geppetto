@@ -29,6 +29,7 @@ This document is designed to clarify the communication API between Robots and Se
 ```json
 {
     "command": "update",
+    "name or id": "<identificate_which_updated>",
     "status": "<robot_status>",
     "position": {
         "x": 0.0,
