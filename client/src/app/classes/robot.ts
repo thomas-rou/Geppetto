@@ -1,4 +1,4 @@
-import { RobotStatus } from "@app/enums/robot-status";
+import { RobotStatus } from '@app/enums/robot-status';
 
 export class Robot {
     name: string;
