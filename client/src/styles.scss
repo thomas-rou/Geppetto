@@ -3,7 +3,7 @@
 }
 
 :root {
-    --color-primary: #3498db;
+    --color-primary: #000000;
     --color-secondary: #b734db00;
     --color-tertiary: #5e34db8c;
     --color-background: #1c0946e7;
@@ -41,7 +41,6 @@
 html,
 app-root,
 body {
-    height: -webkit-fill-available;
     width: -webkit-fill-available;
     margin: 0;
     padding: 0;
