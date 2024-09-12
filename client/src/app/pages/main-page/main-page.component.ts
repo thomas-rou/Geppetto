@@ -1,7 +1,7 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { ThemeService } from '@app/services/theme.service';
-import { Robot } from 'src/classes/robot';
-import { RobotStatus } from 'src/enums/robot-status';
+import { Robot } from '@app/classes/robot';
+import { RobotStatus } from '@app/enums/robot-status';
 
 @Component({
     selector: 'app-main-page',
