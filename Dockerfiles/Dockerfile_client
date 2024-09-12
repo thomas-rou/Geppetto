@@ -8,7 +8,7 @@ WORKDIR /client
 # Clone the repository
 RUN git clone https://github.com/thomas-rou/Geppetto.git\
     && cd geppetto\
-    && git checkout feature/identification_#9
+    && git checkout develop\
     && git pull
 
 WORKDIR /client/geppetto/application/client
