@@ -1,6 +1,6 @@
 export enum RobotStatus {
-    Idle = 'Idle',
-    Active = 'Active',
-    Charging = 'Charging',
-    Offline = 'Offline',
+    Idle = 'Inactif',
+    Active = 'Actif',
+    Charging = 'En charge',
+    Offline = 'Hors ligne',
 }
