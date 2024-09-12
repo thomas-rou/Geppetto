@@ -5,66 +5,21 @@
         </a>
         <nav>
             <ul>
-                <!-- <li><a href="#">Home</a></li> -->
-                <!-- <li><a href="#">Dashboard</a></li> -->
                 <li><a href="#">Settings</a></li>
-         <li>
-          <a (click)="toggleTheme()">Toggle Theme</a>
-        </li>
+                <li><a (click)="toggleTheme()">Toggle Theme</a></li>
             </ul>
         </nav>
     </header>
     
     <main>
-        <section class="control-panel">
-            <h2>Control Panel</h2>
-            <div class="controls">
-                <button id="start-mission" (click)="startMission()">Start Mission</button>
-                <button id="stop-mission" (click)="stopMission()">Stop Mission</button>
-                <button id="return-home" (click)="returnHome()">Return Home</button>
-                <button id="update-software" (click)="updateSoftware()">Update Software</button>
-            </div>
-        </section>
-
-        <section class="status-display">
-            <h2>Robot Status</h2>
-            <div class="robot-status">
-                <div class="robot" id="robot1">
-                    <button class="robot-name" title="Identifier">{{ robot1.name }}</button>
-                    <p>Status: <span>{{ robot1.status }}</span></p>
-                    <p>Battery: <span>{{ robot1.battery }}%</span></p>
-                    <p>Position: <span>({{ robot1.position.x }}, {{ robot1.position.y }})</span></p>
-                </div>
-                <div class="robot" id="robot2">
-                    <button class="robot-name" title="Identifier">{{ robot2.name }}</button>
-                    <p><span>Status:</span><span>{{ robot2.status }}</span></p>
-                    <p><span>Battery:</span><span>{{ robot2.battery }}%</span></p>
-                    <p><span>Position: </span><span>({{ robot2.position.x }}, {{ robot2.position.y }})</span></p>
-                </div>
-            </div>
-        </section>
-
-        <section class="map">
-            <h2>Exploration Map</h2>
-            <div id="map-display">
-                <!-- Dummy map for now -->
-                <p>Map will be displayed here.</p>
-            </div>
-        </section>
-
-        <section class="logs">
-            <h2>Logs</h2>
-            <div id="log-terminal" class="terminal">
-            </div>
-        </section>
-        
+        <app-control-panel></app-control-panel>
+        <app-status-display></app-status-display>
+        <app-map-display></app-map-display>
+        <app-logs-display></app-logs-display>
     </main>
 
     <footer>
         <h4 class="team-name">Équipe 107</h4>
-        <p>
-        <span>Ely Cheikh ABASS</span>, <span id="css-king">Omar BENZEKRI</span>, <span>Abdul-Wahab CHAARANI</span>, <span>Thomas ROULEAU</span>, <span>Ivan SAMOYLENKO</span>, <span>Loïc NGUEMEGNE TEMENA</span>
-        </p>
-        <!-- <p>&copy; Geppetto. All rights reserved.</p> -->
+        <p><span>Ely Cheikh ABASS</span>, <span id="css-king">Omar BENZEKRI</span>, <span>Abdul-Wahab CHAARANI</span>, <span>Thomas ROULEAU</span>, <span>Ivan SAMOYLENKO</span>, <span>Loïc NGUEMEGNE TEMENA</span></p>
     </footer>
 </div>
