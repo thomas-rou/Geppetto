@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 
 @Component({
     selector: 'app-logs-display',
@@ -8,26 +8,25 @@ import { Component, AfterViewInit } from '@angular/core';
     styleUrl: './logs-display.component.scss',
 })
 export class LogsDisplayComponent implements AfterViewInit {
+    @ViewChild('logTerminal') logTerminal!: ElementRef;
+
     ngAfterViewInit() {
         this.startLogSimulation();
     }
 
     startLogSimulation() {
-        const terminal = document.getElementById('log-terminal');
         let logCount = 0;
 
         setInterval(() => {
             const log = `$ Log entry #${++logCount}: Robot 1 is active.`;
-            this.addLogToTerminal(terminal, log);
+            this.addLogToTerminal(this.logTerminal.nativeElement, log);
         }, 3000);
     }
 
-    addLogToTerminal(terminal: HTMLElement | null, log: string) {
-        if (terminal) {
-            const logElement = document.createElement('p');
-            logElement.textContent = log;
-            terminal.appendChild(logElement);
-            terminal.scrollTop = terminal.scrollHeight;
-        }
+    addLogToTerminal(terminal: HTMLElement, log: string) {
+        const logElement = document.createElement('p');
+        logElement.textContent = log;
+        terminal.appendChild(logElement);
+        terminal.scrollTop = terminal.scrollHeight;
     }
 }
