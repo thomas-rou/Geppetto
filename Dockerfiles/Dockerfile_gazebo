@@ -36,11 +36,19 @@ WORKDIR /lib
 
 # Clone the repository
 # TODO: Change the repository URL
-RUN git clone https://github.com/Sh3mm/INF3995-Templates.git
+RUN git clone https://github.com/thomas-rou/Geppetto.git
+
+WORKDIR /lib/geppetto/embedded_ws
+# RUN colcon build\
+#     && source install/setup.bash\
+#     && ros2 run com_bridge com_serv
+RUN 
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash; colcon build; source install/setup.bash; ros2 run com_bridge com_serv"
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash"
 
 # Change workdir to the cloned repository directory
 # TODO: Change the path to the correct one
-WORKDIR /lib/INF3995-Templates/project_ws
+WORKDIR /lib/geppetto/gazebo/project_ws
 
 # Initialize, update install and build rosdep
 RUN /bin/bash -c "source /opt/ros/humble/setup.bash && rosdep init && rosdep update\
@@ -48,7 +56,7 @@ RUN /bin/bash -c "source /opt/ros/humble/setup.bash && rosdep init && rosdep upd
     && rosdep install --from-paths src --ignore-src -r -i -y\
     && apt install -y ros-humble-rosbridge-server\
     && colcon build --cmake-args -DBUILD_TESTING=ON"
-
+EXPOSE 9090
 # Command to run after launch or with docker compose
 # TODO: Change the launch file name
 CMD ["/bin/bash", "-c", "source install/setup.bash && ros2 run rosbridge_server rosbridge_websocket && ros2 launch ros_gz_example_bringup diff_drive.launch.py"]

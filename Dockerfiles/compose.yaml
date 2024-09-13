@@ -1,14 +1,14 @@
 services:
-  client:
-    build:
-      dockerfile: Dockerfile_client
-    ports:
-      - "4200:4200"
-  server:
-    build:
-      dockerfile: Dockerfile_server
-    ports:
-      - "3000:3000"
+  # client:
+  #   build:
+  #     dockerfile: Dockerfile_client
+  #   ports:
+  #     - "4200:4200"
+  # server:
+  #   build:
+  #     dockerfile: Dockerfile_server
+  #   ports:
+  #     - "3000:3000"
   gazebo:
     build:
       dockerfile: Dockerfile_gazebo
@@ -22,3 +22,5 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - /tmp/.docker.xauth:/tmp/.docker.xauth
+    ports:
+      - "9090:9090"
