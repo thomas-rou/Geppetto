@@ -46,8 +46,9 @@ WORKDIR /lib/INF3995-Templates/project_ws
 RUN /bin/bash -c "source /opt/ros/humble/setup.bash && rosdep init && rosdep update\
     && apt-get update -y\
     && rosdep install --from-paths src --ignore-src -r -i -y\
+    && sudo apt install -y ros-humble-rosbridge-server\
     && colcon build --cmake-args -DBUILD_TESTING=ON"
 
 # Command to run after launch or with docker compose
 # TODO: Change the launch file name
-CMD ["/bin/bash", "-c", "source install/setup.bash && ros2 launch ros_gz_example_bringup diff_drive.launch.py"]
+CMD ["/bin/bash", "-c", "source install/setup.bash && ros2 run rosbridge_server rosbridge_websocket && ros2 launch ros_gz_example_bringup diff_drive.launch.py"]
