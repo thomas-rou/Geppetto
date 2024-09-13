@@ -35,10 +35,10 @@ class ComServNode(Node):
         # print(type(msg))
         json_data = {
             "command": msg.command,
-            "orientation": msg.orientation,
+            "orientation": msg.MissionDetails.orientation,
             "position": {
-                "x": msg.position.x,
-                "y": msg.position.y
+                "x": msg.MissionDetails.position.x,
+                "y": msg.MissionDetails.position.y
             },
             "timestamp": msg.timestamp
         }
