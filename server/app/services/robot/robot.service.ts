@@ -3,10 +3,10 @@ import { WebSocket } from 'ws';
 
 @Injectable()
 export class RobotService {
-    private readonly DELAY_TIME:number = 5000;
-    private readonly CONNECTION_TIMEOUT:number = 60000;
-    private intervalId:NodeJS.Timeout;
-    private readonly logger:Logger = new Logger(RobotService.name);
+    private readonly DELAY_TIME: number = 5000;
+    private readonly CONNECTION_TIMEOUT: number = 60000;
+    private intervalId: NodeJS.Timeout;
+    private readonly logger: Logger = new Logger(RobotService.name);
     private robotIp: string;
     private ws: WebSocket;
     private isSocketOpen: boolean = false;
@@ -21,6 +21,7 @@ export class RobotService {
         this.ws.onopen = () => {
             this.logger.log(`Connection established to robot ${this.robotIp}`);
             this.isSocketOpen = true;
+            this.startMission();
         };
 
         this.ws.onmessage = (message) => {
@@ -54,20 +55,34 @@ export class RobotService {
         this.logger.log(`Subscription to topic ${topicName} of robot ${this.robotIp}`);
     }
 
-    publishToTopic(topicName: string, message: any) {
+    publishToTopic(topicName: string, messageType: string, message: any) {
         const publishMessage = {
             op: 'publish',
             topic: topicName,
+            type: messageType,
             msg: message,
         };
         this.ws.send(JSON.stringify(publishMessage));
-        this.logger.log(`Publish message to topic ${topicName} of robot ${this.robotIp}:`, message);
+        this.logger.log(`Publish message to topic ${topicName} of robot ${this.robotIp}:`);
     }
 
     startMission() {
-        this.publishToTopic('/start_mission', {});
+        this.publishToTopic('start_mission_command', "common_msgs/msg/StartMission", {
+            command: 'start_mission',
+            mission_details: {
+                orientation: '<initial_orientation>',
+                position: {
+                    x: 0.0,
+                    y: 0.0,
+                },
+            },
+            timestamp: 'ISO 8601',
+        });
     }
     stopMission() {
-        this.publishToTopic('/stop_mission', {});
+        this.publishToTopic('stop_mission_command', "common_msgs/msg/StopMission", {
+            command: 'end_mission',
+            timestamp: 'ISO 8601',
+        });
     }
 }
