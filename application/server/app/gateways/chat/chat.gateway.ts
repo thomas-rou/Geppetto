@@ -48,13 +48,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
 
     handleConnection(socket: Socket) {
-        this.logger.log(`Connexion par l'utilisateur avec id : ${socket.id}`);
+        this.logger.log(`Connection par l'utilisateur avec id : ${socket.id}`);
         // message initial
         socket.emit(ChatEvents.Hello, 'Hello World!');
     }
 
     handleDisconnect(socket: Socket) {
-        this.logger.log(`Déconnexion par l'utilisateur avec id : ${socket.id}`);
+        this.logger.log(`DéConnection par l'utilisateur avec id : ${socket.id}`);
     }
 
     private emitTime() {
