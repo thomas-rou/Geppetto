@@ -46,7 +46,7 @@ WORKDIR /lib/INF3995-Templates/project_ws
 RUN /bin/bash -c "source /opt/ros/humble/setup.bash && rosdep init && rosdep update\
     && apt-get update -y\
     && rosdep install --from-paths src --ignore-src -r -i -y\
-    && sudo apt install -y ros-humble-rosbridge-server\
+    && apt install -y ros-humble-rosbridge-server\
     && colcon build --cmake-args -DBUILD_TESTING=ON"
 
 # Command to run after launch or with docker compose
