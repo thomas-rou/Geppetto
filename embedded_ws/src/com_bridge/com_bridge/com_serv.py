@@ -4,6 +4,7 @@ import rclpy
 from rclpy.node import Node
 from common_msgs.msg import StartMission
 from std_msgs.msg import String
+from geometry_msgs.msg import Twist
 import json
 
 class ComServNode(Node):
@@ -18,7 +19,7 @@ class ComServNode(Node):
             10
         )
 
-        self.start_mission_order = self.create_publisher(geometry_msgs.msg.Twist, 'cmd_vel', 10)
+        self.start_mission_order = self.create_publisher(Twist, 'cmd_vel', 10)
         # msg_to_send = String()
         # msg_to_send.data = 'Ok'
         # self.update.publish(msg_to_send)
