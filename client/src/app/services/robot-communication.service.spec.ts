@@ -16,7 +16,7 @@ describe('RobotCommunicationService', () => {
     });
 
     afterEach(() => {
-        httpMock.verify(); // Ensure no outstanding requests
+        httpMock.verify();
     });
 
     it('should be created', () => {

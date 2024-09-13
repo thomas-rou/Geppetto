@@ -10,6 +10,6 @@ import { RobotStatus } from '@app/enums/robot-status';
     styleUrl: './status-display.component.scss',
 })
 export class StatusDisplayComponent {
-    robot1: Robot = new Robot('Robot 1', RobotStatus.Idle, 100, { x: 0, y: 0 });
-    robot2: Robot = new Robot('Robot 2', RobotStatus.Idle, 100, { x: 0, y: 0 });
+    robot1: Robot = new Robot('Robot 1', RobotStatus.Idle, 100, { x: 0, y: 0 }, 0.0);
+    robot2: Robot = new Robot('Robot 2', RobotStatus.Idle, 100, { x: 0, y: 0 }, 0.0);
 }
