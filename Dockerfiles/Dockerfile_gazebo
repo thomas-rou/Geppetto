@@ -60,3 +60,5 @@ EXPOSE 9090
 CMD ["/bin/bash", "-c", "source install/setup.bash && ros2 run rosbridge_server rosbridge_websocket\
     & source install/setup.bash && ros2 launch ros_gz_example_bringup diff_drive.launch.py\
     & source ../../embedded_ws/install/setup.bash && ros2 run com_bridge com_serv"]
+    
+    # & cd ../../embedded_ws && colcon build --packages-select common_msgs && source install/setup.bash && ros2 run com_bridge com_serv"]
