@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RobotCommunicationService } from '@app/services/robot-communication.service';
+import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 
 @Component({
     selector: 'app-control-panel',

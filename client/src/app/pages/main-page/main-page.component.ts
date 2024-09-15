@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ThemeService } from '@app/services/theme.service';
+import { ThemeService } from '@app/services/theme/theme.service';
 import { ControlPanelComponent } from '@app/components/control-panel/control-panel.component';
 import { StatusDisplayComponent } from '@app/components/status-display/status-display.component';
 import { MapDisplayComponent } from '@app/components/map-display/map-display.component';
