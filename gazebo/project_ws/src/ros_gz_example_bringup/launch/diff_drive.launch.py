@@ -35,11 +35,6 @@ def generate_launch_description():
     pkg_project_description = get_package_share_directory('ros_gz_example_description')
     pkg_ros_gz_sim = get_package_share_directory('ros_gz_sim')
 
-    # Load the SDF file from "description" package
-    sdf_file = os.path.join(pkg_project_description, 'models', 'limo_diff_drive', 'model.sdf')
-    with open(sdf_file, 'r') as infp:
-        robot_desc = infp.read()
-
     # Setup to launch the simulator and Gazebo world
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -51,6 +46,12 @@ def generate_launch_description():
         ])}.items(),
     )
 
+    # Load the SDF file from "description" package
+    sdf_file = os.path.join(pkg_project_description, 'models', 'limo_diff_drive', 'model.sdf')
+    with open(sdf_file, 'r') as infp:
+        robot_desc = infp.read()
+
+
     # Takes the description and joint angles as inputs and publishes the 3D poses of the robot links
     robot_state_publisher = Node(
         package='robot_state_publisher',
@@ -60,6 +61,50 @@ def generate_launch_description():
         parameters=[
             {'use_sim_time': True},
             {'robot_description': robot_desc},
+        ]
+    )
+
+    spawn_entity = Node(
+        package='ros_gz_sim',
+        executable='create',
+        output='screen',
+        arguments=[
+            '-topic', "/robot_description",
+            '-name', "limo_diff_drive",
+            '-z', "0.28",
+            '-x', "0",
+            '-y', "0"
+        ]
+    )
+
+    #   # Load the SDF file from "description" package
+    sdf_file = os.path.join(pkg_project_description, 'models', 'limo_diff_drive2', 'model.sdf')
+    with open(sdf_file, 'r') as infp:
+        robot_desc2 = infp.read()
+
+
+    # # Takes the description and joint angles as inputs and publishes the 3D poses of the robot links
+    robot_state_publisher2 = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='robot_state_publisher',
+        output='both',
+        parameters=[
+            {'use_sim_time': True},
+            {'robot_description': robot_desc},
+        ]
+    )
+
+    spawn_entity2 = Node(
+        package='ros_gz_sim',
+        executable='create',
+        output='screen',
+        arguments=[
+            '-topic', "/robot_description",
+            '-name', "limo_diff_drive2",
+            '-z', "0.28",
+            '-x', "0",
+            '-y', "1"
         ]
     )
 
@@ -82,17 +127,13 @@ def generate_launch_description():
         output='screen'
     )
 
-    # ros2 launch ros_gz_sim ros_gz_spawn_model.launch.py world:=empty file:=$(ros2 pkg prefix --share ros_gz_sim_demos)/models/vehicle/model.sdf name:=my_vehicle x:=5.0 y:=5.0 z:=0.5
-
-    robot2 = Node(
-        package='ros_gz_sim',
-        
-    )
-
     return LaunchDescription([
         gz_sim,
         # DeclareLaunchArgument('rviz', default_value='true', description='Open RViz.'),
         bridge,
         robot_state_publisher,
+        spawn_entity,
+        robot_state_publisher2,
+        spawn_entity2,
         # rviz
     ])

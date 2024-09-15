@@ -93,7 +93,7 @@
                 <geometry>
                     <mesh>
                         <scale>1 1 1</scale>
-                        <uri>meshes/limo_base.dae</uri>
+                        <uri>package://ros_gz_example_description/models/limo_diff_drive/meshes/limo_base.dae</uri>
                     </mesh>
                 </geometry>
             </visual>
@@ -244,7 +244,7 @@
                 <geometry>
                     <mesh>
                         <scale>1 1 1</scale>
-                        <uri>meshes/limo_wheel.dae</uri>
+                        <uri>package://ros_gz_example_description/models/limo_diff_drive/meshes/limo_wheel.dae</uri>
                     </mesh>
                 </geometry>
             </visual>
@@ -301,7 +301,7 @@
                 <geometry>
                     <mesh>
                         <scale>1 1 1</scale>
-                        <uri>meshes/limo_wheel.dae</uri>
+                        <uri>package://ros_gz_example_description/models/limo_diff_drive/meshes/limo_wheel.dae</uri>
                     </mesh>
                 </geometry>
             </visual>
@@ -358,7 +358,7 @@
                 <geometry>
                     <mesh>
                         <scale>1 1 1</scale>
-                        <uri>meshes/limo_wheel.dae</uri>
+                        <uri>package://ros_gz_example_description/models/limo_diff_drive/meshes/limo_wheel.dae</uri>
                     </mesh>
                 </geometry>
             </visual>
@@ -415,7 +415,7 @@
                 <geometry>
                     <mesh>
                         <scale>1 1 1</scale>
-                        <uri>meshes/limo_wheel.dae</uri>
+                        <uri>package://ros_gz_example_description/models/limo_diff_drive/meshes/limo_wheel.dae</uri>
                     </mesh>
                 </geometry>
             </visual>
