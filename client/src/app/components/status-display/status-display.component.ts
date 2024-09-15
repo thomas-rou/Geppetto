@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Robot } from '@app/classes/robot';
-import { RobotStatus } from '@app/enums/robot-status';
+import { RobotStatus } from '@app/enums/robot-status.enum';
 
 @Component({
     selector: 'app-status-display',

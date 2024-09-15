@@ -1,43 +1,43 @@
-export interface StartMissionRequest {
-  command: 'start_mission';
+import { Command } from "../enums/command.enum";
+
+export interface RobotRequest {
+  command: Command;
+  timestamp: string;
+}
+
+export interface StartMissionRequest extends RobotRequest {
+  command: Command.StartMission;
   mission_details: {
       orientation: string;
       position: { x: number; y: number };
   };
-  timestamp: string;
 }
 
-export interface EndMissionRequest {
-  command: 'end_mission';
-  timestamp: string;
+export interface EndMissionRequest extends RobotRequest {
+  command: Command.EndMission;
 }
 
-export interface UpdateRobotRequest {
-  command: 'update';
+export interface UpdateRobotRequest extends RobotRequest {
+  command: Command.UpdateRobot;
   name: string;
   status: string;
   position: { x: number; y: number };
-  timestamp: string;
 }
 
-export interface ReturnToBaseRequest {
-  command: 'return_to_base';
-  timestamp: string;
+export interface ReturnToBaseRequest extends RobotRequest {
+  command: Command.ReturnToBase;
 }
 
-export interface UpdateControllerCodeRequest {
-  command: 'update_controller_code';
+export interface UpdateControllerCodeRequest extends RobotRequest {
+  command: Command.UpdateControllerCode;
   code: string;
-  timestamp: string;
 }
 
-export interface NotifyRobotsToCommunicateRequest {
-  command: 'P2P';
-  timestamp: string;
+export interface NotifyRobotsToCommunicateRequest extends RobotRequest {
+  command: Command.P2P;
 }
 
-export interface FindFurthestRobotRequest {
-  command: 'find_furthest';
+export interface FindFurthestRobotRequest extends RobotRequest {
+  command: Command.FindFurthest;
   relative_point: { x: number; y: number };
-  timestamp: string;
 }
