@@ -1,42 +1,20 @@
-import { Component, AfterViewInit, Renderer2, ElementRef } from '@angular/core';
-import { ThemeService } from '@app/services/theme.service';
+import { Component } from '@angular/core';
+import { ThemeService } from '@app/services/theme/theme.service';
+import { ControlPanelComponent } from '@app/components/control-panel/control-panel.component';
+import { StatusDisplayComponent } from '@app/components/status-display/status-display.component';
+import { MapDisplayComponent } from '@app/components/map-display/map-display.component';
+import { LogsDisplayComponent } from '@app/components/logs-display/logs-display.component';
 
 @Component({
     selector: 'app-main-page',
     standalone: true,
-    imports: [],
+    imports: [ControlPanelComponent, StatusDisplayComponent, MapDisplayComponent, LogsDisplayComponent],
     templateUrl: './main-page.component.html',
     styleUrls: ['./main-page.component.scss'],
 })
-export class MainPageComponent implements AfterViewInit {
-    constructor(
-        private renderer: Renderer2,
-        private el: ElementRef,
-        private themeService: ThemeService,
-    ) {}
+export class MainPageComponent {
+    constructor(private themeService: ThemeService) {}
 
-    ngAfterViewInit() {
-        const startMissionBtn = this.el.nativeElement.querySelector('#start-mission');
-        const stopMissionBtn = this.el.nativeElement.querySelector('#stop-mission');
-        const returnHomeBtn = this.el.nativeElement.querySelector('#return-home');
-        const updateSoftwareBtn = this.el.nativeElement.querySelector('#update-software');
-
-        this.renderer.listen(startMissionBtn, 'click', () => {
-            alert('Mission started!');
-        });
-
-        this.renderer.listen(stopMissionBtn, 'click', () => {
-            alert('Mission stopped!');
-        });
-
-        this.renderer.listen(returnHomeBtn, 'click', () => {
-            alert('Returning home!');
-        });
-
-        this.renderer.listen(updateSoftwareBtn, 'click', () => {
-            alert('Software updated!');
-        });
-    }
     toggleTheme() {
         this.themeService.toggleTheme();
     }
