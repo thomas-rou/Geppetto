@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
-import { EndMissionRequest, RobotRequest, StartMissionRequest } from '@common/interfaces/request.interface';
-import { Command } from '@common/enums/command.enum';
+import { EndMissionRequest, RobotRequest, StartMissionRequest, MessageOperation } from '@common/interfaces/request.interface';
+import { Command, Topic, TopicType } from '@common/enums/command.enum';
 
 @Injectable()
 export class RobotService {
@@ -47,21 +47,21 @@ export class RobotService {
         };
     }
 
-    subscribeToTopic(topicName: string, messageType: string) {
+    subscribeToTopic(topicName: string, topicType: string) {
         const subscribeMessage = {
             op: 'subscribe',
             topic: topicName,
-            type: messageType,
-        };
+            type: topicType,
+        } as MessageOperation;
         this.ws.send(JSON.stringify(subscribeMessage));
         this.logger.log(`Subscription to topic ${topicName} of robot ${this.robotIp}`);
     }
 
-    publishToTopic(topicName: string, messageType: string, message: RobotRequest) {
-        const publishMessage = {
+    publishToTopic(topicName: Topic, topicType: TopicType, message: RobotRequest) {
+        const publishMessage: MessageOperation = {
             op: 'publish',
             topic: topicName,
-            type: messageType,
+            type: topicType,
             msg: message,
         };
         this.ws.send(JSON.stringify(publishMessage));
@@ -70,7 +70,7 @@ export class RobotService {
 
     // TODO: send real info comming from Frontend, to do so, needs parameters for this function and the one under
     startMission() {
-        this.publishToTopic('/start_mission_command', "common_msgs/msg/StartMission", {
+        this.publishToTopic(Topic.start_mission, TopicType.start_mission, {
                 command: Command.StartMission,
                 mission_details: {
                     orientation: 0.0,
@@ -85,7 +85,7 @@ export class RobotService {
     }
 
     stopMission() {
-        this.publishToTopic('stop_mission_command', "common_msgs/msg/StopMission", {
+        this.publishToTopic(Topic.stop_mission, TopicType.stop_mission, {
             command: Command.EndMission,
             timestamp: new Date().toISOString(),
         } as EndMissionRequest
