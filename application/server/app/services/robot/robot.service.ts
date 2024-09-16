@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
 import { EndMissionRequest, RobotRequest, StartMissionRequest, MessageOperation } from '@common/interfaces/request.interface';
-import { Command, Topic, TopicType } from '@common/enums/command.enum';
+import { Command, Operation, Topic, TopicType } from '@common/enums/command.enum';
 
 @Injectable()
 export class RobotService {
@@ -28,7 +28,7 @@ export class RobotService {
 
         this.ws.onmessage = (message) => {
             const data = JSON.parse(message.data);
-            this.logger.debug(`Message reçu du robot à ${this.robotIp}`, data);
+            this.logger.debug(`Message received from robot to ${this.robotIp}`, data);
         };
 
         this.ws.onerror = (error) => {
@@ -47,19 +47,19 @@ export class RobotService {
         };
     }
 
-    subscribeToTopic(topicName: string, topicType: string) {
-        const subscribeMessage = {
-            op: 'subscribe',
+    subscribeToTopic(topicName: Topic, topicType: TopicType) {
+        const subscribeMessage: MessageOperation = {
+            op: Operation.subscribe,
             topic: topicName,
             type: topicType,
-        } as MessageOperation;
+        };
         this.ws.send(JSON.stringify(subscribeMessage));
         this.logger.log(`Subscription to topic ${topicName} of robot ${this.robotIp}`);
     }
 
     publishToTopic(topicName: Topic, topicType: TopicType, message: RobotRequest) {
         const publishMessage: MessageOperation = {
-            op: 'publish',
+            op: Operation.publish,
             topic: topicName,
             type: topicType,
             msg: message,
