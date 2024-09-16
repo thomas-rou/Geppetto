@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
+import { EndMissionRequest, RobotRequest, StartMissionRequest } from '@common/interfaces/request.interface';
+import { Command } from '@common/enums/command.enum';
 
 @Injectable()
 export class RobotService {
@@ -55,7 +57,7 @@ export class RobotService {
         this.logger.log(`Subscription to topic ${topicName} of robot ${this.robotIp}`);
     }
 
-    publishToTopic(topicName: string, messageType: string, message: any) {
+    publishToTopic(topicName: string, messageType: string, message: RobotRequest) {
         const publishMessage = {
             op: 'publish',
             topic: topicName,
@@ -68,7 +70,7 @@ export class RobotService {
 
     startMission() {
         this.publishToTopic('/start_mission_command', "common_msgs/msg/StartMission", {
-                command: 'start_mission',
+                command: Command.StartMission,
                 mission_details: {
                     orientation: 0.0,
                     position: {
@@ -76,15 +78,16 @@ export class RobotService {
                         y: 0.0,
                     },
                 }, 
-                timestamp: 'ISO 8601',
-            }    
+                timestamp: new Date().toISOString(),
+            } as StartMissionRequest
         );
     }
 
     stopMission() {
         this.publishToTopic('stop_mission_command', "common_msgs/msg/StopMission", {
-            command: 'end_mission',
-            timestamp: 'ISO 8601',
-        });
+            command: Command.EndMission,
+            timestamp: new Date().toISOString(),
+        } as EndMissionRequest
+    );
     }
 }
