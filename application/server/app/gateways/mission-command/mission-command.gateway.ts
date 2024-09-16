@@ -5,6 +5,4 @@ import { Injectable, Logger } from '@nestjs/common';
 export class MissionCommandGateway {
     private readonly logger = new Logger(MissionCommandGateway.name);
     private simulator = new RobotService(process.env.SIMULATION_IP);
-    constructor() {
-    }
 }
