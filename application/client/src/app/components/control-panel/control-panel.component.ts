@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-control-panel',
@@ -7,34 +8,50 @@ import { RobotCommunicationService } from '@app/services/robot-communication/rob
     templateUrl: './control-panel.component.html',
     styleUrls: ['./control-panel.component.scss'],
 })
-export class ControlPanelComponent {
+export class ControlPanelComponent implements OnInit, OnDestroy {
+    private subscriptions: Subscription[] = [];
+
     constructor(private robotService: RobotCommunicationService) {}
 
-    startMission() {
-        this.robotService.startMission('north', { x: 0, y: 0 }).subscribe(
-            (response) => alert('Mission started!'),
-            (error) => console.error('Error starting mission', error),
+    ngOnInit(): void {
+        this.subscriptions.push(
+            this.robotService.onMissionStatus().subscribe(message => {
+                alert(message);
+            }),
+            this.robotService.onRobotIdentification().subscribe(message => {
+                alert(message); 
+            }),
+            this.robotService.onCommandError().subscribe(message => {
+                alert(`Error: ${message}`);
+            })
         );
+    }
+
+    startMission() {
+        try {
+            this.robotService.startMission(0, { x: 0, y: 0 });
+        } catch (error) {
+            console.error('Error starting mission', error);
+        }
     }
 
     stopMission() {
-        this.robotService.endMission().subscribe(
-            (response) => alert('Mission stopped!'),
-            (error) => console.error('Error stopping mission', error),
-        );
+        try {
+            this.robotService.endMission();
+        } catch (error) {
+            console.error('Error stopping mission', error);
+        }
     }
 
-    returnHome() {
-        this.robotService.returnToBase().subscribe(
-            (response) => alert('Returning home!'),
-            (error) => console.error('Error returning home', error),
-        );
+    identifyRobot(target: "1" | "2") {
+        try {
+            this.robotService.identifyRobot(target);
+        } catch (error) {
+            console.error('Error identifying robot', error);
+        }
     }
 
-    updateSoftware() {
-        this.robotService.updateControllerCode('new code here').subscribe(
-            (response) => alert('Software updated!'),
-            (error) => console.error('Error updating software', error),
-        );
+    ngOnDestroy(): void {
+        this.subscriptions.forEach(sub => sub.unsubscribe());
     }
 }

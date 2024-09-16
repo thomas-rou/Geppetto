@@ -86,4 +86,9 @@ export class RobotService {
             timestamp: 'ISO 8601',
         });
     }
+
+    identify() {
+        // TO DO
+        // Le robot fait un bruit, tourne, etc
+    }
 }

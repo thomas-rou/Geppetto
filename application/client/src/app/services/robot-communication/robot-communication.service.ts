@@ -1,77 +1,116 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { 
+    StartMission, 
+    EndMission, 
+    Update, 
+    ReturnToBase, 
+    UpdateControllerCode, 
+    P2PCommunication, 
+    IdentifyRobot, 
+    FindFurthestRobot 
+} from '@app/../../../SocketsEvents';
+import { RobotCommandFromInterface } from '@app/../../../SocketsEvents';
+import { Observable, Subject } from 'rxjs';
+import { io, Socket } from 'socket.io-client';
+
+
 
 @Injectable({
     providedIn: 'root',
 })
 export class RobotCommunicationService {
+    private socket: Socket;
     private apiUrl = 'http://localhost:3000/api';
 
-    constructor(private http: HttpClient) {}
+    private missionStatusSubject = new Subject<string>();
+    private robotIdentificationSubject = new Subject<string>();
+    private commandErrorSubject = new Subject<string>();
 
-    startMission(orientation: string, position: { x: number; y: number }): Observable<unknown> {
-        const body = {
-            command: 'start_mission',
-            mission_details: {
-                orientation,
-                position,
-            },
-            timestamp: new Date().toISOString(),
-        };
-        return this.http.post(this.apiUrl, body);
+    constructor() {
+        this.socket = io(this.apiUrl);
+
+        this.socket.on('missionStatus', (message: string) => {
+            this.missionStatusSubject.next(message);
+        });
+        this.socket.on('robotIdentification', (message: string) => {
+            this.robotIdentificationSubject.next(message);
+        });
+        this.socket.on('commandError', (message: string) => {
+            this.commandErrorSubject.next(message);
+        });
     }
 
-    endMission(): Observable<unknown> {
-        const body = {
-            command: 'end_mission',
-            timestamp: new Date().toISOString(),
-        };
-        return this.http.post(this.apiUrl, body);
+    onMissionStatus(): Observable<string> {
+        return this.missionStatusSubject.asObservable();
     }
 
-    updateRobot(name: string, status: string, position: { x: number; y: number }): Observable<unknown> {
-        const body = {
-            command: 'update',
-            name,
-            status,
-            position,
-            timestamp: new Date().toISOString(),
-        };
-        return this.http.post(this.apiUrl, body);
+    onRobotIdentification(): Observable<string> {
+        return this.robotIdentificationSubject.asObservable();
     }
 
-    returnToBase(): Observable<unknown> {
-        const body = {
-            command: 'return_to_base',
-            timestamp: new Date().toISOString(),
-        };
-        return this.http.post(this.apiUrl, body);
+    onCommandError(): Observable<string> {
+        return this.commandErrorSubject.asObservable();
     }
 
-    updateControllerCode(newCode: string): Observable<unknown> {
-        const body = {
-            command: 'update_controller_code',
-            code: newCode,
-            timestamp: new Date().toISOString(),
-        };
-        return this.http.post(this.apiUrl, body);
+    startMission(orientation: number, position: { x: number; y: number }): void {
+        const message = new StartMission("robots", orientation, position.x, position.y, new Date().toISOString());
+        this.socket.emit(RobotCommandFromInterface.StartMission, message);
     }
 
-    notifyRobotsToCommunicate(): Observable<unknown> {
-        const body = {
-            command: 'P2P',
-            timestamp: new Date().toISOString(),
-        };
-        return this.http.post(this.apiUrl, body);
+    endMission(): void {
+        const message = new EndMission("robots", new Date().toISOString());
+        this.socket.emit(RobotCommandFromInterface.EndMission, message);
     }
 
-    findFurthestRobot(relativePoint: { x: number; y: number }): Observable<unknown> {
-        const body = {
-            command: 'find_furthest',
-            relative_point: relativePoint,
-            timestamp: new Date().toISOString(),
-        };
-        return this.http.post(this.apiUrl, body);
+    startMissionGazebo(orientation: number, position: { x: number; y: number }): void {
+        const message = new StartMission("sim", orientation, position.x, position.y, new Date().toISOString());
+        this.socket.emit(RobotCommandFromInterface.StartMission, message);
+    }
+
+    endMissionGazebo(): void {
+        const message = new EndMission("sim", new Date().toISOString());
+        this.socket.emit(RobotCommandFromInterface.EndMission, message);
+    }
+
+    updateRobot(identifier: string, status: string, position: { x: number; y: number }): void {
+        const message = new Update(identifier, status, position.x, position.y, new Date().toISOString());
+        this.socket.emit(RobotCommandFromInterface.UpdateRobot, message);
+    }
+
+    returnToBase(): void {
+        const message = new ReturnToBase(new Date().toISOString());
+        this.socket.emit(RobotCommandFromInterface.ReturnToBase, message);
+    }
+
+    updateControllerCode(newCode: string): void {
+        const message = new UpdateControllerCode(newCode, new Date().toISOString());
+        this.socket.emit(RobotCommandFromInterface.UpdateControllerCode, message);
+    }
+
+    notifyRobotsToCommunicate(): void {
+        const message = new P2PCommunication(new Date().toISOString());
+        this.socket.emit(RobotCommandFromInterface.NotifyRobotsToCommunicate, message);
+    }
+
+    findFurthestRobot(relativePoint: { x: number; y: number }): void {
+        const message = new FindFurthestRobot(relativePoint.x, relativePoint.y, new Date().toISOString());
+        this.socket.emit(RobotCommandFromInterface.FindFurthestRobot, message);
+    }
+
+    identifyRobot(target: "1" | "2"): void {
+        const message = new IdentifyRobot(target);
+        this.socket.emit(RobotCommandFromInterface.IdentifyRobot, message);
+    }
+
+    onMessage(eventName: string): Observable<any> {
+        return new Observable(observer => {
+            this.socket.on(eventName, (data: any) => {
+                observer.next(data);
+            });
+        });
+    }
+
+    disconnect(): void {
+        this.socket.disconnect();
     }
 }
