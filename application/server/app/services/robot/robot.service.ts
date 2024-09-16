@@ -10,7 +10,7 @@ export class RobotService {
     private robotIp: string;
     private ws: WebSocket;
     private isSocketOpen: boolean = false;
-    constructor(robotIp) {
+    constructor(robotIp: string) {
         this.robotIp = robotIp;
         this.connect();
     }
