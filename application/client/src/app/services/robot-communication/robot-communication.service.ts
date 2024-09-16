@@ -7,9 +7,9 @@ import {
     UpdateControllerCode,
     P2PCommunication,
     IdentifyRobot,
-    FindFurthestRobot
-} from '@app/../../../SocketsEvents';
-import { RobotCommandFromInterface } from '@app/../../../SocketsEvents';
+    FindFurthestRobot,
+    RobotCommandFromInterface
+} from '@app/../../../common/SocketsEvents';
 import { Observable, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
