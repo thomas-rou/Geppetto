@@ -6,8 +6,8 @@ export interface RobotRequest {
 }
 
 export interface Position {
-  x: number,
-  y: number,
+  x: number;
+  y: number;
 }
 
 export interface StartMissionRequest extends RobotRequest {
