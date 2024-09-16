@@ -9,7 +9,7 @@ import {
     IdentifyRobot,
     FindFurthestRobot,
     RobotCommandFromInterface
-} from '@app/../../../common/SocketsEvents';
+} from '@common/SocketsEvents';
 import { Observable, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
@@ -53,12 +53,22 @@ export class RobotCommunicationService {
     }
 
     startMission(orientation: number, position: { x: number; y: number }): void {
-        const message = new StartMission("robots", orientation, position.x, position.y, new Date().toISOString());
+        this.startMissionRobot(orientation, position);
+        this.startMissionGazebo(orientation, position);
+    }
+
+    startMissionRobot(orientation: number, position: { x: number; y: number }): void {
+        const message = new StartMission("robot", orientation, position.x, position.y, new Date().toISOString());
         this.socket.emit(RobotCommandFromInterface.StartMission, message);
     }
 
     endMission(): void {
-        const message = new EndMission("robots", new Date().toISOString());
+        this.endMissionRobot();
+        this.endMissionGazebo();
+    }
+
+    endMissionRobot(): void {
+        const message = new EndMission("robot", new Date().toISOString());
         this.socket.emit(RobotCommandFromInterface.EndMission, message);
     }
 
