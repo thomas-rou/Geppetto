@@ -80,6 +80,7 @@ export class RobotService {
             }    
         );
     }
+
     stopMission() {
         this.publishToTopic('stop_mission_command', "common_msgs/msg/StopMission", {
             command: 'end_mission',
