@@ -5,11 +5,16 @@ export interface RobotRequest {
   timestamp: string;
 }
 
+export interface Position {
+  x: number,
+  y: number,
+}
+
 export interface StartMissionRequest extends RobotRequest {
   command: Command.StartMission;
   mission_details: {
-      orientation: string;
-      position: { x: number; y: number };
+      orientation: number;
+      position: Position;
   };
 }
 
@@ -21,7 +26,7 @@ export interface UpdateRobotRequest extends RobotRequest {
   command: Command.UpdateRobot;
   name: string;
   status: string;
-  position: { x: number; y: number };
+  position: Position;
 }
 
 export interface ReturnToBaseRequest extends RobotRequest {
@@ -39,5 +44,5 @@ export interface NotifyRobotsToCommunicateRequest extends RobotRequest {
 
 export interface FindFurthestRobotRequest extends RobotRequest {
   command: Command.FindFurthest;
-  relative_point: { x: number; y: number };
+  relative_point: Position;
 }
