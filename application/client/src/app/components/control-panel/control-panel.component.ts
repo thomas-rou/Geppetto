@@ -15,15 +15,15 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.subscriptions.push(
-            this.robotService.onMissionStatus().subscribe(message => {
+            this.robotService.onMissionStatus().subscribe((message) => {
                 alert(message);
             }),
-            this.robotService.onRobotIdentification().subscribe(message => {
-                alert(message); 
+            this.robotService.onRobotIdentification().subscribe((message) => {
+                alert(message);
             }),
-            this.robotService.onCommandError().subscribe(message => {
+            this.robotService.onCommandError().subscribe((message) => {
                 alert(`Error: ${message}`);
-            })
+            }),
         );
     }
 
@@ -43,7 +43,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
         }
     }
 
-    identifyRobot(target: "1" | "2") {
+    identifyRobot(target: '1' | '2') {
         try {
             this.robotService.identifyRobot(target);
         } catch (error) {
@@ -51,7 +51,23 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
         }
     }
 
+    returnHome() {
+        try {
+            this.robotService.returnToBase;
+        } catch (error) {
+            console.error('Error identifying robot', error);
+        }
+    }
+
+    updateSoftware() {
+        try {
+            this.robotService.updateControllerCode('new code here');
+        } catch (error) {
+            console.error('Error identifying robot', error);
+        }
+    }
+
     ngOnDestroy(): void {
-        this.subscriptions.forEach(sub => sub.unsubscribe());
+        this.subscriptions.forEach((sub) => sub.unsubscribe());
     }
 }

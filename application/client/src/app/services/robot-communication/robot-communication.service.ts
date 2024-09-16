@@ -1,17 +1,18 @@
 import { Injectable } from '@angular/core';
-import { 
-    StartMission, 
-    EndMission, 
-    Update, 
-    ReturnToBase, 
-    UpdateControllerCode, 
-    P2PCommunication, 
-    IdentifyRobot, 
-    FindFurthestRobot 
+import {
+    StartMission,
+    EndMission,
+    Update,
+    ReturnToBase,
+    UpdateControllerCode,
+    P2PCommunication,
+    IdentifyRobot,
+    FindFurthestRobot
 } from '@app/../../../SocketsEvents';
 import { RobotCommandFromInterface } from '@app/../../../SocketsEvents';
 import { Observable, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
+import { environment } from 'src/environments/environment';
 
 
 
@@ -20,14 +21,13 @@ import { io, Socket } from 'socket.io-client';
 })
 export class RobotCommunicationService {
     private socket: Socket;
-    private apiUrl = 'http://localhost:3000/api';
 
     private missionStatusSubject = new Subject<string>();
     private robotIdentificationSubject = new Subject<string>();
     private commandErrorSubject = new Subject<string>();
 
     constructor() {
-        this.socket = io(this.apiUrl);
+        this.socket = io(environment.serverUrlRoot, { transports: ['websocket'], upgrade: false });
 
         this.socket.on('missionStatus', (message: string) => {
             this.missionStatusSubject.next(message);
