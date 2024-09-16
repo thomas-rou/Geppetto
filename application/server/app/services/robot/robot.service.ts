@@ -68,6 +68,7 @@ export class RobotService {
         this.logger.log(`Publish message to topic ${topicName} of robot ${this.robotIp}:`);
     }
 
+    // TODO: send real info comming from Frontend, to do so, needs parameters for this function and the one under
     startMission() {
         this.publishToTopic('/start_mission_command', "common_msgs/msg/StartMission", {
                 command: Command.StartMission,
