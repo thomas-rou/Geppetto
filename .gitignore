@@ -2,11 +2,16 @@
 /.vscode/chrome
 /.vs/
 
-package-lock.json
+application/package-lock.json
 .DS_Store
 
 # Code Coverage Folder
-coverage/
+application/coverage/
 
 #Node Modules
-/node_modules
+application/node_modules
+
+# Build
+embedded_ws/build
+embedded_ws/install
+embedded_ws/log

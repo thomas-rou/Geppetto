@@ -7,7 +7,7 @@ This document is designed to clarify the communication API between Robots and Se
 {
     "command": "start_mission",
     "mission_details": {
-        "orientation": "<initial_orientation>",
+        "orientation": 0.0,
         "position": {
             "x": 0.0,
             "y": 0.0
