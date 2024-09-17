@@ -94,7 +94,7 @@ export class RobotService {
     }
 
     identify() {
-        // TO DO
-        // Le robot fait un bruit, tourne, etc
+        // TODO
+        // Robot spins right round and makes a sound
     }
 }
