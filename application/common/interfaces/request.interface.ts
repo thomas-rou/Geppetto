@@ -1,4 +1,4 @@
-import { Command, Topic, TopicType } from "../enums/command.enum";
+import { Command, Topic, TopicType, Operation } from "@common/enums/command.enum";
 
 export interface RobotRequest {
   command: Command;
@@ -46,8 +46,6 @@ export interface FindFurthestRobotRequest extends RobotRequest {
   command: Command.FindFurthest;
   relative_point: Position;
 }
-
-type Operation = "publish" | "subscribe";
 
 export interface MessageOperation {
   op: Operation;
