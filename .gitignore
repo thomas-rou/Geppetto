@@ -6,10 +6,10 @@ application/package-lock.json
 .DS_Store
 
 # Code Coverage Folder
-application/coverage/
+**/coverage/
 
-#Node Modules
-application/node_modules
+# Node Modules
+**/node_modules/
 
 # Build
 embedded_ws/build
