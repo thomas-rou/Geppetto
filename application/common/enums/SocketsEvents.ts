@@ -8,3 +8,18 @@ export enum RobotCommandFromInterface {
     NotifyRobotsToCommunicate = 'initiate_p2p',
     FindFurthestRobot = 'find_furthest'
 }
+
+export enum Operation {
+    publish = 'publish',
+    subscribe = 'subscribe',
+}
+
+export enum Topic {
+    start_mission = '/start_mission_command',
+    stop_mission = '/stop_mission_command',
+}
+
+export enum TopicType {
+    start_mission = 'common_msgs/msg/StartMission',
+    stop_mission = 'common_msgs/msg/StopMission',
+}

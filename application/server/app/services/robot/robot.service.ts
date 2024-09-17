@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
+import { EndMissionRequest, RobotRequest, StartMissionRequest, MessageOperation } from '@common/interfaces/request.interface';
+import { Command, Operation, Topic, TopicType } from '@common/enums/command.enum';
 
 @Injectable()
 export class RobotService {
@@ -10,7 +12,7 @@ export class RobotService {
     private robotIp: string;
     private ws: WebSocket;
     private isSocketOpen: boolean = false;
-    constructor(robotIp) {
+    constructor(robotIp: string) {
         this.robotIp = robotIp;
         this.connect();
     }
@@ -26,7 +28,7 @@ export class RobotService {
 
         this.ws.onmessage = (message) => {
             const data = JSON.parse(message.data);
-            this.logger.debug(`Message reçu du robot à ${this.robotIp}`, data);
+            this.logger.debug(`Message received from robot to ${this.robotIp}`, data);
         };
 
         this.ws.onerror = (error) => {
@@ -45,30 +47,31 @@ export class RobotService {
         };
     }
 
-    subscribeToTopic(topicName: string, messageType: string) {
-        const subscribeMessage = {
-            op: 'subscribe',
+    subscribeToTopic(topicName: Topic, topicType: TopicType) {
+        const subscribeMessage: MessageOperation = {
+            op: Operation.subscribe,
             topic: topicName,
-            type: messageType,
+            type: topicType,
         };
         this.ws.send(JSON.stringify(subscribeMessage));
         this.logger.log(`Subscription to topic ${topicName} of robot ${this.robotIp}`);
     }
 
-    publishToTopic(topicName: string, messageType: string, message: any) {
-        const publishMessage = {
-            op: 'publish',
+    publishToTopic(topicName: Topic, topicType: TopicType, message: RobotRequest) {
+        const publishMessage: MessageOperation = {
+            op: Operation.publish,
             topic: topicName,
-            type: messageType,
+            type: topicType,
             msg: message,
         };
         this.ws.send(JSON.stringify(publishMessage));
         this.logger.log(`Publish message to topic ${topicName} of robot ${this.robotIp}:`);
     }
 
+    // TODO: send real info comming from Frontend, to do so, needs parameters for this function and the one under
     startMission() {
-        this.publishToTopic('/start_mission_command', "common_msgs/msg/StartMission", {
-                command: 'start_mission',
+        this.publishToTopic(Topic.start_mission, TopicType.start_mission, {
+                command: Command.StartMission,
                 mission_details: {
                     orientation: 0.0,
                     position: {
@@ -76,15 +79,17 @@ export class RobotService {
                         y: 0.0,
                     },
                 }, 
-                timestamp: 'ISO 8601',
-            }    
+                timestamp: new Date().toISOString(),
+            } as StartMissionRequest
         );
     }
+
     stopMission() {
-        this.publishToTopic('stop_mission_command', "common_msgs/msg/StopMission", {
-            command: 'end_mission',
-            timestamp: 'ISO 8601',
-        });
+        this.publishToTopic(Topic.stop_mission, TopicType.stop_mission, {
+            command: Command.EndMission,
+            timestamp: new Date().toISOString(),
+        } as EndMissionRequest
+    );
     }
 
     identify() {
