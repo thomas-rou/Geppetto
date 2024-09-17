@@ -3,14 +3,21 @@
 import rclpy
 from rclpy.node import Node
 from common_msgs.msg import StartMission
-from std_msgs.msg import String
+from std_msgs.msg import String, Int64
 from geometry_msgs.msg import Twist
+import subprocess
 import json
 
 class ComServNode(Node):
     def __init__(self):
         super().__init__('com_serv')
 
+        self.identification_subscription = self.create_subscription(
+            Int64,
+            'identification_command',
+            self.identification_callback,
+            10
+        )
         # Abonnement au topic pour les messages de mission
         self.mission_subscription = self.create_subscription(
             StartMission,
@@ -19,7 +26,7 @@ class ComServNode(Node):
             10
         )
 
-        self.start_mission_order = self.create_publisher(Twist, 'cmd_vel', 10)
+        # self.start_mission_order = self.create_publisher(Twist, 'cmd_vel', 10)
         # msg_to_send = String()
         # msg_to_send.data = 'Ok'
         # self.update.publish(msg_to_send)
@@ -46,6 +53,10 @@ class ComServNode(Node):
         twist_msg.angular.z = 1.8
         
         self.start_mission_order.publish(twist_msg)
+    
+    def identification_callback(self, msg):
+        command = ["mpg123", "sounds/tp_pas_heure.mp3"]
+        subprocess.run(command)
 
 
     def destroy_node(self):
