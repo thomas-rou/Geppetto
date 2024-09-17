@@ -26,6 +26,7 @@ export class RobotService {
             this.startMission();
         };
 
+        // TODO put types for the messages and errors that will come from robots
         this.ws.onmessage = (message) => {
             const data = JSON.parse(message.data);
             this.logger.debug(`Message received from robot to ${this.robotIp}`, data);
