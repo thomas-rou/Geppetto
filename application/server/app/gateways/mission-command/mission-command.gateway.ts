@@ -1,4 +1,7 @@
-import {RobotCommandFromInterface, StartMission, EndMission, IdentifyRobot } from '@app/Interfaces/SocketsEvents';
+import {RobotCommandFromInterface } from '@app/../../common/enums/SocketsEvents';
+import { EndMission } from '@app/../../common/interfaces/EndMission';
+import { StartMission } from '@app/../../common/interfaces/StartMission';
+import { IdentifyRobot } from '@app/../../common/interfaces/IdentifyRobot';
 import { RobotService } from '@app/services/robot/robot.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';

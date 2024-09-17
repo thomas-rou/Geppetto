@@ -1,20 +1,16 @@
 import { Injectable } from '@angular/core';
-import {
-    StartMission,
-    EndMission,
-    Update,
-    ReturnToBase,
-    UpdateControllerCode,
-    P2PCommunication,
-    IdentifyRobot,
-    FindFurthestRobot,
-    RobotCommandFromInterface
-} from '@common/SocketsEvents';
+import { RobotCommandFromInterface } from '@app/../../../common/enums/SocketsEvents';
+import { EndMission } from '@app/../../../common/interfaces/EndMission';
+import { StartMission } from '@app/../../../common/interfaces/StartMission';
+import { IdentifyRobot } from '@app/../../../common/interfaces/IdentifyRobot';
+import { UpdateRobot } from '@app/../../../common/interfaces/UpdateRobot';
+import { ReturnToBase } from '@app/../../../common/interfaces/ReturnToBase';
+import { UpdateControllerCode } from '@app/../../../common/interfaces/UpdateControllerCode';
+import { NotifyRobotsToCommunicate } from '@app/../../../common/interfaces/NotifyRobotsToCommunicate';
+import { FindFurthestRobot } from '@app/../../../common/interfaces/FindFurthestRobot';
 import { Observable, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
-
-
 
 @Injectable({
     providedIn: 'root',
@@ -58,7 +54,15 @@ export class RobotCommunicationService {
     }
 
     startMissionRobot(orientation: number, position: { x: number; y: number }): void {
-        const message = new StartMission("robot", orientation, position.x, position.y, new Date().toISOString());
+        const message: StartMission = {
+            command: "start_mission",
+            target: "robot",
+            mission_details: {
+                orientation,
+                position
+            },
+            timestamp: new Date().toISOString()
+        };
         this.socket.emit(RobotCommandFromInterface.StartMission, message);
     }
 
@@ -68,47 +72,86 @@ export class RobotCommunicationService {
     }
 
     endMissionRobot(): void {
-        const message = new EndMission("robot", new Date().toISOString());
+        const message: EndMission = {
+            command: "end_mission",
+            target: "robot",
+            timestamp: new Date().toISOString()
+        };
         this.socket.emit(RobotCommandFromInterface.EndMission, message);
     }
 
     startMissionGazebo(orientation: number, position: { x: number; y: number }): void {
-        const message = new StartMission("sim", orientation, position.x, position.y, new Date().toISOString());
+        const message: StartMission = {
+            command: "start_mission",
+            target: "sim",
+            mission_details: {
+                orientation,
+                position
+            },
+            timestamp: new Date().toISOString()
+        };
         this.socket.emit(RobotCommandFromInterface.StartMission, message);
     }
 
     endMissionGazebo(): void {
-        const message = new EndMission("sim", new Date().toISOString());
+        const message: EndMission = {
+            command: "end_mission",
+            target: "sim",
+            timestamp: new Date().toISOString()
+        };
         this.socket.emit(RobotCommandFromInterface.EndMission, message);
     }
 
     updateRobot(identifier: string, status: string, position: { x: number; y: number }): void {
-        const message = new Update(identifier, status, position.x, position.y, new Date().toISOString());
+        const message: UpdateRobot = {
+            command: "update",
+            identifier,
+            status,
+            position,
+            timestamp: new Date().toISOString()
+        };
         this.socket.emit(RobotCommandFromInterface.UpdateRobot, message);
     }
 
     returnToBase(): void {
-        const message = new ReturnToBase(new Date().toISOString());
+        const message: ReturnToBase = {
+            command: "return_to_base",
+            timestamp: new Date().toISOString()
+        };
         this.socket.emit(RobotCommandFromInterface.ReturnToBase, message);
     }
 
     updateControllerCode(newCode: string): void {
-        const message = new UpdateControllerCode(newCode, new Date().toISOString());
+        const message: UpdateControllerCode = {
+            command: "update_controller_code",
+            code: newCode,
+            timestamp: new Date().toISOString()
+        };
         this.socket.emit(RobotCommandFromInterface.UpdateControllerCode, message);
     }
 
     notifyRobotsToCommunicate(): void {
-        const message = new P2PCommunication(new Date().toISOString());
+        const message: NotifyRobotsToCommunicate = {
+            command: "P2P",
+            timestamp: new Date().toISOString()
+        };
         this.socket.emit(RobotCommandFromInterface.NotifyRobotsToCommunicate, message);
     }
 
     findFurthestRobot(relativePoint: { x: number; y: number }): void {
-        const message = new FindFurthestRobot(relativePoint.x, relativePoint.y, new Date().toISOString());
+        const message: FindFurthestRobot = {
+            command: "find_furthest",
+            relative_point: relativePoint,
+            timestamp: new Date().toISOString()
+        };
         this.socket.emit(RobotCommandFromInterface.FindFurthestRobot, message);
     }
 
     identifyRobot(target: "1" | "2"): void {
-        const message = new IdentifyRobot(target);
+        const message: IdentifyRobot = {
+            command: "identify_robot",
+            target
+        };
         this.socket.emit(RobotCommandFromInterface.IdentifyRobot, message);
     }
 
