@@ -5,9 +5,6 @@ import { Command, Operation, Topic, TopicType } from '@common/enums/SocketsEvent
 
 @Injectable()
 export class RobotService {
-    private readonly DELAY_TIME: number = 5000;
-    private readonly CONNECTION_TIMEOUT: number = 60000;
-    private intervalId: NodeJS.Timeout;
     private readonly logger: Logger = new Logger(RobotService.name);
     private robotIp: string;
     private ws: WebSocket;
@@ -21,9 +18,9 @@ export class RobotService {
         this.ws = new WebSocket(`ws://${this.robotIp}:${process.env.ROS_BRIDGING_PORT}`);
 
         this.ws.onopen = () => {
+            this.isSocketOpen = true;
             this.logger.log(`Connection established to robot ${this.robotIp}`);
             this.isSocketOpen = true;
-            this.startMission();
         };
 
         // TODO put types for the messages and errors that will come from robots
@@ -35,12 +32,6 @@ export class RobotService {
         this.ws.onerror = (error) => {
             this.logger.log(`Error occurred on robot  ${this.robotIp}: ${error.message}`);
             this.isSocketOpen = false;
-            this.intervalId = setTimeout(() => {
-                this.connect();
-            }, this.DELAY_TIME);
-            setTimeout(() => {
-                clearInterval(this.intervalId);
-            }, this.CONNECTION_TIMEOUT);
         };
 
         this.ws.onclose = () => {
@@ -49,6 +40,8 @@ export class RobotService {
     }
 
     subscribeToTopic(topicName: Topic, topicType: TopicType) {
+        if (!this.isSocketOpen) this.connect();
+
         const subscribeMessage: MessageOperation = {
             op: Operation.subscribe,
             topic: topicName,
@@ -59,6 +52,9 @@ export class RobotService {
     }
 
     publishToTopic(topicName: Topic, topicType: TopicType, message: RobotRequest) {
+        if (!this.isSocketOpen) {
+            this.connect();
+        }
         const publishMessage: MessageOperation = {
             op: Operation.publish,
             topic: topicName,
@@ -72,29 +68,26 @@ export class RobotService {
     // TODO: send real info comming from Frontend, to do so, needs parameters for this function and the one under
     startMission() {
         this.publishToTopic(Topic.start_mission, TopicType.start_mission, {
-                command: Command.StartMission,
-                mission_details: {
-                    orientation: 0.0,
-                    position: {
-                        x: 0.0,
-                        y: 0.0,
-                    },
-                }, 
-                timestamp: new Date().toISOString(),
-            } as StartMissionRequest
-        );
+            command: Command.StartMission,
+            mission_details: {
+                orientation: 0.0,
+                position: {
+                    x: 0.0,
+                    y: 0.0,
+                },
+            },
+            timestamp: new Date().toISOString(),
+        } as StartMissionRequest);
     }
 
     stopMission() {
         this.publishToTopic(Topic.stop_mission, TopicType.stop_mission, {
             command: Command.EndMission,
             timestamp: new Date().toISOString(),
-        } as EndMissionRequest
-    );
+        } as EndMissionRequest);
     }
 
     identify() {
-        // TO DO
-        // Le robot fait un bruit, tourne, etc
+        this.logger.log('Identify robot command received from client');
     }
 }
