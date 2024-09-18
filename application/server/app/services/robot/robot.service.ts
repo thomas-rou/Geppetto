@@ -89,5 +89,9 @@ export class RobotService {
 
     identify() {
         this.logger.log('Identify robot command received from client');
+        this.publishToTopic(Topic.identify_command, TopicType.identify_robot, {
+            command: Command.Identify,
+            timestamp: new Date().toISOString(),
+        } as RobotRequest);
     }
 }
