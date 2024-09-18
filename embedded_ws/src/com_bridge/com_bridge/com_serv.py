@@ -44,6 +44,7 @@ class ComServNode(Node):
             "command": msg.command,
             "timestamp": msg.timestamp
         }
+        json_str = json.dumps(json_data)
         if self.timer_active:
             self.destroy_timer(self.timer)  # Stop the timer
             self.timer_active = False
@@ -70,7 +71,7 @@ class ComServNode(Node):
         command = ["mpg123", "sounds/tp_pas_heure.mp3"]
         subprocess.run(command)
     
-    def timer_callback():
+    def timer_callback(self):
         twist_msg = Twist()
         twist_msg.linear.x = 0.0
         twist_msg.linear.y = 0.0
