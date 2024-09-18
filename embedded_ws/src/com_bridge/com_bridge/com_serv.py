@@ -14,7 +14,7 @@ class ComServNode(Node):
 
         self.identification_subscription = self.create_subscription(
             Int64,
-            'identification_command',
+            'identify_command',
             self.identification_callback,
             10
         )
