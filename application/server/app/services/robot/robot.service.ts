@@ -13,30 +13,34 @@ export class RobotService {
         this.connect();
     }
 
-    connect() {
-        this.ws = new WebSocket(`ws://${this.robotIp}:${process.env.ROS_BRIDGING_PORT}`);
+    async connect() {
+        return new Promise<void>((resolve, reject) => {
+            this.ws = new WebSocket(`ws://${this.robotIp}:${process.env.ROS_BRIDGING_PORT}`);
 
-        this.ws.onopen = () => {
-            this.logger.log(`Connection established to robot ${this.robotIp}`);
-        };
+            this.ws.onopen = () => {
+                this.logger.log(`Connection established to robot ${this.robotIp}`);
+                resolve();
+            };
 
-        // TODO put types for the messages and errors that will come from robots
-        this.ws.onmessage = (message) => {
-            const data = JSON.parse(message.data);
-            this.logger.debug(`Message received from robot to ${this.robotIp}`, data);
-        };
+            this.ws.onerror = (error) => {
+                this.logger.error(`WebSocket error: ${error}`);
+            };
 
-        this.ws.onerror = (error) => {
-            this.logger.log(`Error occurred on robot  ${this.robotIp}: ${error.message}`);
-        };
-
-        this.ws.onclose = () => {
-            this.logger.log(`Connection to robot ${this.robotIp} closed`);
-        };
+            this.ws.onclose = () => {
+                this.logger.log(`WebSocket connection closed`);
+            };
+        });
     }
 
-    subscribeToTopic(topicName: Topic, topicType: TopicType) {
-        if (!this.ws.readyState) this.connect();
+    async subscribeToTopic(topicName: Topic, topicType: TopicType) {
+        if (this.ws.readyState === WebSocket.CLOSED) {
+            try {
+                await this.connect();
+            } catch (error) {
+                this.logger.error(`Error connecting to robot ${this.robotIp}`);
+                return;
+            }
+        }
 
         const subscribeMessage: MessageOperation = {
             op: Operation.subscribe,
@@ -47,9 +51,14 @@ export class RobotService {
         this.logger.log(`Subscription to topic ${topicName} of robot ${this.robotIp}`);
     }
 
-    publishToTopic(topicName: Topic, topicType: TopicType, message: RobotRequest) {
-        if (!this.ws.readyState) {
-            this.connect();
+    async publishToTopic(topicName: Topic, topicType: TopicType, message: RobotRequest) {
+        if (this.ws.readyState === WebSocket.CLOSED) {
+            try {
+                await this.connect();
+            } catch (error) {
+                this.logger.error(`Error connecting to robot ${this.robotIp}`);
+                return;
+            }
         }
         const publishMessage: MessageOperation = {
             op: Operation.publish,
@@ -83,12 +92,12 @@ export class RobotService {
         } as EndMissionRequest);
     }
 
-    identify(target: "1" | "2") {
+    identify(target: '1' | '2') {
         var topicCommand;
         this.logger.log('Identify robot command received from client');
-        if(target === "1") {
+        if (target === '1') {
             topicCommand = Topic.identify_command1;
-        } else if(target === "2") {
+        } else if (target === '2') {
             topicCommand = Topic.identify_command2;
         }
         this.publishToTopic(topicCommand, TopicType.identify_robot, {
