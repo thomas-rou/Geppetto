@@ -18,18 +18,41 @@ class ComServNode(Node):
             self.identification_callback,
             10
         )
-        # Abonnement au topic pour les messages de mission
-        self.mission_subscription = self.create_subscription(
+
+        self.start_mission_subscription = self.create_subscription(
             StartMission,
             'start_mission_command',
             self.start_mission_callback,
             10
         )
 
-        # self.start_mission_order = self.create_publisher(Twist, 'cmd_vel', 10)
-        # msg_to_send = String()
-        # msg_to_send.data = 'Ok'
-        # self.update.publish(msg_to_send)
+        self.stop_mission_subscription = self.create_subscription(
+            StopMission,
+            'stop_mission_command',
+            self.stop_mission_callback,
+            10
+        )
+
+        self.mission_mouvements = self.create_publisher(Twist, 'cmd_vel', 10)
+
+        self.timer_period = 0.5  # Timer period in seconds
+        self.timer = None
+        self.timer_active = False
+
+    def stop_mission_callback(self, msg):
+        json_data = {
+            "command": msg.command,
+            "orientation": msg.mission_details.orientation,
+            "position": {
+                "x": msg.mission_details.position.x,
+                "y": msg.mission_details.position.y
+            },
+            "timestamp": msg.timestamp
+        }
+        if self.timer_active:
+            self.destroy_timer(self.timer)  # Stop the timer
+            self.timer_active = False
+            self.get_logger().info('Mission stopped')
 
     def start_mission_callback(self, msg):
         json_data = {
@@ -41,22 +64,27 @@ class ComServNode(Node):
             },
             "timestamp": msg.timestamp
         }
-        json_str = json.dumps(json_data)
-        self.get_logger().info(f'Sending message: {json_str}')
 
+        if not self.timer_active:
+            self.timer = self.create_timer(self.timer_period, self.timer_callback)
+            self.timer_active = True
+        json_str = json.dumps(json_data)
+        self.get_logger().info(f'Starting Mission: {json_str}')
+    
+    def identification_callback(self, msg):
+        command = ["mpg123", "sounds/tp_pas_heure.mp3"]
+        subprocess.run(command)
+    
+    def timer_callback():
         twist_msg = Twist()
-        twist_msg.linear.x = 0.1
+        twist_msg.linear.x = 0.0
         twist_msg.linear.y = 0.0
         twist_msg.linear.z = 0.0
         twist_msg.angular.x = 0.0
         twist_msg.angular.y = 0.0
         twist_msg.angular.z = 1.8
         
-        self.start_mission_order.publish(twist_msg)
-    
-    def identification_callback(self, msg):
-        command = ["mpg123", "sounds/tp_pas_heure.mp3"]
-        subprocess.run(command)
+        self.mission_mouvements.publish(twist_msg)
 
 
     def destroy_node(self):
