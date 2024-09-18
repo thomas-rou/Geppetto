@@ -15,7 +15,7 @@ class ComServNode(Node):
         self.get_logger().info(f'Server Launched waiting for messages')
         self.identification_subscription = self.create_subscription(
             IdentifyRobot,
-            f'{os.get_env('ROBOT')}/identify_command',
+            f"{os.get_env('ROBOT')}/identify_command",
             self.identification_callback,
             10
         )
