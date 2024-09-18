@@ -21,6 +21,7 @@ export class RobotCommunicationService {
     private missionStatusSubject = new Subject<string>();
     private robotIdentificationSubject = new Subject<string>();
     private commandErrorSubject = new Subject<string>();
+    private connectionStatusSubject = new Subject<boolean>();
 
     constructor() {
         this.socket = io(environment.serverUrlRoot, { transports: ['websocket'], upgrade: false });
@@ -33,6 +34,17 @@ export class RobotCommunicationService {
         });
         this.socket.on('commandError', (message: string) => {
             this.commandErrorSubject.next(message);
+        });
+
+        
+        this.socket.on('connect', () => {
+            console.log('WebSocket connection established');
+            this.connectionStatusSubject.next(true); 
+        });
+
+        this.socket.on('disconnect', () => {
+            console.log('WebSocket connection lost');
+            this.connectionStatusSubject.next(false);
         });
     }
 
@@ -48,9 +60,13 @@ export class RobotCommunicationService {
         return this.commandErrorSubject.asObservable();
     }
 
+    onConnectionStatus(): Observable<boolean> {
+        return this.connectionStatusSubject.asObservable();
+    }
+
     startMission(orientation: number, position: { x: number; y: number }): void {
         this.startMissionRobot(orientation, position);
-        this.startMissionGazebo(orientation, position);
+        //this.startMissionGazebo(orientation, position);
     }
 
     startMissionRobot(orientation: number, position: { x: number; y: number }): void {
@@ -68,7 +84,7 @@ export class RobotCommunicationService {
 
     endMission(): void {
         this.endMissionRobot();
-        this.endMissionGazebo();
+        //this.endMissionGazebo();
     }
 
     endMissionRobot(): void {
@@ -81,25 +97,11 @@ export class RobotCommunicationService {
     }
 
     startMissionGazebo(orientation: number, position: { x: number; y: number }): void {
-        const message: StartMission = {
-            command: "start_mission",
-            target: "simulation",
-            mission_details: {
-                orientation,
-                position
-            },
-            timestamp: new Date().toISOString()
-        };
-        this.socket.emit(RobotCommandFromInterface.StartMission, message);
+        //TODO
     }
 
     endMissionGazebo(): void {
-        const message: EndMission = {
-            command: "end_mission",
-            target: "simulation",
-            timestamp: new Date().toISOString()
-        };
-        this.socket.emit(RobotCommandFromInterface.EndMission, message);
+        //TODO
     }
 
     updateRobot(identifier: string, status: string, position: { x: number; y: number }): void {

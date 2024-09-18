@@ -61,10 +61,7 @@ export class MissionCommandGateway {
                 this.logger.error('Invalid mission start command');
                 this.server.emit('commandError', 'Invalid start mission command');
             }
-        } else {
-            client.emit('commandError', 'The system is already being controlled')
         }
-
     }
     
     @SubscribeMessage(RobotCommandFromInterface.EndMission)
