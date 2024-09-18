@@ -2,7 +2,7 @@
 
 import rclpy
 from rclpy.node import Node
-from common_msgs.msg import StartMission
+from common_msgs.msg import StartMission, StopMission, IdentifyRobot
 from std_msgs.msg import String, Int64
 from geometry_msgs.msg import Twist
 import subprocess
@@ -13,7 +13,7 @@ class ComServNode(Node):
         super().__init__('com_serv')
 
         self.identification_subscription = self.create_subscription(
-            Int64,
+            IdentifyRobot,
             'identify_command',
             self.identification_callback,
             10
