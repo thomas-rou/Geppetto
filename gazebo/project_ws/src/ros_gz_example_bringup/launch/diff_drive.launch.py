@@ -61,7 +61,10 @@ def generate_launch_description():
         parameters=[
             {'use_sim_time': True},
             {'robot_description': robot_desc},
+        ],remappings=[
+            ('/robot_description', '/robot_description1')
         ]
+        
     )
 
     spawn_entity = Node(
@@ -69,7 +72,7 @@ def generate_launch_description():
         executable='create',
         output='screen',
         arguments=[
-            '-topic', "/robot_description",
+            '-topic', "/robot_description1",
             '-name', "limo_diff_drive",
             '-z', "0.28",
             '-x', "0",
@@ -91,7 +94,10 @@ def generate_launch_description():
         output='both',
         parameters=[
             {'use_sim_time': True},
-            {'robot_description': robot_desc},
+            {'robot_description': robot_desc2},
+        ],
+        remappings=[
+            ('/robot_description', '/robot_description2')
         ]
     )
 
@@ -100,7 +106,7 @@ def generate_launch_description():
         executable='create',
         output='screen',
         arguments=[
-            '-topic', "/robot_description",
+            '-topic', "/robot_description2",
             '-name', "limo_diff_drive2",
             '-z', "0.28",
             '-x', "0",

@@ -1,8 +1,10 @@
 <sdf version='1.9'>
     <model name='limo_four_diff'>
-        <plugin filename="libignition-gazebo-imu-system.so" name="ignition::gazebo::systems::Imu"/>
-        <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher"/>
-        <plugin filename="ignition-gazebo-pose-publisher-system" name="ignition::gazebo::systems::PosePublisher">
+        <plugin filename="libignition-gazebo-imu-system.so" name="ignition::gazebo::systems::Imu" />
+        <plugin filename="ignition-gazebo-joint-state-publisher-system"
+            name="ignition::gazebo::systems::JointStatePublisher" />
+        <plugin filename="ignition-gazebo-pose-publisher-system"
+            name="ignition::gazebo::systems::PosePublisher">
             <publish_link_pose>true</publish_link_pose>
             <use_pose_vector_msg>true</use_pose_vector_msg>
             <static_publisher>true</static_publisher>
@@ -88,7 +90,8 @@
                     </cylinder>
                 </geometry>
             </visual>
-            <!--visual name='base_footprint_fixed_joint_lump__base_link_visual'>
+            <!--visual
+            name='base_footprint_fixed_joint_lump__base_link_visual'>
                 <pose>0 0 0 0 0 1.57</pose>
                 <geometry>
                     <mesh>
@@ -244,7 +247,8 @@
                 <geometry>
                     <mesh>
                         <scale>1 1 1</scale>
-                        <uri>package://ros_gz_example_description/models/limo_diff_drive2/meshes/limo_wheel.dae</uri>
+                        <uri>
+                            package://ros_gz_example_description/models/limo_diff_drive2/meshes/limo_wheel.dae</uri>
                     </mesh>
                 </geometry>
             </visual>
@@ -301,7 +305,8 @@
                 <geometry>
                     <mesh>
                         <scale>1 1 1</scale>
-                        <uri>package://ros_gz_example_description/models/limo_diff_drive2/meshes/limo_wheel.dae</uri>
+                        <uri>
+                            package://ros_gz_example_description/models/limo_diff_drive2/meshes/limo_wheel.dae</uri>
                     </mesh>
                 </geometry>
             </visual>
@@ -358,7 +363,8 @@
                 <geometry>
                     <mesh>
                         <scale>1 1 1</scale>
-                        <uri>package://ros_gz_example_description/models/limo_diff_drive2/meshes/limo_wheel.dae</uri>
+                        <uri>
+                            package://ros_gz_example_description/models/limo_diff_drive2/meshes/limo_wheel.dae</uri>
                     </mesh>
                 </geometry>
             </visual>
@@ -415,12 +421,14 @@
                 <geometry>
                     <mesh>
                         <scale>1 1 1</scale>
-                        <uri>package://ros_gz_example_description/models/limo_diff_drive2/meshes/limo_wheel.dae</uri>
+                        <uri>
+                            package://ros_gz_example_description/models/limo_diff_drive2/meshes/limo_wheel.dae</uri>
                     </mesh>
                 </geometry>
             </visual>
         </link>
-        <plugin filename="ignition-gazebo-diff-drive-system" name="ignition::gazebo::systems::DiffDrive">
+        <plugin filename="ignition-gazebo-diff-drive-system"
+            name="ignition::gazebo::systems::DiffDrive">
             <topic>limo2/cmd_vel</topic>
             <!--odom_topic>limo2/odom</odom_topic-->
             <left_joint>front_left_wheel2</left_joint>
@@ -441,26 +449,27 @@
         <frame name='depth_camera_to_camera_joint' attached_to='depth_camera_link'>
             <pose>0 0 0 0 -0 0</pose>
         </frame>
-        <frame name='depth_link' attached_to='depth_camera_to_camera_joint'/>
+        <frame name='depth_link' attached_to='depth_camera_to_camera_joint' />
         <frame name='depth_camera_joint' attached_to='base_link'>
             <pose>0.084 0 0.03 0 -0 0</pose>
         </frame>
-        <frame name='depth_camera_link' attached_to='depth_camera_joint'/>
-        <frame name='imu_link' attached_to='base_footprint'/>
+        <frame name='depth_camera_link' attached_to='depth_camera_joint' />
+        <frame name='imu_link' attached_to='base_footprint' />
         <frame name='inertial_joint' attached_to='base_link'>
             <pose>0 0 0 0 0 0</pose>
         </frame>
-        <frame name='inertial_link' attached_to='inertial_joint'/>
+        <frame name='inertial_link' attached_to='inertial_joint' />
         <frame name='laser_joint' attached_to='base_link'>
             <pose>0.103 0 -0.034 0 -0 0</pose>
         </frame>
-        <frame name='laser_link' attached_to='laser_joint'/>
+        <frame name='laser_link' attached_to='laser_joint' />
         <frame name='base_joint' attached_to='base_footprint'>
             <pose>0 0 0.15 0 -0 0</pose>
         </frame>
-        <frame name='base_link' attached_to='base_joint'/>
-        
-        <plugin filename="ignition-gazebo-odometry-publisher-system" name="ignition::gazebo::systems::OdometryPublisher">
+        <frame name='base_link' attached_to='base_joint' />
+
+        <plugin filename="ignition-gazebo-odometry-publisher-system"
+            name="ignition::gazebo::systems::OdometryPublisher">
             <odom_frame>limo/odom</odom_frame>
             <robot_base_frame>limo</robot_base_frame>
             <odom_topic>limo/odom</odom_topic>
