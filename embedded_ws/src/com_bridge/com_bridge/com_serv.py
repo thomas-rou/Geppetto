@@ -12,7 +12,7 @@ import json
 class ComServNode(Node):
     def __init__(self):
         super().__init__('com_serv')
-
+        self.get_logger().info(f'Server Launched waiting for messages')
         self.identification_subscription = self.create_subscription(
             IdentifyRobot,
             f'{os.get_env('ROBOT')}/identify_command',
