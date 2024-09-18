@@ -8,7 +8,6 @@ export class RobotService {
     private readonly logger: Logger = new Logger(RobotService.name);
     private robotIp: string;
     private ws: WebSocket;
-    private isSocketOpen: boolean = false;
     constructor(robotIp: string) {
         this.robotIp = robotIp;
         this.connect();
@@ -18,9 +17,7 @@ export class RobotService {
         this.ws = new WebSocket(`ws://${this.robotIp}:${process.env.ROS_BRIDGING_PORT}`);
 
         this.ws.onopen = () => {
-            this.isSocketOpen = true;
             this.logger.log(`Connection established to robot ${this.robotIp}`);
-            this.isSocketOpen = true;
         };
 
         // TODO put types for the messages and errors that will come from robots
@@ -31,7 +28,6 @@ export class RobotService {
 
         this.ws.onerror = (error) => {
             this.logger.log(`Error occurred on robot  ${this.robotIp}: ${error.message}`);
-            this.isSocketOpen = false;
         };
 
         this.ws.onclose = () => {
@@ -40,7 +36,7 @@ export class RobotService {
     }
 
     subscribeToTopic(topicName: Topic, topicType: TopicType) {
-        if (!this.isSocketOpen) this.connect();
+        if (!this.ws.readyState) this.connect();
 
         const subscribeMessage: MessageOperation = {
             op: Operation.subscribe,
@@ -52,7 +48,7 @@ export class RobotService {
     }
 
     publishToTopic(topicName: Topic, topicType: TopicType, message: RobotRequest) {
-        if (!this.isSocketOpen) {
+        if (!this.ws.readyState) {
             this.connect();
         }
         const publishMessage: MessageOperation = {
@@ -87,9 +83,15 @@ export class RobotService {
         } as EndMissionRequest);
     }
 
-    identify() {
+    identify(target: "1" | "2") {
+        var topicCommand;
         this.logger.log('Identify robot command received from client');
-        this.publishToTopic(Topic.identify_command, TopicType.identify_robot, {
+        if(target === "1") {
+            topicCommand = Topic.identify_command1;
+        } else if(target === "2") {
+            topicCommand = Topic.identify_command2;
+        }
+        this.publishToTopic(topicCommand, TopicType.identify_robot, {
             command: Command.Identify,
             timestamp: new Date().toISOString(),
         } as RobotRequest);

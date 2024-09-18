@@ -98,10 +98,10 @@ export class MissionCommandGateway {
             //Executing command
             if(payload.target === "1") {
                 this.logger.log('Identify robot 1 command received from client');
-                this.robot1.identify();
+                this.robot1.identify(payload.target);
             } else if(payload.target === "2") {
                 this.logger.log('Identify robot 2 command received from client');
-                this.robot2.identify();
+                this.robot2.identify(payload.target);
             }
             this.server.emit('robotIdentification', 'Robot was identified');
         } else {
