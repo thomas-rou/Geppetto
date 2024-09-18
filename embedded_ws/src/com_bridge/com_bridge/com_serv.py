@@ -46,10 +46,10 @@ class ComServNode(Node):
             "timestamp": msg.timestamp
         }
         json_str = json.dumps(json_data)
+        self.get_logger().info('Mission stopped')
         if self.timer_active:
             self.destroy_timer(self.timer)  # Stop the timer
             self.timer_active = False
-            self.get_logger().info('Mission stopped')
 
     def start_mission_callback(self, msg):
         json_data = {
@@ -69,6 +69,7 @@ class ComServNode(Node):
         self.get_logger().info(f'Starting Mission: {json_str}')
     
     def identification_callback(self, msg):
+        self.get_logger().info(f'identification')
         command = ["mpg123", "sounds/tp_pas_heure.mp3"]
         subprocess.run(command)
     
