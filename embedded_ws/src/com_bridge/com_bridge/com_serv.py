@@ -42,11 +42,6 @@ class ComServNode(Node):
     def stop_mission_callback(self, msg):
         json_data = {
             "command": msg.command,
-            "orientation": msg.mission_details.orientation,
-            "position": {
-                "x": msg.mission_details.position.x,
-                "y": msg.mission_details.position.y
-            },
             "timestamp": msg.timestamp
         }
         if self.timer_active:
@@ -57,6 +52,11 @@ class ComServNode(Node):
     def start_mission_callback(self, msg):
         json_data = {
             "command": msg.command,
+            "orientation": msg.mission_details.orientation,
+            "position": {
+                "x": msg.mission_details.position.x,
+                "y": msg.mission_details.position.y
+            },
             "timestamp": msg.timestamp
         }
 
