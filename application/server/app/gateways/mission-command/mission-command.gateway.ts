@@ -19,8 +19,8 @@ export class MissionCommandGateway {
     private controllingClient: Socket | null = null;
 
     constructor() {
-        this.robot1 =  new RobotService(process.env.ROBOT1_IP);
-        this.robot2 =   new RobotService(process.env.ROBOT2_IP);
+        this.robot1 = new RobotService(process.env.ROBOT1_IP);
+        this.robot2 = new RobotService(process.env.ROBOT2_IP);
         this.gazebo = new RobotService(process.env.GAZEBO_IP);
     }
 
