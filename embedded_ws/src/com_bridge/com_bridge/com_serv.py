@@ -34,9 +34,7 @@ class ComServNode(Node):
             10
         )
 
-        self.mission_mouvements[0] = self.create_publisher(Twist, 'cmd_vel', 10)
-        self.mission_mouvements[1] = self.create_publisher(Twist, 'robot0/cmd_vel', 10)
-        self.mission_mouvements[2] = self.create_publisher(Twist, 'robot1/cmd_vel', 10)
+        self.mission_mouvements = self.create_publisher(Twist, 'cmd_vel', 10)
 
         self.timer_period = 0.5  # Timer period in seconds
         self.timer = None
@@ -83,8 +81,9 @@ class ComServNode(Node):
         twist_msg.angular.x = 0.0
         twist_msg.angular.y = 0.0
         twist_msg.angular.z = 1.8
-        for mission_mouvement in self.mission_mouvements:
-            mission_mouvement.publish(twist_msg)
+        
+        self.mission_mouvements.publish(twist_msg)
+
 
     def destroy_node(self):
         super().destroy_node()
