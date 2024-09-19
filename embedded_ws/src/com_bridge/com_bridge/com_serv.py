@@ -48,6 +48,14 @@ class ComServNode(Node):
         json_str = json.dumps(json_data)
         self.get_logger().info('Mission stopped')
         if self.timer_active:
+            twist_msg = Twist()
+            twist_msg.linear.x = 0.0
+            twist_msg.linear.y = 0.0
+            twist_msg.linear.z = 0.0
+            twist_msg.angular.x = 0.0
+            twist_msg.angular.y = 0.0
+            twist_msg.angular.z = 0.0
+            self.mission_mouvements.publish(twist_msg)
             self.destroy_timer(self.timer)  # Stop the timer
             self.timer_active = False
 
