@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
 import { EndMissionRequest, RobotRequest, StartMissionRequest, MessageOperation } from '@common/interfaces/request.interface';
-import { Command, Operation, Topic, TopicType } from '@common/enums/command.enum';
+import { Command, Operation, Topic, TopicType } from '@common/enums/SocketsEvents';
 
 @Injectable()
 export class RobotService {
@@ -91,5 +91,10 @@ export class RobotService {
             timestamp: new Date().toISOString(),
         } as EndMissionRequest
     );
+    }
+
+    identify() {
+        // TODO
+        // Robot spins right round and makes a sound
     }
 }

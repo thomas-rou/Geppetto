@@ -1,4 +1,4 @@
-import { Command, Topic, TopicType, Operation } from "@common/enums/command.enum";
+import { Command, Topic, TopicType, Operation } from "./../enums/SocketsEvents";
 
 export interface RobotRequest {
   command: Command;

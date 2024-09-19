@@ -1,11 +1,12 @@
 This document is designed to clarify the communication API between Robots and Server.
-
+Please refer to ./application/SocketsEvents.ts for socket events names, for clarity should be same as command name
 ## Communications Robot-Server:
 
 #### 1. Start Mission:
 ```json
 {
     "command": "start_mission",
+    "target": "robots | sim",
     "mission_details": {
         "orientation": 0.0,
         "position": {
@@ -21,6 +22,7 @@ This document is designed to clarify the communication API between Robots and Se
 ```json
 {
     "command": "end_mission",
+    "target": "robots | sim",
     "timestamp": "ISO 8601"
 }
 ```
@@ -61,6 +63,14 @@ This document is designed to clarify the communication API between Robots and Se
 {
     "command": "P2P",
     "timestamp": "ISO 8601"
+}
+```
+
+#### 7. Identify Robot:
+```json
+{
+    "command": "identify_robot",
+    "target": "1 | 2"
 }
 ```
 

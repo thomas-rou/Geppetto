@@ -32,7 +32,7 @@
           "./src/app/*"
         ],
         "@common/*": [
-          "../common/*"
+          "@app../../../common/*"
         ]
       },
       "useDefineForClassFields": false
