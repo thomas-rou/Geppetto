@@ -23,7 +23,7 @@ export class RobotService {
             };
 
             this.ws.onerror = (error) => {
-                this.logger.error(`WebSocket error: ${error}`);
+                this.logger.error(`WebSocket error: ${error.message}`);
             };
 
             this.ws.onclose = () => {
@@ -94,7 +94,6 @@ export class RobotService {
 
     identify(target: '1' | '2') {
         var topicCommand;
-        this.logger.log('Identify robot command received from client');
         if (target === '1') {
             topicCommand = Topic.identify_command1;
         } else if (target === '2') {
