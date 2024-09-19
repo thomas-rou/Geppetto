@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
-import { RobotCommandFromInterface } from '@app/../../../common/enums/SocketsEvents';
-import { EndMission } from '@app/../../../common/interfaces/EndMission';
-import { StartMission } from '@app/../../../common/interfaces/StartMission';
-import { IdentifyRobot } from '@app/../../../common/interfaces/IdentifyRobot';
-import { UpdateRobot } from '@app/../../../common/interfaces/UpdateRobot';
-import { ReturnToBase } from '@app/../../../common/interfaces/ReturnToBase';
-import { UpdateControllerCode } from '@app/../../../common/interfaces/UpdateControllerCode';
-import { NotifyRobotsToCommunicate } from '@app/../../../common/interfaces/NotifyRobotsToCommunicate';
-import { FindFurthestRobot } from '@app/../../../common/interfaces/FindFurthestRobot';
+import { RobotCommandFromInterface } from '@common/enums/SocketsEvents';
+import { EndMission } from '@common/interfaces/EndMission';
+import { StartMission } from '@common/interfaces/StartMission';
+import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
+import { UpdateRobot } from '@common/interfaces/UpdateRobot';
+import { ReturnToBase } from '@common/interfaces/ReturnToBase';
+import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
+import { NotifyRobotsToCommunicate } from '@common/interfaces/NotifyRobotsToCommunicate';
+import { FindFurthestRobot } from '@common/interfaces/FindFurthestRobot';
 import { Observable, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
@@ -21,6 +21,7 @@ export class RobotCommunicationService {
     private missionStatusSubject = new Subject<string>();
     private robotIdentificationSubject = new Subject<string>();
     private commandErrorSubject = new Subject<string>();
+    private connectionStatusSubject = new Subject<boolean>();
 
     constructor() {
         this.socket = io(environment.serverUrlRoot, { transports: ['websocket'], upgrade: false });
@@ -33,6 +34,17 @@ export class RobotCommunicationService {
         });
         this.socket.on('commandError', (message: string) => {
             this.commandErrorSubject.next(message);
+        });
+
+        
+        this.socket.on('connect', () => {
+            console.log('WebSocket connection established');
+            this.connectionStatusSubject.next(true); 
+        });
+
+        this.socket.on('disconnect', () => {
+            console.log('WebSocket connection lost');
+            this.connectionStatusSubject.next(false);
         });
     }
 
@@ -48,9 +60,13 @@ export class RobotCommunicationService {
         return this.commandErrorSubject.asObservable();
     }
 
+    onConnectionStatus(): Observable<boolean> {
+        return this.connectionStatusSubject.asObservable();
+    }
+
     startMission(orientation: number, position: { x: number; y: number }): void {
         this.startMissionRobot(orientation, position);
-        this.startMissionGazebo(orientation, position);
+        //this.startMissionGazebo(orientation, position);
     }
 
     startMissionRobot(orientation: number, position: { x: number; y: number }): void {
@@ -68,7 +84,7 @@ export class RobotCommunicationService {
 
     endMission(): void {
         this.endMissionRobot();
-        this.endMissionGazebo();
+        //this.endMissionGazebo();
     }
 
     endMissionRobot(): void {
@@ -81,25 +97,11 @@ export class RobotCommunicationService {
     }
 
     startMissionGazebo(orientation: number, position: { x: number; y: number }): void {
-        const message: StartMission = {
-            command: "start_mission",
-            target: "sim",
-            mission_details: {
-                orientation,
-                position
-            },
-            timestamp: new Date().toISOString()
-        };
-        this.socket.emit(RobotCommandFromInterface.StartMission, message);
+        //TODO
     }
 
     endMissionGazebo(): void {
-        const message: EndMission = {
-            command: "end_mission",
-            target: "sim",
-            timestamp: new Date().toISOString()
-        };
-        this.socket.emit(RobotCommandFromInterface.EndMission, message);
+        //TODO
     }
 
     updateRobot(identifier: string, status: string, position: { x: number; y: number }): void {

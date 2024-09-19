@@ -1,7 +1,7 @@
-import {RobotCommandFromInterface } from '@app/../../common/enums/SocketsEvents';
-import { EndMission } from '@app/../../common/interfaces/EndMission';
-import { StartMission } from '@app/../../common/interfaces/StartMission';
-import { IdentifyRobot } from '@app/../../common/interfaces/IdentifyRobot';
+import {RobotCommandFromInterface } from '@common/enums/SocketsEvents';
+import { EndMission } from '@common/interfaces/EndMission';
+import { StartMission } from '@common/interfaces/StartMission';
+import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
 import { RobotService } from '@app/services/robot/robot.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -35,8 +35,7 @@ export class MissionCommandGateway {
         if (this.controllingClient === null) {
             this.controllingClient = client;
             this.logger.log(`Client ${client.id} is now controlling the robots`);
-        } 
-        if (this.controllingClient !== client) {
+        } else if (this.controllingClient !== client) {
             this.logger.log(`Client ${client.id} send a control command, but another client is already controlling`);
             client.emit('commandError', 'Another client is controlling the robots');
             return false;
@@ -54,7 +53,7 @@ export class MissionCommandGateway {
                 this.robot1.startMission();
                 this.robot2.startMission();
                 this.server.emit('missionStatus', 'Mission started for robots');
-            } else if (payload.target === 'sim') {
+            } else if (payload.target === 'simulation') {
                 this.logger.log('Start mission for simulation command received from client');
                 this.gazebo.startMission();
                 this.server.emit('missionStatus', 'Mission started for the simulation');
@@ -62,10 +61,7 @@ export class MissionCommandGateway {
                 this.logger.error('Invalid mission start command');
                 this.server.emit('commandError', 'Invalid start mission command');
             }
-        } else {
-            client.emit('commandError', 'The system is already being controlled')
         }
-
     }
     
     @SubscribeMessage(RobotCommandFromInterface.EndMission)
@@ -78,7 +74,7 @@ export class MissionCommandGateway {
                 this.robot1.stopMission();
                 this.robot2.stopMission();
                 this.server.emit('missionStatus', 'Mission stopped for robots');
-            } else if (payload.target === 'sim') {
+            } else if (payload.target === 'simulation') {
                 this.logger.log('Stop mission for simulation command received from client');
                 this.gazebo.stopMission();
                 this.server.emit('missionStatus', 'Mission stopped for the simulation');
