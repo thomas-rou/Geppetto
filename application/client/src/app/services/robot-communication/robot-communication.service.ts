@@ -98,7 +98,7 @@ export class RobotCommunicationService {
     startMissionGazebo(orientation: number, position: { x: number; y: number }): void {
         const message: StartMission = {
             command: 'start_mission',
-            target: 'sim',
+            target: 'simulation',
             mission_details: {
                 orientation,
                 position,
@@ -111,7 +111,7 @@ export class RobotCommunicationService {
     endMissionGazebo(): void {
         const message: EndMission = {
             command: 'end_mission',
-            target: 'sim',
+            target: 'simulation',
             timestamp: new Date().toISOString(),
         };
         this.socket.emit(RobotCommandFromInterface.EndMission, message);
