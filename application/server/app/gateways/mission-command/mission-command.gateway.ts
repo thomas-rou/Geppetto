@@ -19,9 +19,9 @@ export class MissionCommandGateway {
     private controllingClient: Socket | null = null;
 
     constructor() {
-        this.robot1 =  new RobotService(process.env.SIMULATION_ROBOT1);
-        this.robot2 =  new RobotService(process.env.SIMULATION_ROBOT2);
-        this.gazebo =  new RobotService(process.env.SIMULATION_GAZEBO);
+        this.robot1 = new RobotService(process.env.ROBOT1_IP);
+        this.robot2 = new RobotService(process.env.ROBOT2_IP);
+        this.gazebo = new RobotService(process.env.GAZEBO_IP);
     }
 
     handleDisconnect(client: Socket) {
@@ -94,10 +94,10 @@ export class MissionCommandGateway {
             //Executing command
             if(payload.target === "1") {
                 this.logger.log('Identify robot 1 command received from client');
-                this.robot1.identify();
+                this.robot1.identify(payload.target);
             } else if(payload.target === "2") {
                 this.logger.log('Identify robot 2 command received from client');
-                this.robot2.identify();
+                this.robot2.identify(payload.target);
             }
             this.server.emit('robotIdentification', 'Robot was identified');
         } else {

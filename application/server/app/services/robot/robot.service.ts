@@ -5,50 +5,43 @@ import { Command, Operation, Topic, TopicType } from '@common/enums/SocketsEvent
 
 @Injectable()
 export class RobotService {
-    private readonly DELAY_TIME: number = 5000;
-    private readonly CONNECTION_TIMEOUT: number = 60000;
-    private intervalId: NodeJS.Timeout;
     private readonly logger: Logger = new Logger(RobotService.name);
     private robotIp: string;
     private ws: WebSocket;
-    private isSocketOpen: boolean = false;
     constructor(robotIp: string) {
         this.robotIp = robotIp;
         this.connect();
     }
 
-    connect() {
-        this.ws = new WebSocket(`ws://${this.robotIp}:${process.env.ROS_BRIDGING_PORT}`);
+    async connect() {
+        return new Promise<void>((resolve, reject) => {
+            this.ws = new WebSocket(`ws://${this.robotIp}:${process.env.ROS_BRIDGING_PORT}`);
 
-        this.ws.onopen = () => {
-            this.logger.log(`Connection established to robot ${this.robotIp}`);
-            this.isSocketOpen = true;
-            this.startMission();
-        };
+            this.ws.onopen = () => {
+                this.logger.log(`Connection established to robot ${this.robotIp}`);
+                resolve();
+            };
 
-        // TODO put types for the messages and errors that will come from robots
-        this.ws.onmessage = (message) => {
-            const data = JSON.parse(message.data);
-            this.logger.debug(`Message received from robot to ${this.robotIp}`, data);
-        };
+            this.ws.onerror = (error) => {
+                this.logger.error(`WebSocket error: ${error.message}`);
+            };
 
-        this.ws.onerror = (error) => {
-            this.logger.log(`Error occurred on robot  ${this.robotIp}: ${error.message}`);
-            this.isSocketOpen = false;
-            this.intervalId = setTimeout(() => {
-                this.connect();
-            }, this.DELAY_TIME);
-            setTimeout(() => {
-                clearInterval(this.intervalId);
-            }, this.CONNECTION_TIMEOUT);
-        };
-
-        this.ws.onclose = () => {
-            this.logger.log(`Connection to robot ${this.robotIp} closed`);
-        };
+            this.ws.onclose = () => {
+                this.logger.log(`WebSocket connection closed`);
+            };
+        });
     }
 
-    subscribeToTopic(topicName: Topic, topicType: TopicType) {
+    async subscribeToTopic(topicName: Topic, topicType: TopicType) {
+        if (this.ws.readyState === WebSocket.CLOSED) {
+            try {
+                await this.connect();
+            } catch (error) {
+                this.logger.error(`Error connecting to robot ${this.robotIp}`);
+                return;
+            }
+        }
+
         const subscribeMessage: MessageOperation = {
             op: Operation.subscribe,
             topic: topicName,
@@ -58,7 +51,15 @@ export class RobotService {
         this.logger.log(`Subscription to topic ${topicName} of robot ${this.robotIp}`);
     }
 
-    publishToTopic(topicName: Topic, topicType: TopicType, message: RobotRequest) {
+    async publishToTopic(topicName: Topic, topicType: TopicType, message: RobotRequest) {
+        if (this.ws.readyState === WebSocket.CLOSED) {
+            try {
+                await this.connect();
+            } catch (error) {
+                this.logger.error(`Error connecting to robot ${this.robotIp}`);
+                return;
+            }
+        }
         const publishMessage: MessageOperation = {
             op: Operation.publish,
             topic: topicName,
@@ -72,29 +73,35 @@ export class RobotService {
     // TODO: send real info comming from Frontend, to do so, needs parameters for this function and the one under
     startMission() {
         this.publishToTopic(Topic.start_mission, TopicType.start_mission, {
-                command: Command.StartMission,
-                mission_details: {
-                    orientation: 0.0,
-                    position: {
-                        x: 0.0,
-                        y: 0.0,
-                    },
-                }, 
-                timestamp: new Date().toISOString(),
-            } as StartMissionRequest
-        );
+            command: Command.StartMission,
+            mission_details: {
+                orientation: 0.0,
+                position: {
+                    x: 0.0,
+                    y: 0.0,
+                },
+            },
+            timestamp: new Date().toISOString(),
+        } as StartMissionRequest);
     }
 
     stopMission() {
         this.publishToTopic(Topic.stop_mission, TopicType.stop_mission, {
             command: Command.EndMission,
             timestamp: new Date().toISOString(),
-        } as EndMissionRequest
-    );
+        } as EndMissionRequest);
     }
 
-    identify() {
-        // TODO
-        // Robot spins right round and makes a sound
+    identify(target: '1' | '2') {
+        var topicCommand;
+        if (target === '1') {
+            topicCommand = Topic.identify_command1;
+        } else if (target === '2') {
+            topicCommand = Topic.identify_command2;
+        }
+        this.publishToTopic(topicCommand, TopicType.identify_robot, {
+            command: Command.Identify,
+            timestamp: new Date().toISOString(),
+        } as RobotRequest);
     }
 }
