@@ -1,3 +1,10 @@
+import os
+
+def get_ip_from_env():
+    ip_address = os.getenv('HOST_IP')
+    if not ip_address:
+        raise ValueError("HOST_IP environment variable is not set.")
+    return ip_address
 
 def write_environment_file(ip_address):
     file_path = 'src/environments/environment.ts'    
@@ -9,5 +16,5 @@ def write_environment_file(ip_address):
         f.write(f"}};\n")
         
 if __name__ == "__main__":
-    ip_address = "TO COMPLETE"
+    ip_address = get_ip_from_env()
     write_environment_file(ip_address)
