@@ -22,11 +22,8 @@ RUN npm ci
 # Install python3
 RUN apt update && apt install -y python3
 
-# Set backend ip
-RUN python3 set_backend_ip.py
-
 # Expose the port
 EXPOSE 4200
 
 # Start the app
-CMD ["ng", "serve", "--host", "0.0.0.0", "--port", "4200"]
+CMD ["python3", "set_backend_ip.py", "&&", "ng", "serve", "--host", "0.0.0.0", "--port", "4200"]
