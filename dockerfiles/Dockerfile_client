@@ -26,4 +26,4 @@ RUN apt update && apt install -y python3
 EXPOSE 4200
 
 # Start the app
-CMD ["python3", "set_backend_ip.py", "&&", "ng", "serve", "--host", "0.0.0.0", "--port", "4200"]
+CMD python3 set_backend_ip.py && ng serve --host 0.0.0.0 --port 4200
