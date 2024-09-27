@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
 import { RobotCommandFromInterface } from '@common/enums/SocketsEvents';
 import { EndMission } from '@common/interfaces/EndMission';
 import { StartMission } from '@common/interfaces/StartMission';
@@ -17,13 +18,12 @@ import { environment } from 'src/environments/environment';
 })
 export class RobotCommunicationService {
     private socket: Socket;
-
     private missionStatusSubject = new Subject<string>();
     private robotIdentificationSubject = new Subject<string>();
     private commandErrorSubject = new Subject<string>();
     private connectionStatusSubject = new Subject<boolean>();
 
-    constructor() {
+    constructor(private robotManagementService: RobotManagementService) {
         this.socket = io(environment.serverUrlRoot, { transports: ['websocket'], upgrade: false });
 
         this.socket.on('missionStatus', (message: string) => {
@@ -47,6 +47,9 @@ export class RobotCommunicationService {
         });
     }
 
+    get robot1() { return this.robotManagementService.robot1; }
+    get robot2() { return this.robotManagementService.robot2; }
+
     onMissionStatus(): Observable<string> {
         return this.missionStatusSubject.asObservable();
     }
@@ -63,18 +66,18 @@ export class RobotCommunicationService {
         return this.connectionStatusSubject.asObservable();
     }
 
-    startMission(orientation: number, position: { x: number; y: number }): void {
-        this.startMissionRobot(orientation, position);
-        this.startMissionGazebo(orientation, position);
+    startMission(): void {
+        this.startMissionRobot();
+        this.startMissionGazebo();
     }
 
-    startMissionRobot(orientation: number, position: { x: number; y: number }): void {
+    startMissionRobot(): void {
         const message: StartMission = {
             command: 'start_mission',
             target: 'robot',
             mission_details: {
-                orientation,
-                position,
+                orientation: this.robot1.orientation,
+                position: this.robot1.position,
             },
             timestamp: new Date().toISOString(),
         };
@@ -95,13 +98,13 @@ export class RobotCommunicationService {
         this.socket.emit(RobotCommandFromInterface.EndMission, message);
     }
 
-    startMissionGazebo(orientation: number, position: { x: number; y: number }): void {
+    startMissionGazebo(): void {
         const message: StartMission = {
             command: 'start_mission',
             target: 'simulation',
             mission_details: {
-                orientation,
-                position,
+                orientation: this.robot1.orientation,
+                position: this.robot1.position,
             },
             timestamp: new Date().toISOString(),
         };
@@ -162,7 +165,7 @@ export class RobotCommunicationService {
         this.socket.emit(RobotCommandFromInterface.FindFurthestRobot, message);
     }
 
-    identifyRobot(target: '1' | '2'): void {
+    identifyRobot(target: string): void {
         const message: IdentifyRobot = {
             command: 'identify_robot',
             target,
