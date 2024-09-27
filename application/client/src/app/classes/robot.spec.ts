@@ -3,6 +3,7 @@ import { RobotStatus } from '@app/enums/robot-status';
 
 describe('Robot', () => {
     let robot: Robot;
+    const id = '1';
     const initialName = 'TestBot';
     const initialStatus = RobotStatus.Idle;
     const initialBattery = 100;
@@ -10,11 +11,15 @@ describe('Robot', () => {
     const initialOrientation = 0.0;
 
     beforeEach(() => {
-        robot = new Robot(initialName, initialStatus, initialBattery, initialPosition, initialOrientation);
+        robot = new Robot(id, initialName, initialStatus, initialBattery, initialPosition, initialOrientation);
     });
 
     it('should create an instance of Robot', () => {
         expect(robot).toBeTruthy();
+    });
+
+    it('should get the id', () => {
+        expect(robot.id).toBe(id);
     });
 
     it('should get the name', () => {
@@ -53,6 +58,12 @@ describe('Robot', () => {
 
     it('should get the orientation', () => {
         expect(robot.orientation).toEqual(initialOrientation);
+    });
+
+    it('should set the position', () => {
+        const newOrientation = 180.0;
+        robot.orientation = newOrientation;
+        expect(robot.orientation).toEqual(newOrientation);
     });
 
     it('should set the position', () => {

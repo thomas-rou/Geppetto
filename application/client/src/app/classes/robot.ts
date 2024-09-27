@@ -1,4 +1,4 @@
-import { RobotStatus } from '@app/enums/robot-status.enum';
+import { RobotStatus } from '@app/enums/robot-status';
 
 type Coords = {
     x: number;
