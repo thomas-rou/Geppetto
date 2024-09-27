@@ -1,7 +1,7 @@
 //timing logic implemented using tool we found online: https://chatgpt.com/
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NotificationService } from '../../services/notification.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 
 @Component({
   selector: 'app-notification-prompt',
