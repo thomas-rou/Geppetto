@@ -1,5 +1,6 @@
 #.vscode folder
 **/.vs/
+**/.vscode/
 
 application/package-lock.json
 .DS_Store
