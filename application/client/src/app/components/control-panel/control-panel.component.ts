@@ -1,17 +1,21 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, HostListener } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { Subscription } from 'rxjs';
-import { NotificationService } from '../../services/notification.service';
+import { NotificationService } from '@app/services/notification.service';
+import { StartMissionPopupComponent } from "@app/components/start-mission-popup/start-mission-popup.component";
 
 @Component({
     selector: 'app-control-panel',
     standalone: true,
     templateUrl: './control-panel.component.html',
     styleUrls: ['./control-panel.component.scss'],
+    imports: [CommonModule, StartMissionPopupComponent],
 })
 export class ControlPanelComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription[] = [];
     private socketConnected: boolean = false;
+    showPopup: boolean = false;
 
     constructor(private robotService: RobotCommunicationService, private notificationService: NotificationService) {}
 
@@ -35,6 +39,14 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
                 this.socketConnected = isConnected;
             })
         );
+        window.addEventListener('keydown', this.handleKeyDown.bind(this));
+    }
+
+    @HostListener('window:keydown', ['$event'])
+    handleKeyDown(event: KeyboardEvent) {
+        if (event.key === 'Escape') {
+            this.showPopup = false;
+        }
     }
 
     verifySocketConnection() {
@@ -47,12 +59,13 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
 
     startMission() {
         if(this.verifySocketConnection()) {
-            try {
-                this.robotService.startMission(0, { x: 0, y: 0 });
-            } catch (error) {
-                console.error('Error starting mission', error);
-            }
+            this.showPopup = true;
         }
+    }
+    
+    onMissionStart() {
+        this.showPopup = false;
+        this.robotService.startMission();
     }
 
     stopMission() {
