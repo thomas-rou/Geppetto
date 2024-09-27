@@ -55,4 +55,8 @@ export class Robot {
     set position(position: Coords) {
         this._position = position;
     }
+
+    set orientation(orientation: number) {
+        this._orientation = orientation;
+    }
 }
