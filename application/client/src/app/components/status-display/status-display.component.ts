@@ -13,13 +13,17 @@ import { Robot } from '@app/classes/robot';
 export class StatusDisplayComponent {
     constructor(
         private robotService: RobotCommunicationService,
-        private robotManagementService: RobotManagementService
+        private robotManagementService: RobotManagementService,
     ) {}
+
+    get robot1() {
+        return this.robotManagementService.robot1;
+    }
+    get robot2() {
+        return this.robotManagementService.robot2;
+    }
 
     identifyRobot(robot: Robot) {
         this.robotService.identifyRobot(robot.id);
     }
-
-    get robot1() { return this.robotManagementService.robot1; }
-    get robot2() { return this.robotManagementService.robot2; }
 }

@@ -5,13 +5,13 @@ import { RobotManagementService } from '@app/services/robot-management/robot-man
 describe('RobotCommunicationService', () => {
     let service: RobotCommunicationService;
     let robotManagementService: RobotManagementService;
-    let socket: any;
+    let socket: unknown;
 
     beforeEach(() => {
         socket = {
             on: jasmine.createSpy('on'),
             emit: jasmine.createSpy('emit'),
-            disconnect: jasmine.createSpy('disconnect')
+            disconnect: jasmine.createSpy('disconnect'),
         };
 
         const robotManagementServiceMock = {
@@ -20,10 +20,7 @@ describe('RobotCommunicationService', () => {
         };
 
         TestBed.configureTestingModule({
-            providers: [
-                RobotCommunicationService,
-                { provide: RobotManagementService, useValue: robotManagementServiceMock },
-            ],
+            providers: [RobotCommunicationService, { provide: RobotManagementService, useValue: robotManagementServiceMock }],
         });
 
         service = TestBed.inject(RobotCommunicationService);
@@ -135,7 +132,7 @@ describe('RobotCommunicationService', () => {
         const eventName = 'customEvent';
         const testMessage = { data: 'test' };
 
-        socket.on.and.callFake((event: string, callback: (arg0: { data: string; }) => void) => {
+        socket.on.and.callFake((event: string, callback: (arg0: { data: string }) => void) => {
             if (event === eventName) {
                 callback(testMessage);
             }

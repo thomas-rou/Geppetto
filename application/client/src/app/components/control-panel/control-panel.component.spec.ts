@@ -3,7 +3,7 @@ import { ControlPanelComponent } from './control-panel.component';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { of } from 'rxjs';
-import { StartMissionPopupComponent } from "@app/components/start-mission-popup/start-mission-popup.component";
+import { StartMissionPopupComponent } from '@app/components/start-mission-popup/start-mission-popup.component';
 import { CommonModule } from '@angular/common';
 
 describe('ControlPanelComponent', () => {
@@ -14,7 +14,14 @@ describe('ControlPanelComponent', () => {
 
     beforeEach(async () => {
         const robotServiceSpy = jasmine.createSpyObj('RobotCommunicationService', [
-            'onMissionStatus', 'onRobotIdentification', 'onCommandError', 'onConnectionStatus', 'startMission', 'endMission', 'returnToBase', 'updateControllerCode'
+            'onMissionStatus',
+            'onRobotIdentification',
+            'onCommandError',
+            'onConnectionStatus',
+            'startMission',
+            'endMission',
+            'returnToBase',
+            'updateControllerCode',
         ]);
         const notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['sendNotification']);
 
@@ -22,8 +29,8 @@ describe('ControlPanelComponent', () => {
             imports: [CommonModule, StartMissionPopupComponent],
             providers: [
                 { provide: RobotCommunicationService, useValue: robotServiceSpy },
-                { provide: NotificationService, useValue: notificationServiceSpy }
-            ]
+                { provide: NotificationService, useValue: notificationServiceSpy },
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ControlPanelComponent);
@@ -128,11 +135,11 @@ describe('ControlPanelComponent', () => {
     it('should unsubscribe from all subscriptions on ngOnDestroy', () => {
         component.ngOnInit();
         component.ngOnDestroy();
-        component['subscriptions'].forEach(sub => {
+        component['subscriptions'].forEach((sub) => {
             expect(sub.closed).toBe(true);
         });
     });
-    
+
     it('should log "WebSocket is disconnected" when the connection status is false', () => {
         spyOn(console, 'log');
         robotService.onConnectionStatus.and.returnValue(of(false));

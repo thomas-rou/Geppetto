@@ -47,8 +47,12 @@ export class RobotCommunicationService {
         });
     }
 
-    get robot1() { return this.robotManagementService.robot1; }
-    get robot2() { return this.robotManagementService.robot2; }
+    get robot1() {
+        return this.robotManagementService.robot1;
+    }
+    get robot2() {
+        return this.robotManagementService.robot2;
+    }
 
     onMissionStatus(): Observable<string> {
         return this.missionStatusSubject.asObservable();
@@ -173,9 +177,9 @@ export class RobotCommunicationService {
         this.socket.emit(RobotCommandFromInterface.IdentifyRobot, message);
     }
 
-    onMessage(eventName: string): Observable<any> {
+    onMessage(eventName: string): Observable<unknown> {
         return new Observable((observer) => {
-            this.socket.on(eventName, (data: any) => {
+            this.socket.on(eventName, (data: unknown) => {
                 observer.next(data);
             });
         });
