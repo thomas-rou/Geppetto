@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientModule } from '@angular/common/http';
 import { MainPageComponent } from './main-page.component';
-import { ThemeService } from '@app/services/theme.service';
+import { ThemeService } from '@app/services/theme/theme.service';
 import { ControlPanelComponent } from '@app/components/control-panel/control-panel.component';
 import { StatusDisplayComponent } from '@app/components/status-display/status-display.component';
 import { MapDisplayComponent } from '@app/components/map-display/map-display.component';
