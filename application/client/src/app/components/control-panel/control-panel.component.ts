@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { Subscription } from 'rxjs';
-import { NotificationService } from '@app/services/notification.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { StartMissionPopupComponent } from "@app/components/start-mission-popup/start-mission-popup.component";
 
 @Component({
