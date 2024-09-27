@@ -6,18 +6,24 @@ type Coords = {
 };
 
 export class Robot {
+    private _id: string;
     private _name: string;
     private _status: RobotStatus;
     private _battery: number;
     private _position: Coords;
     private _orientation: number;
 
-    constructor(name: string, status: RobotStatus, battery: number, position: Coords, orientation: number) {
+    constructor(id: string, name: string, status: RobotStatus, battery: number, position: Coords, orientation: number) {
+        this._id = id;
         this._name = name;
         this._status = status;
         this._battery = battery;
         this._position = position;
         this._orientation = orientation;
+    }
+
+    get id(): string {
+        return this._id;
     }
 
     get name(): string {
