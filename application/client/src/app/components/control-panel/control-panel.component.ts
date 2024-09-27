@@ -78,20 +78,10 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
         }
     }
 
-    identifyRobot(target: '1' | '2') {
-        if(this.verifySocketConnection()) {
-            try {
-                this.robotService.identifyRobot(target);
-            } catch (error) {
-                console.error('Error identifying robot', error);
-            } 
-        }
-    }
-
     returnHome() {
         if(this.verifySocketConnection()) {
             try {
-                this.robotService.returnToBase;
+                this.robotService.returnToBase();
             } catch (error) {
                 console.error('Error identifying robot', error);
             }
