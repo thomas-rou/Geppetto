@@ -1,4 +1,4 @@
 export interface IdentifyRobot {
     command: string;
-    target: "1" | "2";
+    target: string;
 }
