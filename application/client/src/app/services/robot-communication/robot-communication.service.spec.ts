@@ -1,18 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import { RobotCommunicationService } from './robot-communication.service';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
+import { Socket } from 'socket.io-client';
 
 describe('RobotCommunicationService', () => {
     let service: RobotCommunicationService;
     let robotManagementService: RobotManagementService;
-    let socket: unknown;
+    let socket: jasmine.SpyObj<Socket>;
 
     beforeEach(() => {
-        socket = {
-            on: jasmine.createSpy('on'),
-            emit: jasmine.createSpy('emit'),
-            disconnect: jasmine.createSpy('disconnect'),
-        };
+        socket = jasmine.createSpyObj('Socket', ['on', 'emit', 'disconnect', 'connect', 'close', 'send', 'open']);
+        socket.id = 'mock-id';
+        socket.connected = true;
 
         const robotManagementServiceMock = {
             robot1: { orientation: 90, position: { x: 1, y: 2 } },
@@ -132,10 +131,11 @@ describe('RobotCommunicationService', () => {
         const eventName = 'customEvent';
         const testMessage = { data: 'test' };
 
-        socket.on.and.callFake((event: string, callback: (arg0: { data: string }) => void) => {
+        socket.on.and.callFake((event: string, callback: (...args: any[]) => void): Socket => {
             if (event === eventName) {
                 callback(testMessage);
             }
+            return socket;
         });
 
         service.onMessage(eventName).subscribe((message) => {
