@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Robot } from '@app/classes/robot';
+import { Robot } from '@app/classes/robot/robot';
 import { RobotStatus } from '@app/enums/robot-status';
 
 @Injectable({

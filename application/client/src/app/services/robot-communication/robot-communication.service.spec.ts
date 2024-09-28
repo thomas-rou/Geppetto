@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { RobotCommunicationService } from './robot-communication.service';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
-import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { SocketTestHelper } from '@app/classes/socket-test-helper/socket-test-helper';
 import { Socket } from 'socket.io-client';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 class SocketHandlerServiceMock extends SocketHandlerService {

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
-import { Robot } from '@app/classes/robot';
+import { Robot } from '@app/classes/robot/robot';
 
 @Component({
     selector: 'app-status-display',
