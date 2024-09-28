@@ -10,7 +10,7 @@ import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 import { NotifyRobotsToCommunicate } from '@common/interfaces/NotifyRobotsToCommunicate';
 import { FindFurthestRobot } from '@common/interfaces/FindFurthestRobot';
 import { Observable, Subject } from 'rxjs';
-import { SocketHandlerService } from '../socket-handler/socket-handler.service';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 
 @Injectable({
     providedIn: 'root',
