@@ -13,15 +13,15 @@ describe('StatusDisplayComponent', () => {
     beforeEach(() => {
         const robotCommunicationSpy = jasmine.createSpyObj('RobotCommunicationService', ['identifyRobot']);
         const robotManagementSpy = jasmine.createSpyObj('RobotManagementService', [], {
-            robot1: { id: '1', name: 'Robot 1', status: RobotStatus.Idle, battery: 100, position: {x: 0, y: 0}, orientation: 0.0} as Robot,
-            robot2: { id: '2', name: 'Robot 2', status: RobotStatus.Idle, battery: 100, position: {x: 0, y: 0}, orientation: 0.0} as Robot,
+            robot1: { id: '1', name: 'Robot 1', status: RobotStatus.Idle, battery: 100, position: { x: 0, y: 0 }, orientation: 0.0 } as Robot,
+            robot2: { id: '2', name: 'Robot 2', status: RobotStatus.Idle, battery: 100, position: { x: 0, y: 0 }, orientation: 0.0 } as Robot,
         });
 
         TestBed.configureTestingModule({
             providers: [
                 { provide: RobotCommunicationService, useValue: robotCommunicationSpy },
-                { provide: RobotManagementService, useValue: robotManagementSpy }
-            ]
+                { provide: RobotManagementService, useValue: robotManagementSpy },
+            ],
         }).compileComponents();
 
         const fixture = TestBed.createComponent(StatusDisplayComponent);
