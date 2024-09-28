@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import random
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
@@ -20,17 +21,21 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 
-# TODO: Split functions into seperate files
+# TODO: Split functions into separate files
 
-def load_model_sdf(index):
-    pkg_project_description = get_package_share_directory('ros_gz_example_description')
-    sdf_file = os.path.join(pkg_project_description, 'models', 'limo_diff_drive_template', 'model.sdf')
+max_width = 3
+max_height = 3
+
+robot_count = 2
+n_obstacles = 3
+
+
+def load_model_sdf(package_name, model_name):
+    pkg_project_description = get_package_share_directory(package_name)
+    sdf_file = os.path.join(pkg_project_description, 'models', model_name, 'model.sdf')
 
     with open(sdf_file, 'r') as infp:
         robot_desc = infp.read()
-    
-    # Replace template {index} with the current robot index
-    robot_desc = robot_desc.replace('{index}', str(index))
     
     return robot_desc
 
@@ -49,8 +54,7 @@ def create_robot_state_publisher(robot_desc, index):
         ]
     )
 
-
-def create_spawn_entity(index, x = 0.0, y = 0.0, z = 0.28):
+def create_spawn_entity(index, x=0.0, y=0.0, z=0.28):
     return Node(
         package='ros_gz_sim',
         executable='create',
@@ -64,12 +68,38 @@ def create_spawn_entity(index, x = 0.0, y = 0.0, z = 0.28):
         ]
     )
 
+def create_spawn_obstacle(index, x=0.0, y=0.0, z=0.0):
+    pkg_project_description = get_package_share_directory('ros_gz_example_description')
+    sdf_file = os.path.join(pkg_project_description, 'models', 'Cardboard Box', 'model.sdf')
+    return Node(
+    package='ros_gz_sim',
+    executable='create',
+    output='screen',
+    arguments=[
+        '-name', f"obstacle{index}",
+        '-file', sdf_file,
+        '-x', str(x),
+        '-y', str(y),
+        '-z', str(z)
+    ],
+)
+
+def get_random_coordinates():
+    width = max_width
+    height = max_height
+
+    half_width = width / 2
+    half_height = height / 2
+
+    random_x = random.uniform(-half_width, half_width)
+    random_y = random.uniform(-half_height, half_height)
+
+    return random_x, random_y
 
 def generate_launch_description():
 
-    # Dynamicaly generate independant robots
-    robot_count = 2
-
+    # Dynamically generate independent robots
+    
     # Configure ROS nodes for launch
 
     # Setup project paths
@@ -87,15 +117,18 @@ def generate_launch_description():
     )
 
     # Load and setup robots
-
     robot_state_publishers = []
     spawn_entities = []
 
-    # TODO: hard coded pose for now
+    # Load the limo models
     for i in range(robot_count):
-        robot_desc = load_model_sdf(i)
+        robot_desc = load_model_sdf('ros_gz_example_description', 'limo_diff_drive_template')
         robot_state_publishers.append(create_robot_state_publisher(robot_desc, i))
         spawn_entities.append(create_spawn_entity(i))
+
+    # Spawn random obstacles
+    for i in range(n_obstacles):
+        spawn_entities.append(create_spawn_obstacle(i, *get_random_coordinates(), z=0.2))
 
     # Bridge ROS topics and Gazebo messages for establishing communication
     bridge = Node(
