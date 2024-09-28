@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Robot } from '@app/classes/robot';
+import { Robot } from '@app/classes/robot/robot';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
 
 @Component({
@@ -27,7 +27,6 @@ export class StartMissionPopupComponent {
     get robot2() {
         return this.managementService.robot2;
     }
-
 
     onStartMission() {
         this.robot1.position = { x: this.robot1X, y: this.robot1Y };

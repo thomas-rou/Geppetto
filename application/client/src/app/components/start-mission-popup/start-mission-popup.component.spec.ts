@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { StartMissionPopupComponent } from './start-mission-popup.component';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
-import { Robot } from '@app/classes/robot';
+import { Robot } from '@app/classes/robot/robot';
 import { RobotStatus } from '@app/enums/robot-status';
 
 describe('StartMissionPopupComponent', () => {
