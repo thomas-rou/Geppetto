@@ -1,18 +1,32 @@
 import { TestBed } from '@angular/core/testing';
 import { RobotCommunicationService } from './robot-communication.service';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
+import { SocketTestHelper } from '@app/classes/socket-test-helper';
+import { Socket } from 'socket.io-client';
+import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+class SocketHandlerServiceMock extends SocketHandlerService {
+    // Override connect() is required to not actually connect the socket
+    // eslint-disable-next-line  @typescript-eslint/no-empty-function
+    override connect() {}
+}
 
 describe('RobotCommunicationService', () => {
     let service: RobotCommunicationService;
     let robotManagementService: RobotManagementService;
-    let socket: any;
+    let socketSpy: SocketHandlerServiceMock;
+    let socketHelper: SocketTestHelper;
+    let onSpy: jasmine.Spy<() => void>;
+    let sendSpy: any;
+
+    const testMessage = { data: 'test' };
 
     beforeEach(() => {
-        socket = {
-            on: jasmine.createSpy('on'),
-            emit: jasmine.createSpy('emit'),
-            disconnect: jasmine.createSpy('disconnect')
-        };
+        socketHelper = new SocketTestHelper();
+        socketSpy = new SocketHandlerServiceMock();
+        socketSpy.socket = socketHelper as unknown as Socket;
+
+        onSpy = spyOn(socketSpy, 'on').and.callThrough();
+        sendSpy = spyOn(socketSpy, 'send').and.callThrough();
 
         const robotManagementServiceMock = {
             robot1: { orientation: 90, position: { x: 1, y: 2 } },
@@ -21,20 +35,13 @@ describe('RobotCommunicationService', () => {
 
         TestBed.configureTestingModule({
             providers: [
-                RobotCommunicationService,
+                { provide: SocketHandlerService, useValue: socketSpy },
                 { provide: RobotManagementService, useValue: robotManagementServiceMock },
             ],
         });
 
         service = TestBed.inject(RobotCommunicationService);
         robotManagementService = TestBed.inject(RobotManagementService);
-        service['socket'] = socket;
-    });
-
-    beforeEach(() => {
-        socket.emit.calls.reset();
-        socket.on.calls.reset();
-        socket.disconnect.calls.reset();
     });
 
     it('should return robot1 and robot2 correctly from RobotManagementService', () => {
@@ -44,7 +51,7 @@ describe('RobotCommunicationService', () => {
 
     it('should emit startMission for robot and simulation', () => {
         service.startMission();
-        expect(socket.emit).toHaveBeenCalledWith('start_mission', {
+        expect(sendSpy).toHaveBeenCalledWith('start_mission', {
             command: 'start_mission',
             target: 'robot',
             mission_details: {
@@ -53,7 +60,8 @@ describe('RobotCommunicationService', () => {
             },
             timestamp: jasmine.any(String),
         });
-        expect(socket.emit).toHaveBeenCalledWith('start_mission', {
+
+        expect(sendSpy).toHaveBeenCalledWith('start_mission', {
             command: 'start_mission',
             target: 'simulation',
             mission_details: {
@@ -66,12 +74,12 @@ describe('RobotCommunicationService', () => {
 
     it('should emit endMission for robot and simulation', () => {
         service.endMission();
-        expect(socket.emit).toHaveBeenCalledWith('end_mission', {
+        expect(sendSpy).toHaveBeenCalledWith('end_mission', {
             command: 'end_mission',
             target: 'robot',
             timestamp: jasmine.any(String),
         });
-        expect(socket.emit).toHaveBeenCalledWith('end_mission', {
+        expect(sendSpy).toHaveBeenCalledWith('end_mission', {
             command: 'end_mission',
             target: 'simulation',
             timestamp: jasmine.any(String),
@@ -80,7 +88,7 @@ describe('RobotCommunicationService', () => {
 
     it('should emit updateRobot', () => {
         service.updateRobot('robot1', 'active', { x: 10, y: 20 });
-        expect(socket.emit).toHaveBeenCalledWith('update', {
+        expect(sendSpy).toHaveBeenCalledWith('update', {
             command: 'update',
             identifier: 'robot1',
             status: 'active',
@@ -91,7 +99,7 @@ describe('RobotCommunicationService', () => {
 
     it('should emit returnToBase', () => {
         service.returnToBase();
-        expect(socket.emit).toHaveBeenCalledWith('return_to_base', {
+        expect(sendSpy).toHaveBeenCalledWith('return_to_base', {
             command: 'return_to_base',
             timestamp: jasmine.any(String),
         });
@@ -99,7 +107,7 @@ describe('RobotCommunicationService', () => {
 
     it('should emit updateControllerCode', () => {
         service.updateControllerCode('newCode');
-        expect(socket.emit).toHaveBeenCalledWith('update_controller_code', {
+        expect(sendSpy).toHaveBeenCalledWith('update_controller_code', {
             command: 'update_controller_code',
             code: 'newCode',
             timestamp: jasmine.any(String),
@@ -108,7 +116,7 @@ describe('RobotCommunicationService', () => {
 
     it('should emit notifyRobotsToCommunicate', () => {
         service.notifyRobotsToCommunicate();
-        expect(socket.emit).toHaveBeenCalledWith('initiate_p2p', {
+        expect(sendSpy).toHaveBeenCalledWith('initiate_p2p', {
             command: 'P2P',
             timestamp: jasmine.any(String),
         });
@@ -116,7 +124,7 @@ describe('RobotCommunicationService', () => {
 
     it('should emit findFurthestRobot', () => {
         service.findFurthestRobot({ x: 5, y: 5 });
-        expect(socket.emit).toHaveBeenCalledWith('find_furthest', {
+        expect(sendSpy).toHaveBeenCalledWith('find_furthest', {
             command: 'find_furthest',
             relative_point: { x: 5, y: 5 },
             timestamp: jasmine.any(String),
@@ -125,21 +133,19 @@ describe('RobotCommunicationService', () => {
 
     it('should emit identifyRobot', () => {
         service.identifyRobot('robot1');
-        expect(socket.emit).toHaveBeenCalledWith('identify_robot', {
+        expect(sendSpy).toHaveBeenCalledWith('identify_robot', {
             command: 'identify_robot',
             target: 'robot1',
         });
     });
 
     it('should handle onMessage correctly', () => {
-        const eventName = 'customEvent';
-        const testMessage = { data: 'test' };
-
-        socket.on.and.callFake((event: string, callback: (arg0: { data: string; }) => void) => {
-            if (event === eventName) {
-                callback(testMessage);
-            }
+        let eventName = 'customEvent';
+        service.onMessage(eventName).subscribe((message) => {
+            expect(message).toBeFalsy();
         });
+
+        socketHelper.peerSideEmit(eventName);
 
         service.onMessage(eventName).subscribe((message) => {
             expect(message).toEqual(testMessage);
@@ -147,8 +153,9 @@ describe('RobotCommunicationService', () => {
     });
 
     it('should disconnect the socket', () => {
+        const disconnectSpy = spyOn(socketSpy, 'disconnect').and.callThrough();
         service.disconnect();
-        expect(socket.disconnect).toHaveBeenCalled();
+        expect(disconnectSpy).toHaveBeenCalled();
     });
 
     it('should handle onMissionStatus observable', (done) => {
@@ -181,5 +188,66 @@ describe('RobotCommunicationService', () => {
             done();
         });
         service['connectionStatusSubject'].next(true);
+    });
+
+    it('handleMissionStatus() should receive connection status', () => {
+        service.handleConnect();
+        socketHelper.peerSideEmit('connect');
+
+        expect(onSpy).toHaveBeenCalled();
+
+        service['connectionStatusSubject'].subscribe((value: boolean) => {
+            expect(value).toBe(true);
+        });
+    });
+
+    it('handleMissionStatus() should receive new mission status', () => {
+        const message: string = 'mission status';
+
+        service.handleMissionStatus();
+        socketHelper.peerSideEmit('missionStatus', message);
+
+        expect(onSpy).toHaveBeenCalled();
+
+        service['missionStatusSubject'].subscribe((value: string) => {
+            expect(value).toBe(message);
+        });
+    });
+
+    it('handleRobotIdentification() should receive identification status', () => {
+        const message: string = 'identification status';
+
+        service.handleRobotIdentification();
+        socketHelper.peerSideEmit('robotIdentification', message);
+
+        expect(onSpy).toHaveBeenCalled();
+
+        service['robotIdentificationSubject'].subscribe((value: string) => {
+            expect(value).toBe(message);
+        });
+    });
+
+    it('handleCommandError() should receive error status', () => {
+        const message: string = 'error status';
+
+        service.handleCommandError();
+        socketHelper.peerSideEmit('commandError', message);
+
+        expect(onSpy).toHaveBeenCalled();
+
+        service['commandErrorSubject'].subscribe((value: string) => {
+            expect(value).toBe(message);
+        });
+    });
+
+    it('handleDisconnect() should receive disconnection status', () => {
+        service.handleDisconnect();
+        socketHelper.peerSideEmit('disconnect');
+
+        expect(onSpy).toHaveBeenCalled();
+
+        service['connectionStatusSubject'].subscribe((value: boolean) => {
+            expect(value).toBe(false);
+        });
     });
 });

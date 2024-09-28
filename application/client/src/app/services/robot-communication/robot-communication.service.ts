@@ -10,45 +10,72 @@ import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 import { NotifyRobotsToCommunicate } from '@common/interfaces/NotifyRobotsToCommunicate';
 import { FindFurthestRobot } from '@common/interfaces/FindFurthestRobot';
 import { Observable, Subject } from 'rxjs';
-import { io, Socket } from 'socket.io-client';
-import { environment } from 'src/environments/environment';
+import { SocketHandlerService } from '../socket-handler/socket-handler.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class RobotCommunicationService {
-    private socket: Socket;
     private missionStatusSubject = new Subject<string>();
     private robotIdentificationSubject = new Subject<string>();
     private commandErrorSubject = new Subject<string>();
     private connectionStatusSubject = new Subject<boolean>();
 
-    constructor(private robotManagementService: RobotManagementService) {
-        this.socket = io(environment.serverUrlRoot, { transports: ['websocket'], upgrade: false });
+    constructor(
+        public socketService: SocketHandlerService,
+        private robotManagementService: RobotManagementService,
+    ) {
+        this.connect();
+    }
 
-        this.socket.on('missionStatus', (message: string) => {
-            this.missionStatusSubject.next(message);
-        });
-        this.socket.on('robotIdentification', (message: string) => {
-            this.robotIdentificationSubject.next(message);
-        });
-        this.socket.on('commandError', (message: string) => {
-            this.commandErrorSubject.next(message);
-        });
+    get robot1() {
+        return this.robotManagementService.robot1;
+    }
+    get robot2() {
+        return this.robotManagementService.robot2;
+    }
 
-        this.socket.on('connect', () => {
+    connect() {
+        if (!this.socketService.isSocketAlive()) {
+            this.socketService.connect();
+            this.handleConnect();
+            this.handleMissionStatus();
+            this.handleRobotIdentification();
+            this.handleCommandError();
+        }
+    }
+
+    handleConnect() {
+        this.socketService.on('connect', () => {
             console.log('WebSocket connection established');
             this.connectionStatusSubject.next(true);
         });
+    }
 
-        this.socket.on('disconnect', () => {
+    handleMissionStatus() {
+        this.socketService.on('missionStatus', (message: string) => {
+            this.missionStatusSubject.next(message);
+        });
+    }
+
+    handleRobotIdentification() {
+        this.socketService.on('robotIdentification', (message: string) => {
+            this.robotIdentificationSubject.next(message);
+        });
+    }
+
+    handleCommandError() {
+        this.socketService.on('commandError', (message: string) => {
+            this.commandErrorSubject.next(message);
+        });
+    }
+
+    handleDisconnect() {
+        this.socketService.on('disconnect', () => {
             console.log('WebSocket connection lost');
             this.connectionStatusSubject.next(false);
         });
     }
-
-    get robot1() { return this.robotManagementService.robot1; }
-    get robot2() { return this.robotManagementService.robot2; }
 
     onMissionStatus(): Observable<string> {
         return this.missionStatusSubject.asObservable();
@@ -81,7 +108,7 @@ export class RobotCommunicationService {
             },
             timestamp: new Date().toISOString(),
         };
-        this.socket.emit(RobotCommandFromInterface.StartMission, message);
+        this.socketService.send(RobotCommandFromInterface.StartMission, message);
     }
 
     endMission(): void {
@@ -95,7 +122,7 @@ export class RobotCommunicationService {
             target: 'robot',
             timestamp: new Date().toISOString(),
         };
-        this.socket.emit(RobotCommandFromInterface.EndMission, message);
+        this.socketService.send(RobotCommandFromInterface.EndMission, message);
     }
 
     startMissionGazebo(): void {
@@ -108,7 +135,7 @@ export class RobotCommunicationService {
             },
             timestamp: new Date().toISOString(),
         };
-        this.socket.emit(RobotCommandFromInterface.StartMission, message);
+        this.socketService.send(RobotCommandFromInterface.StartMission, message);
     }
 
     endMissionGazebo(): void {
@@ -117,7 +144,7 @@ export class RobotCommunicationService {
             target: 'simulation',
             timestamp: new Date().toISOString(),
         };
-        this.socket.emit(RobotCommandFromInterface.EndMission, message);
+        this.socketService.send(RobotCommandFromInterface.EndMission, message);
     }
 
     updateRobot(identifier: string, status: string, position: { x: number; y: number }): void {
@@ -128,7 +155,7 @@ export class RobotCommunicationService {
             position,
             timestamp: new Date().toISOString(),
         };
-        this.socket.emit(RobotCommandFromInterface.UpdateRobot, message);
+        this.socketService.send(RobotCommandFromInterface.UpdateRobot, message);
     }
 
     returnToBase(): void {
@@ -136,7 +163,7 @@ export class RobotCommunicationService {
             command: 'return_to_base',
             timestamp: new Date().toISOString(),
         };
-        this.socket.emit(RobotCommandFromInterface.ReturnToBase, message);
+        this.socketService.send(RobotCommandFromInterface.ReturnToBase, message);
     }
 
     updateControllerCode(newCode: string): void {
@@ -145,7 +172,7 @@ export class RobotCommunicationService {
             code: newCode,
             timestamp: new Date().toISOString(),
         };
-        this.socket.emit(RobotCommandFromInterface.UpdateControllerCode, message);
+        this.socketService.send(RobotCommandFromInterface.UpdateControllerCode, message);
     }
 
     notifyRobotsToCommunicate(): void {
@@ -153,7 +180,7 @@ export class RobotCommunicationService {
             command: 'P2P',
             timestamp: new Date().toISOString(),
         };
-        this.socket.emit(RobotCommandFromInterface.NotifyRobotsToCommunicate, message);
+        this.socketService.send(RobotCommandFromInterface.NotifyRobotsToCommunicate, message);
     }
 
     findFurthestRobot(relativePoint: { x: number; y: number }): void {
@@ -162,7 +189,7 @@ export class RobotCommunicationService {
             relative_point: relativePoint,
             timestamp: new Date().toISOString(),
         };
-        this.socket.emit(RobotCommandFromInterface.FindFurthestRobot, message);
+        this.socketService.send(RobotCommandFromInterface.FindFurthestRobot, message);
     }
 
     identifyRobot(target: string): void {
@@ -170,18 +197,18 @@ export class RobotCommunicationService {
             command: 'identify_robot',
             target,
         };
-        this.socket.emit(RobotCommandFromInterface.IdentifyRobot, message);
+        this.socketService.send(RobotCommandFromInterface.IdentifyRobot, message);
     }
 
     onMessage(eventName: string): Observable<any> {
         return new Observable((observer) => {
-            this.socket.on(eventName, (data: any) => {
+            this.socketService.on(eventName, (data: any) => {
                 observer.next(data);
             });
         });
     }
 
     disconnect(): void {
-        this.socket.disconnect();
+        this.socketService.disconnect();
     }
 }
