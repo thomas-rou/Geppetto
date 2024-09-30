@@ -5,6 +5,8 @@ services:
     container_name: client
     ports:
       - "4200:4200"
+    env_file:
+      - .env
   server:
     build:
       dockerfile: Dockerfile_server
