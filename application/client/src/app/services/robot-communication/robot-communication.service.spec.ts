@@ -16,7 +16,7 @@ describe('RobotCommunicationService', () => {
     let socketSpy: SocketHandlerServiceMock;
     let socketHelper: SocketTestHelper;
     let onSpy: jasmine.Spy<() => void>;
-    let sendSpy: any;
+    let sendSpy: unknown;
 
     const testMessage = { data: 'test' };
 
@@ -140,7 +140,7 @@ describe('RobotCommunicationService', () => {
     });
 
     it('should handle onMessage correctly', () => {
-        let eventName = 'customEvent';
+        const eventName = 'customEvent';
         service.onMessage(eventName).subscribe((message) => {
             expect(message).toBeFalsy();
         });
@@ -202,7 +202,7 @@ describe('RobotCommunicationService', () => {
     });
 
     it('handleMissionStatus() should receive new mission status', () => {
-        const message: string = 'mission status';
+        const message = 'mission status';
 
         service.handleMissionStatus();
         socketHelper.peerSideEmit('missionStatus', message);
@@ -215,7 +215,7 @@ describe('RobotCommunicationService', () => {
     });
 
     it('handleRobotIdentification() should receive identification status', () => {
-        const message: string = 'identification status';
+        const message = 'identification status';
 
         service.handleRobotIdentification();
         socketHelper.peerSideEmit('robotIdentification', message);
@@ -228,7 +228,7 @@ describe('RobotCommunicationService', () => {
     });
 
     it('handleCommandError() should receive error status', () => {
-        const message: string = 'error status';
+        const message = 'error status';
 
         service.handleCommandError();
         socketHelper.peerSideEmit('commandError', message);

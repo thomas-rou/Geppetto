@@ -202,7 +202,7 @@ export class RobotCommunicationService {
 
     onMessage(eventName: string): Observable<unknown> {
         return new Observable((observer) => {
-            this.socketService.on(eventName, (data: any) => {
+            this.socketService.on(eventName, (data: unknown) => {
                 observer.next(data);
             });
         });

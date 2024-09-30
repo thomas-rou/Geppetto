@@ -8,6 +8,4 @@ import { RobotStatus } from '@app/enums/robot-status';
 export class RobotManagementService {
     robot1: Robot = new Robot('1', 'Robot 1', RobotStatus.Idle, 100, { x: 0, y: 0 }, 0.0);
     robot2: Robot = new Robot('2', 'Robot 2', RobotStatus.Idle, 100, { x: 0, y: 0 }, 0.0);
-
-    constructor() {}
 }

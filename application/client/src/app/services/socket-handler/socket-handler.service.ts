@@ -8,8 +8,6 @@ import { environment } from 'src/environments/environment';
 export class SocketHandlerService {
     socket: Socket;
 
-    constructor() {}
-
     isSocketAlive() {
         return this.socket && this.socket.connected;
     }
