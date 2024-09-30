@@ -1,5 +1,5 @@
-<div class="popup-container">
-    <div class="popup-content">
+<div class="popup-container" (click)="onCancel()">
+    <div class="popup-content" (click)="$event.stopPropagation()">
         <h2>Lancement de Mission</h2>
         <div class="robot">
             <h3>{{ robot1.name }}</h3>
