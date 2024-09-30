@@ -15,3 +15,4 @@ application/package-lock.json
 embedded_ws/build
 embedded_ws/install
 embedded_ws/log
+dockerfiles/.env

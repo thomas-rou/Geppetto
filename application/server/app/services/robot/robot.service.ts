@@ -33,44 +33,40 @@ export class RobotService {
     }
 
     async subscribeToTopic(topicName: Topic, topicType: TopicType) {
-        if (this.ws.readyState === WebSocket.CLOSED) {
-            try {
+        try {
+            if (this.ws.readyState === WebSocket.CLOSED) {
                 await this.connect();
-            } catch (error) {
-                this.logger.error(`Error connecting to robot ${this.robotIp}`);
-                return;
             }
+            const subscribeMessage: MessageOperation = {
+                op: Operation.subscribe,
+                topic: topicName,
+                type: topicType,
+            };
+            this.ws.send(JSON.stringify(subscribeMessage));
+            this.logger.log(`Subscription to topic ${topicName} of robot ${this.robotIp}`);
+        } catch (error) {
+            this.logger.error(`Error connecting to robot ${this.robotIp}`);
         }
-
-        const subscribeMessage: MessageOperation = {
-            op: Operation.subscribe,
-            topic: topicName,
-            type: topicType,
-        };
-        this.ws.send(JSON.stringify(subscribeMessage));
-        this.logger.log(`Subscription to topic ${topicName} of robot ${this.robotIp}`);
     }
 
     async publishToTopic(topicName: Topic, topicType: TopicType, message: RobotRequest) {
-        if (this.ws.readyState === WebSocket.CLOSED) {
-            try {
+        try {
+            if (this.ws.readyState === WebSocket.CLOSED) {
                 await this.connect();
-            } catch (error) {
-                this.logger.error(`Error connecting to robot ${this.robotIp}`);
-                return;
             }
+            const publishMessage: MessageOperation = {
+                op: Operation.publish,
+                topic: topicName,
+                type: topicType,
+                msg: message,
+            };
+            this.ws.send(JSON.stringify(publishMessage));
+            this.logger.log(`Publish message to topic ${topicName} of robot ${this.robotIp}:`);
+        } catch (error) {
+            this.logger.error(`Error connecting to robot ${this.robotIp}`);
         }
-        const publishMessage: MessageOperation = {
-            op: Operation.publish,
-            topic: topicName,
-            type: topicType,
-            msg: message,
-        };
-        this.ws.send(JSON.stringify(publishMessage));
-        this.logger.log(`Publish message to topic ${topicName} of robot ${this.robotIp}:`);
     }
 
-    // TODO: send real info comming from Frontend, to do so, needs parameters for this function and the one under
     startMission() {
         this.publishToTopic(Topic.start_mission, TopicType.start_mission, {
             command: Command.StartMission,
