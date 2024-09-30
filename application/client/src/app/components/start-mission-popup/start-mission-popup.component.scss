@@ -40,8 +40,7 @@ h2 {
     color: var(--color-text);
 }
 
-button {
-    width: 100%;
+.launch-btn, .cancel-btn {
     background-color: var(--color-secondary);
     border: none;
     color: var(--color-text);
@@ -56,6 +55,14 @@ button {
     &:active {
         transform: scale(0.98);
     }
+}
+
+.launch-btn {
+    width: 70%;
+}
+
+.cancel-btn {
+    width: 25%;
 }
 
 .input {
@@ -78,4 +85,10 @@ input {
     flex-direction: column;
     justify-content: center;
     gap: 3px;
+}
+
+.actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
 }

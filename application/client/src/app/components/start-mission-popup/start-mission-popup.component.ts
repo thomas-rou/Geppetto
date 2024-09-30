@@ -12,6 +12,8 @@ import { RobotManagementService } from '@app/services/robot-management/robot-man
 })
 export class StartMissionPopupComponent {
     @Output() startMission = new EventEmitter<{ robot1: Robot; robot2: Robot }>();
+    @Output() cancelMission = new EventEmitter<void>();
+
     robot1X: number = 0;
     robot1Y: number = 0;
     robot1Orientation: number = 0.0;
@@ -36,5 +38,9 @@ export class StartMissionPopupComponent {
         this.robot2.orientation = this.robot2Orientation;
 
         this.startMission.emit();
+    }
+    
+    onCancel() {
+        this.cancelMission.emit();
     }
 }

@@ -67,6 +67,10 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
         this.robotService.startMission();
     }
 
+    onCancel() {
+        this.showPopup = false;
+    }
+
     stopMission() {
         if (this.verifySocketConnection()) {
             try {
