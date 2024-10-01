@@ -7,6 +7,6 @@ import { NotificationPromptComponent } from '../notification-prompt/notification
     standalone: true,
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
-    imports: [RouterOutlet, NotificationPromptComponent]
+    imports: [RouterOutlet, NotificationPromptComponent],
 })
 export class AppComponent {}

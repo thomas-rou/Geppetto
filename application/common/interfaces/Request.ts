@@ -1,13 +1,9 @@
-import { Command, Topic, TopicType, Operation } from "./../enums/SocketsEvents";
+import { Command, Topic, TopicType, Operation } from '../enums/SocketsEvents';
+import { Position } from '../types/Position';
 
 export interface RobotRequest {
   command: Command;
   timestamp: string;
-}
-
-export interface Position {
-  x: number;
-  y: number;
 }
 
 export interface StartMissionRequest extends RobotRequest {
