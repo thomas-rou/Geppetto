@@ -5,14 +5,14 @@
             <collision name="collision">
                 <geometry>
                     <box>
-                        <size>3 0.1 0.2</size>
+                        <size>{size_x} {size_y} {size_z}</size>
                     </box>
                 </geometry>
             </collision>
             <visual name="visual">
                 <geometry>
                     <box>
-                        <size>3 0.1 0.2</size>
+                        <size>{size_x} {size_y} {size_z}</size>
                     </box>
                 </geometry>
                 <material>

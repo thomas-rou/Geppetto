@@ -14,6 +14,7 @@
 
 import os
 import random
+from abc import ABC, abstractproperty
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
@@ -25,13 +26,57 @@ from launch_ros.actions import Node
 
 
 class Pose:
-    def __init__(self, x=0.0, y=0.0, z=0.0, roll=0.0, pitch=0.0, yaw=0.0):
+    def __init__(self, x=0.0, y=0.0, z=0.1, roll=0.0, pitch=0.0, yaw=0.0):
         self.x = x
         self.y = y
         self.z = z
         self.roll = roll
         self.pitch = pitch
         self.yaw = yaw
+
+
+class Size:
+    def __init__(self, x=0.0, y=0.1, z=0.2):
+        self.x = x
+        self.y = y
+        self.z = z
+
+
+# pure abstract class
+class Obstacle(ABC):
+    def __init__(self, name: str):
+        self.name = name
+
+    pose: Pose
+    size: Size
+
+
+class Wall(Obstacle):
+    def __init__(self, pose: Pose = None, size: Size = None):
+        super().__init__(name="wall")
+
+        # Initialize pose with provided values or default values
+        if pose is None:
+            self.pose = Pose()
+        else:
+            self.pose = Pose(
+                x=pose.x if hasattr(pose, "x") else 0.0,
+                y=pose.y if hasattr(pose, "y") else 0.0,
+                z=pose.z if hasattr(pose, "z") else 0.0,
+                roll=pose.roll if hasattr(pose, "roll") else 0.0,
+                pitch=pose.pitch if hasattr(pose, "pitch") else 0.0,
+                yaw=pose.yaw if hasattr(pose, "yaw") else 0.0,
+            )
+
+        # Initialize size with provided values or default values
+        if size is None:
+            self.size = Size()
+        else:
+            self.size = Size(
+                x=size.x if hasattr(size, "x") else 0.0,
+                y=size.y if hasattr(size, "y") else 0.0,
+                z=size.z if hasattr(size, "z") else 0.0,
+            )
 
 
 max_width = 3
@@ -41,11 +86,11 @@ robot_count = 2
 n_obstacles = 3
 
 # fmt: off
-wall_poses = [
-    Pose(x=0,    y=1.5,  z=0.1, roll=0, pitch=0, yaw=0  ),  # north wall
-    Pose(x=0,    y=-1.5, z=0.1, roll=0, pitch=0, yaw=0  ),  # south wall
-    Pose(x=1.5,  y=0,    z=0.1, roll=0, pitch=0, yaw=1.5708),  # east wall
-    Pose(x=-1.5, y=0,    z=0.1, roll=0, pitch=0, yaw=1.5708),  # west wall
+walls = [
+    Wall(pose=Pose(y= max_width/2),               size=Size(x=max_width)), # north wall
+    Wall(pose=Pose(y=-max_width/2),               size=Size(x=max_width)), # south wall
+    Wall(pose=Pose(x= max_width/2 , yaw=1.5708),  size=Size(x=max_width)), # east wall
+    Wall(pose=Pose(x=-max_width/2 , yaw=1.5708),  size=Size(x=max_width)), # west wall
 ]
 # fmt: on
 
@@ -96,24 +141,34 @@ def create_spawn_entity(index: int, pose: Pose = Pose()):
     )
 
 
-def create_spawn_obstacle(obstacle_name: str, index: int, pose: Pose) -> Node:
+def create_spawn_obstacle(obstacle: Obstacle, index: int) -> Node:
     pkg_project_description = get_package_share_directory("ros_gz_example_description")
     sdf_file = os.path.join(
-        pkg_project_description, "models", obstacle_name, "model.sdf"
+        pkg_project_description, "models", obstacle.name, "model.sdf"
     )
+
+    with open(sdf_file, "r") as infp:
+        obstacle_desc = infp.read()
+
+
+    obstacle_desc = obstacle_desc.replace("{index}", str(index))
+    obstacle_desc = obstacle_desc.replace("{size_x}", str(obstacle.size.x))
+    obstacle_desc = obstacle_desc.replace("{size_y}", str(obstacle.size.y))
+    obstacle_desc = obstacle_desc.replace("{size_z}", str(obstacle.size.z))
+
     return Node(
         package="ros_gz_sim",
         executable="create",
         output="screen",
         arguments=[
-            "-name", f"obstacle{index}",
-            "-file", sdf_file,
-            "-x", str(pose.x),
-            "-y", str(pose.y),
-            "-z", str(pose.z),
-            "-R", str(pose.roll),
-            "-P", str(pose.pitch),
-            "-Y", str(pose.yaw),
+            "-name", f"{obstacle.name}{index}",
+            "-string", obstacle_desc,
+            "-x", str(obstacle.pose.x),
+            "-y", str(obstacle.pose.y),
+            "-z", str(obstacle.pose.z),
+            "-R", str(obstacle.pose.roll),
+            "-P", str(obstacle.pose.pitch),
+            "-Y", str(obstacle.pose.yaw),
         ],
     )
 
@@ -174,8 +229,8 @@ def generate_launch_description():
     #     spawn_entities.append(create_spawn_obstacle(i, *get_random_coordinates(), z=0.2))
 
     # Spawn walls
-    for i, wall_pose in enumerate(wall_poses):
-        spawn_entities.append(create_spawn_obstacle("wall", i, wall_pose))
+    for i, wall in enumerate(walls):
+        spawn_entities.append(create_spawn_obstacle(wall, i))
 
     # Bridge ROS topics and Gazebo messages for establishing communication
     bridge = Node(
