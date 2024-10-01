@@ -40,7 +40,6 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
                 this.socketConnected = isConnected;
             }),
         );
-        window.addEventListener('keydown', this.handleKeyDown.bind(this));
     }
 
     @HostListener('window:keydown', ['$event'])
