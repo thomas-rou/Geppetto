@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
-import { EndMissionRequest, RobotRequest, StartMissionRequest, MessageOperation } from '@common/interfaces/request.interface';
+import { EndMissionRequest, RobotRequest, StartMissionRequest, MessageOperation } from '@common/interfaces/Request';
 import { Command, Operation, Topic, TopicType } from '@common/enums/SocketsEvents';
 
 @Injectable()
