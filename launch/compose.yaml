@@ -28,3 +28,9 @@ services:
       - /tmp/.docker.xauth:/tmp/.docker.xauth
     ports:
       - "9090:9090"
+  database:
+    build:
+      dockerfile: Dockerfile_database
+    container_name: geppetto_cluster
+    ports:
+      - 27017:27017

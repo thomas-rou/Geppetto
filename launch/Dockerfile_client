@@ -8,7 +8,7 @@ WORKDIR /client
 # Clone the repository
 RUN git clone https://github.com/thomas-rou/Geppetto.git\
     && cd geppetto\
-    && git checkout feature/RF10_handle_many_clients\
+    && git checkout develop\
     && git pull
 
 WORKDIR /client/geppetto/application/client
