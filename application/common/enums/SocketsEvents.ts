@@ -37,3 +37,8 @@ export enum Command {
     P2P = 'P2P',
     FindFurthest = 'find_furthest',
 }
+
+export enum RobotList {
+    robot1 = '1',
+    robot2 = '2'
+}

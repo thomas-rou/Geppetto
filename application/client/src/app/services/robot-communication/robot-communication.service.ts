@@ -11,6 +11,7 @@ import { FindFurthestRobot } from '@common/interfaces/FindFurthestRobot';
 import { Observable, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
+import { RobotList } from '@common/enums/SocketsEvents';
 
 @Injectable({
     providedIn: 'root',
@@ -162,7 +163,7 @@ export class RobotCommunicationService {
         this.socket.emit(RobotCommandFromInterface.FindFurthestRobot, message);
     }
 
-    identifyRobot(target: '1' | '2'): void {
+    dentifyRobot(target: RobotList): void {
         const message: IdentifyRobot = {
             command: 'identify_robot',
             target,

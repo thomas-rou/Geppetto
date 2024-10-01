@@ -1,15 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
 import { EndMissionRequest, RobotRequest, StartMissionRequest, MessageOperation } from '@common/interfaces/request.interface';
-import { Command, Operation, Topic, TopicType } from '@common/enums/SocketsEvents';
+import { Command, Operation, Topic, TopicType, RobotList } from '@common/enums/SocketsEvents';
 
 @Injectable()
 export class RobotService {
     private readonly logger: Logger = new Logger(RobotService.name);
     private robotIp: string;
+    private robotNumber: RobotList;
     private ws: WebSocket;
-    constructor(robotIp: string) {
+    constructor(robotIp: string,robotNb: RobotList) {
         this.robotIp = robotIp;
+        this.robotNumber = robotNb;
         this.connect();
     }
 
@@ -88,11 +90,11 @@ export class RobotService {
         } as EndMissionRequest);
     }
 
-    identify(target: '1' | '2') {
+    identify() {
         var topicCommand;
-        if (target === '1') {
+        if (this.robotNumber = RobotList.robot1) {
             topicCommand = Topic.identify_command1;
-        } else if (target === '2') {
+        } else if (this.robotNumber = RobotList.robot1) {
             topicCommand = Topic.identify_command2;
         }
         this.publishToTopic(topicCommand, TopicType.identify_robot, {

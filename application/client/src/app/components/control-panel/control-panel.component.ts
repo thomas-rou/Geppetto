@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { Subscription } from 'rxjs';
 import { NotificationService } from '../../services/notification.service';
+import { RobotList } from '@common/enums/SocketsEvents';
 
 @Component({
     selector: 'app-control-panel',
@@ -65,7 +66,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
         }
     }
 
-    identifyRobot(target: '1' | '2') {
+    identifyRobot(target:  RobotList) {
         if(this.verifySocketConnection()) {
             try {
                 this.robotService.identifyRobot(target);
