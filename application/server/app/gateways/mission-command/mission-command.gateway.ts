@@ -3,7 +3,7 @@ import { EndMission } from '@common/interfaces/EndMission';
 import { StartMission } from '@common/interfaces/StartMission';
 import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
 import { RobotService } from '@app/services/robot/robot.service';
-import { RobotList } from '@common/enums/SocketsEvents';
+import { RobotId } from '@common/enums/SocketsEvents';
 import { Injectable, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -20,9 +20,9 @@ export class MissionCommandGateway {
     private controllingClient: Socket | null = null;
 
     constructor() {
-        this.robot1 = new RobotService(process.env.ROBOT1_IP, RobotList.robot1);
-        this.robot2 = new RobotService(process.env.ROBOT2_IP, RobotList.robot2);
-        this.gazebo = new RobotService(process.env.GAZEBO_IP, RobotList.gazebo);
+        this.robot1 = new RobotService(process.env.ROBOT1_IP, RobotId.robot1);
+        this.robot2 = new RobotService(process.env.ROBOT2_IP, RobotId.robot2);
+        this.gazebo = new RobotService(process.env.GAZEBO_IP, RobotId.gazebo);
     }
 
     handleDisconnect(client: Socket) {
@@ -100,10 +100,10 @@ export class MissionCommandGateway {
     identifyRobot(client: Socket, payload: IdentifyRobot) {
         try {
             if(this.verifyPermissionToControl(client)) {
-                if(payload.target === RobotList.robot1) {
+                if(payload.target === RobotId.robot1) {
                     this.logger.log('Identify robot 1 command received from client');
                     this.robot1.identify();
-                } else if(payload.target === RobotList.robot2) {
+                } else if(payload.target === RobotId.robot2) {
                     this.logger.log('Identify robot 2 command received from client');
                     this.robot2.identify();
                 }

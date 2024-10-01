@@ -4,27 +4,28 @@ import { WebSocket } from 'ws';
 import { MessageOperation } from '@common/interfaces/MessageOperation';
 import { StartMission } from '@common/interfaces/StartMission';
 import { EndMission } from '@common/interfaces/EndMission';
-import { RobotCommand, Operation, Topic, TopicType, RobotList } from '@common/enums/SocketsEvents';
+import { RobotCommand, Operation, Topic, TopicType, RobotId } from '@common/enums/SocketsEvents';
 import { BasicCommand } from '@common/interfaces/BasicCommand';
 
 @Injectable()
 export class RobotService {
     private readonly logger: Logger = new Logger(RobotService.name);
-    private robotIp: string;
-    private robotNumber: RobotList;
+    private _robotIp: string;
+    private _robotNumber: RobotId;
     private ws: WebSocket;
-    constructor(robotIp: string,robotNb: RobotList) {
-        this.robotIp = robotIp;
-        this.robotNumber = robotNb;
+
+    constructor(robotIp: string, robotNb: RobotId) {
+        this._robotIp = robotIp;
+        this._robotNumber = robotNb;
         this.connect();
     }
 
     async connect() {
         return new Promise<void>((resolve, reject) => {
-            this.ws = new WebSocket(`ws://${this.robotIp}:${process.env.ROS_BRIDGING_PORT}`);
+            this.ws = new WebSocket(`ws://${this._robotIp}:${process.env.ROS_BRIDGING_PORT}`);
 
             this.ws.onopen = () => {
-                this.logger.log(`Connection established to robot ${this.robotIp}`);
+                this.logger.log(`Connection established to robot ${this._robotIp}`);
                 resolve();
             };
 
@@ -49,9 +50,9 @@ export class RobotService {
                 type: topicType,
             };
             this.ws.send(JSON.stringify(subscribeMessage));
-            this.logger.log(`Subscription to topic ${topicName} of robot ${this.robotIp}`);
+            this.logger.log(`Subscription to topic ${topicName} of robot ${this._robotIp}`);
         } catch (error) {
-            this.logger.error(`Error connecting to robot ${this.robotIp}`);
+            this.logger.error(`Error connecting to robot ${this._robotIp}`);
         }
     }
 
@@ -67,9 +68,9 @@ export class RobotService {
                 msg: message.command,
             };
             this.ws.send(JSON.stringify(publishMessage));
-            this.logger.log(`Publish message to topic ${topicName} of robot ${this.robotIp}:`);
+            this.logger.log(`Publish message to topic ${topicName} of robot ${this._robotIp}:`);
         } catch (error) {
-            this.logger.error(`Error connecting to robot ${this.robotIp}`);
+            this.logger.error(`Error connecting to robot ${this._robotIp}`);
         }
     }
 
@@ -96,9 +97,9 @@ export class RobotService {
 
     identify() {
         var topicCommand;
-        if (this.robotNumber = RobotList.robot1) {
+        if (this._robotNumber = RobotId.robot1) {
             topicCommand = Topic.identify_command1;
-        } else if (this.robotNumber = RobotList.robot1) {
+        } else if (this._robotNumber = RobotId.robot1) {
             topicCommand = Topic.identify_command2;
         }
         this.publishToTopic(topicCommand, TopicType.identify_robot, {

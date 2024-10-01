@@ -11,7 +11,7 @@ import { NotifyRobotsToCommunicate } from '@common/interfaces/NotifyRobotsToComm
 import { FindFurthestRobot } from '@common/interfaces/FindFurthestRobot';
 import { Observable, Subject } from 'rxjs';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
-import { RobotList } from '@common/enums/SocketsEvents';
+import { RobotId } from '@common/enums/SocketsEvents';
 
 @Injectable({
     providedIn: 'root',
@@ -109,8 +109,7 @@ export class RobotCommunicationService {
             },
             timestamp: new Date().toISOString(),
         };
-        this.socket.emit(RobotCommand.StartMission, message);
-        this.socketService.send(RobotCommandFromInterface.StartMission, message);
+        this.socketService.send(RobotCommand.StartMission, message);
     }
 
     endMission(): void {
@@ -124,7 +123,7 @@ export class RobotCommunicationService {
             target: 'robot',
             timestamp: new Date().toISOString(),
         };
-        this.socketService.send(RobotCommandFromInterface.EndMission, message);
+        this.socketService.send(RobotCommand.EndMission, message);
     }
 
     startMissionGazebo(): void {
@@ -137,7 +136,7 @@ export class RobotCommunicationService {
             },
             timestamp: new Date().toISOString(),
         };
-        this.socketService.send(RobotCommandFromInterface.StartMission, message);
+        this.socketService.send(RobotCommand.StartMission, message);
     }
 
     endMissionGazebo(): void {
@@ -146,7 +145,7 @@ export class RobotCommunicationService {
             target: 'simulation',
             timestamp: new Date().toISOString(),
         };
-        this.socketService.send(RobotCommandFromInterface.EndMission, message);
+        this.socketService.send(RobotCommand.EndMission, message);
     }
 
     updateRobot(identifier: string, status: string, position: { x: number; y: number }): void {
@@ -157,7 +156,7 @@ export class RobotCommunicationService {
             position,
             timestamp: new Date().toISOString(),
         };
-        this.socketService.send(RobotCommandFromInterface.UpdateRobot, message);
+        this.socketService.send(RobotCommand.UpdateRobot, message);
     }
 
     returnToBase(): void {
@@ -165,7 +164,7 @@ export class RobotCommunicationService {
             command: RobotCommand.ReturnToBase,
             timestamp: new Date().toISOString(),
         };
-        this.socketService.send(RobotCommandFromInterface.ReturnToBase, message);
+        this.socketService.send(RobotCommand.ReturnToBase, message);
     }
 
     updateControllerCode(newCode: string): void {
@@ -174,7 +173,7 @@ export class RobotCommunicationService {
             code: newCode,
             timestamp: new Date().toISOString(),
         };
-        this.socketService.send(RobotCommandFromInterface.UpdateControllerCode, message);
+        this.socketService.send(RobotCommand.UpdateControllerCode, message);
     }
 
     notifyRobotsToCommunicate(): void {
@@ -182,7 +181,7 @@ export class RobotCommunicationService {
             command: RobotCommand.InitiateP2P,
             timestamp: new Date().toISOString(),
         };
-        this.socketService.send(RobotCommandFromInterface.NotifyRobotsToCommunicate, message);
+        this.socketService.send(RobotCommand.InitiateP2P, message);
     }
 
     findFurthestRobot(relativePoint: { x: number; y: number }): void {
@@ -191,15 +190,15 @@ export class RobotCommunicationService {
             relative_point: relativePoint,
             timestamp: new Date().toISOString(),
         };
-        this.socketService.send(RobotCommandFromInterface.FindFurthestRobot, message);
+        this.socketService.send(RobotCommand.FindFurthestRobot, message);
     }
 
-    IdentifyRobot(target: RobotList): void {
+    identifyRobot(target: RobotId): void {
         const message: IdentifyRobot = {
             command: 'identify_robot',
             target,
         };
-        this.socketService.send(RobotCommandFromInterface.IdentifyRobot, message);
+        this.socketService.send(RobotCommand.IdentifyRobot, message);
     }
 
     onMessage(eventName: string): Observable<unknown> {

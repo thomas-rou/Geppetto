@@ -1,6 +1,6 @@
-import { RobotList } from "./../enums/SocketsEvents";
+import { RobotId } from "./../enums/SocketsEvents";
 
 export interface IdentifyRobot {
     command: string;
-    target: RobotList;
+    target: RobotId;
 }

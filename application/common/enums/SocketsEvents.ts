@@ -27,7 +27,7 @@ export enum TopicType {
     identify_robot = 'common_msgs/msg/IdentifyRobot',
 }
 
-export enum RobotList {
+export enum RobotId {
     gazebo = '0',
     robot1 = '1',
     robot2 = '2'
