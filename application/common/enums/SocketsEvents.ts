@@ -1,11 +1,11 @@
-export enum RobotCommandFromInterface {
+export enum RobotCommand {
     StartMission = 'start_mission',
     EndMission = 'end_mission',
     IdentifyRobot = 'identify_robot',
     UpdateRobot = 'update',
     ReturnToBase = 'return_to_base',
     UpdateControllerCode = 'update_controller_code',
-    NotifyRobotsToCommunicate = 'initiate_p2p',
+    InitiateP2P = 'P2P',
     FindFurthestRobot = 'find_furthest'
 }
 
@@ -27,18 +27,8 @@ export enum TopicType {
     identify_robot = 'common_msgs/msg/IdentifyRobot',
 }
 
-export enum Command {
-    StartMission = 'start_mission',
-    EndMission = 'end_mission',
-    Identify = 'identify_robot',
-    UpdateRobot = 'update',
-    ReturnToBase = 'return_to_base',
-    UpdateControllerCode = 'update_controller_code',
-    P2P = 'P2P',
-    FindFurthest = 'find_furthest',
-}
-
 export enum RobotList {
+    gazebo = '0',
     robot1 = '1',
     robot2 = '2'
 }

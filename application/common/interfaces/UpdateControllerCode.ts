@@ -1,5 +1,7 @@
-export interface UpdateControllerCode {
-    command: string;
+import { RobotCommand } from "../enums/SocketsEvents";
+import { BasicCommand } from "./BasicCommand"
+
+export interface UpdateControllerCode extends BasicCommand {
+    command: RobotCommand.UpdateControllerCode;
     code: string;
-    timestamp: string;
 }

@@ -1,7 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
-import { EndMissionRequest, RobotRequest, StartMissionRequest, MessageOperation } from '@common/interfaces/request.interface';
-import { Command, Operation, Topic, TopicType, RobotList } from '@common/enums/SocketsEvents';
+//import { EndMissionRequest, RobotRequest, StartMissionRequest, MessageOperation } from '@common/interfaces/request.interface';
+import { MessageOperation } from '@common/interfaces/MessageOperation';
+import { StartMission } from '@common/interfaces/StartMission';
+import { EndMission } from '@common/interfaces/EndMission';
+import { RobotCommand, Operation, Topic, TopicType, RobotList } from '@common/enums/SocketsEvents';
+import { BasicCommand } from '@common/interfaces/BasicCommand';
 
 @Injectable()
 export class RobotService {
@@ -51,7 +55,7 @@ export class RobotService {
         }
     }
 
-    async publishToTopic(topicName: Topic, topicType: TopicType, message: RobotRequest) {
+    async publishToTopic(topicName: Topic, topicType: TopicType, message: BasicCommand) {
         try {
             if (this.ws.readyState === WebSocket.CLOSED) {
                 await this.connect();
@@ -60,7 +64,7 @@ export class RobotService {
                 op: Operation.publish,
                 topic: topicName,
                 type: topicType,
-                msg: message,
+                msg: message.command,
             };
             this.ws.send(JSON.stringify(publishMessage));
             this.logger.log(`Publish message to topic ${topicName} of robot ${this.robotIp}:`);
@@ -71,7 +75,7 @@ export class RobotService {
 
     startMission() {
         this.publishToTopic(Topic.start_mission, TopicType.start_mission, {
-            command: Command.StartMission,
+            command: RobotCommand.StartMission,
             mission_details: {
                 orientation: 0.0,
                 position: {
@@ -80,14 +84,14 @@ export class RobotService {
                 },
             },
             timestamp: new Date().toISOString(),
-        } as StartMissionRequest);
+        } as StartMission);
     }
 
     stopMission() {
         this.publishToTopic(Topic.stop_mission, TopicType.stop_mission, {
-            command: Command.EndMission,
+            command: RobotCommand.EndMission,
             timestamp: new Date().toISOString(),
-        } as EndMissionRequest);
+        } as EndMission);
     }
 
     identify() {
@@ -98,8 +102,8 @@ export class RobotService {
             topicCommand = Topic.identify_command2;
         }
         this.publishToTopic(topicCommand, TopicType.identify_robot, {
-            command: Command.Identify,
+            command: RobotCommand.IdentifyRobot,
             timestamp: new Date().toISOString(),
-        } as RobotRequest);
+        } as BasicCommand);
     }
 }

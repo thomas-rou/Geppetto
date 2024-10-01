@@ -1,10 +1,10 @@
-export interface UpdateRobot {
-    command: string;
+import { RobotCommand } from "../enums/SocketsEvents";
+import { BasicCommand } from "./BasicCommand"
+import { Position } from "./Position"
+
+export interface UpdateRobot extends BasicCommand {
+    command: RobotCommand.UpdateRobot;
     identifier: string;
     status: string;
-    position: {
-        x: number;
-        y: number;
-    };
-    timestamp: string;
+    position: Position;
 }

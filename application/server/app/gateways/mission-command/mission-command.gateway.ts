@@ -1,4 +1,4 @@
-import { RobotCommandFromInterface } from '@common/enums/SocketsEvents';
+import { RobotCommand } from '@common/enums/SocketsEvents';
 import { EndMission } from '@common/interfaces/EndMission';
 import { StartMission } from '@common/interfaces/StartMission';
 import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
@@ -44,7 +44,7 @@ export class MissionCommandGateway {
         return true;
     }
 
-    @SubscribeMessage(RobotCommandFromInterface.StartMission)
+    @SubscribeMessage(RobotCommand.StartMission)
     startMissionRobots(client: Socket, payload: StartMission) {
         try {
             if (this.verifyPermissionToControl(client)) {
@@ -70,7 +70,7 @@ export class MissionCommandGateway {
         }
     }
 
-    @SubscribeMessage(RobotCommandFromInterface.EndMission)
+    @SubscribeMessage(RobotCommand.EndMission)
     stopMissionFromRobots(client: Socket, payload: EndMission) {
         try {
             if (this.verifyPermissionToControl(client)) {
@@ -96,7 +96,7 @@ export class MissionCommandGateway {
         }
     }
 
-    @SubscribeMessage(RobotCommandFromInterface.IdentifyRobot)
+    @SubscribeMessage(RobotCommand.IdentifyRobot)
     identifyRobot(client: Socket, payload: IdentifyRobot) {
         try {
             if(this.verifyPermissionToControl(client)) {
