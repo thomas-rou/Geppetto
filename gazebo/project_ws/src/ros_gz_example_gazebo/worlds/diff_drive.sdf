@@ -55,7 +55,7 @@
       </link>
     </model>
 
-    <model name="plate">
+    <!-- <model name="plate">
       <static>true</static>
       <link name="link">
         <pose>0 0 0.01 0 0 0</pose>
@@ -79,7 +79,7 @@
           </material>
         </visual>
       </link>
-    </model>
+    </model> -->
     
   </world>
 </sdf>

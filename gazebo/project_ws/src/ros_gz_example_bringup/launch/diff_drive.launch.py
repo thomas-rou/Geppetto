@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 import os
 import random
-from abc import ABC, abstractproperty
+import numpy as np
+from abc import ABC, abstractmethod
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
@@ -34,6 +36,9 @@ class Pose:
         self.pitch = pitch
         self.yaw = yaw
 
+    def to_array(self):
+        return np.array([self.x, self.y, self.z])
+
 
 class Size:
     def __init__(self, x=0.0, y=0.1, z=0.2):
@@ -41,20 +46,21 @@ class Size:
         self.y = y
         self.z = z
 
+    def to_array(self):
+        return np.array([self.x, self.y, self.z])
+
 
 # pure abstract class
-class Obstacle(ABC):
-    def __init__(self, name: str):
-        self.name = name
-
+class Entity(ABC):
     pose: Pose
     size: Size
+    name: str
 
+    @abstractmethod
+    def __init__(self):
+        pass
 
-class Wall(Obstacle):
-    def __init__(self, pose: Pose = None, size: Size = None):
-        super().__init__(name="wall")
-
+    def build_entity(self, pose: Pose = None, size: Size = None):
         # Initialize pose with provided values or default values
         if pose is None:
             self.pose = Pose()
@@ -79,19 +85,104 @@ class Wall(Obstacle):
             )
 
 
-max_width = 3
-max_height = 3
+# pure abstract class
+class Obstacle(Entity):
+    _id = 0
+
+    @abstractmethod
+    def __init__(self, name: str):
+        pass
+
+    def get_id():
+        current_id = Obstacle._id
+        Obstacle._id += 1
+        return current_id
+
+
+class Robot(Entity):
+    def __init__(self, name="robot", pose: Pose = None, size: Size = None):
+        self.name = name
+        self.build_entity(pose, size)
+
+
+class Wall(Obstacle):
+    def __init__(self, pose: Pose = None, size: Size = None):
+        self.name = "wall"
+        self.build_entity(pose, size)
+
+
+max_width = 10
+max_height = 5
+
+wall_thickness = 0.1
 
 robot_count = 2
-n_obstacles = 3
+n_wall_obstacles = 10
+
+horizontal_yaw = math.pi / 2
 
 # fmt: off
 walls = [
-    Wall(pose=Pose(y= max_width/2),               size=Size(x=max_width)), # north wall
-    Wall(pose=Pose(y=-max_width/2),               size=Size(x=max_width)), # south wall
-    Wall(pose=Pose(x= max_width/2 , yaw=1.5708),  size=Size(x=max_width)), # east wall
-    Wall(pose=Pose(x=-max_width/2 , yaw=1.5708),  size=Size(x=max_width)), # west wall
+    Wall(pose=Pose(y= max_width/2),               size=Size(x=max_width)), # west wall
+    Wall(pose=Pose(y=-max_width/2),               size=Size(x=max_width)), # east wall
+    Wall(pose=Pose(x= max_width/2 , yaw=horizontal_yaw),  size=Size(x=max_width)), # north wall
+    Wall(pose=Pose(x=-max_width/2 , yaw=horizontal_yaw),  size=Size(x=max_width)), # south wall
 ]
+
+robots = [
+    Robot(name="pino"),
+    Robot(name="chio", pose=Pose(y=1)),
+]
+
+def check_spawn_kill(obstacle: Obstacle):
+
+    def get_bounding_box(pose, size):
+        min_corner = pose.to_array() - size.to_array() / 2.0
+        max_corner = pose.to_array() + size.to_array() / 2.0
+        return min_corner, max_corner
+
+    combined_entitites = robots + walls
+
+    for entity in combined_entitites:
+
+        entity_min, entity_max = get_bounding_box(entity.pose, entity.size)
+        obstacle_min, obstacle_max = get_bounding_box(obstacle.pose, obstacle.size)
+
+        # Check if bounding boxes intersect (AABB collision detection)
+        for i in range(3):  # 3 dimensions: x, y, z
+            if entity_max[i] >= obstacle_min[i] and entity_min[i] <= obstacle_max[i]:
+                return False
+    
+    return True
+
+
+def generate_random_wall_obstacles():
+    while True:
+        start = random.randint(0, 5) # start at any of 4 walls or anywhere
+        size=Size(x=random.uniform(0.5, max_width/2))
+
+        match(start):
+            case 0 :
+                wall = Wall(
+                    pose=Pose(y=random.uniform(-max_width / 2 + wall_thickness, max_width / 2 - wall_thickness), x=max_width / 2 - size.x / 2), size=size)
+            case 1 :
+                wall = Wall(
+                    pose=Pose(y=random.uniform(-max_width / 2 + wall_thickness, max_width / 2 - wall_thickness), x=-max_width / 2 + size.x / 2), size=size)
+            case 2 :
+                wall = Wall(
+                    pose=Pose(x=random.uniform(-max_width / 2 + wall_thickness, max_width / 2 - wall_thickness), y=max_width / 2 - size.x / 2, yaw=horizontal_yaw), size=size)
+            case 3 :
+                wall = Wall(
+                    pose=Pose(x=random.uniform(-max_width / 2 + wall_thickness, max_width / 2 - wall_thickness), y=-max_width / 2 + size.x / 2, yaw=horizontal_yaw), size=size)
+            case _ :
+                wall = Wall(
+                    pose=Pose(x=random.uniform(-max_height / 2 + wall_thickness, max_height / 2 - wall_thickness), y=random.uniform(-max_width  / 2 + wall_thickness, max_width / 2 - wall_thickness), yaw=random.uniform(0, math.pi)), size=size)
+        
+        if not check_spawn_kill(wall):
+            break
+
+    walls.append(wall)
+    return wall
 # fmt: on
 
 
@@ -123,7 +214,9 @@ def create_robot_state_publisher(robot_desc, index):
 
 
 # fmt: off
-def create_spawn_entity(index: int, pose: Pose = Pose()):
+# see if can combine or make class mehtod
+
+def create_spawn_robot(robot: Robot, index: int):
     return Node(
         package="ros_gz_sim",
         executable="create",
@@ -131,17 +224,17 @@ def create_spawn_entity(index: int, pose: Pose = Pose()):
         arguments=[
             "-topic", f"/robot_description{index}",
             "-name", f"limo_diff_drive{index}",
-            "-x", str(pose.x),
-            "-y", str(pose.y + index),
-            "-z", str(pose.z),
-            "-R", str(pose.roll),
-            "-P", str(pose.pitch),
-            "-Y", str(pose.yaw),
+            "-x", str(robot.pose.x),
+            "-y", str(robot.pose.y),
+            "-z", str(robot.pose.z),
+            "-R", str(robot.pose.roll),
+            "-P", str(robot.pose.pitch),
+            "-Y", str(robot.pose.yaw),
         ],
     )
 
 
-def create_spawn_obstacle(obstacle: Obstacle, index: int) -> Node:
+def create_spawn_obstacle(obstacle: Obstacle) -> Node:
     pkg_project_description = get_package_share_directory("ros_gz_example_description")
     sdf_file = os.path.join(
         pkg_project_description, "models", obstacle.name, "model.sdf"
@@ -150,7 +243,8 @@ def create_spawn_obstacle(obstacle: Obstacle, index: int) -> Node:
     with open(sdf_file, "r") as infp:
         obstacle_desc = infp.read()
 
-
+    index = Obstacle.get_id()
+    
     obstacle_desc = obstacle_desc.replace("{index}", str(index))
     obstacle_desc = obstacle_desc.replace("{size_x}", str(obstacle.size.x))
     obstacle_desc = obstacle_desc.replace("{size_y}", str(obstacle.size.y))
@@ -217,20 +311,21 @@ def generate_launch_description():
     spawn_entities = []
 
     # Load the limo models
-    for i in range(robot_count):
+    for i, robot in enumerate(robots):
         robot_desc = load_model_sdf(
             "ros_gz_example_description", "limo_diff_drive_template", i
         )
         robot_state_publishers.append(create_robot_state_publisher(robot_desc, i))
-        spawn_entities.append(create_spawn_entity(i))
+        spawn_entities.append(create_spawn_robot(robot, i))
 
     # Spawn random obstacles
-    # for i in range(n_obstacles):
-    #     spawn_entities.append(create_spawn_obstacle(i, *get_random_coordinates(), z=0.2))
+    for _ in range(n_wall_obstacles):
+        wall = generate_random_wall_obstacles()
+        spawn_entities.append(create_spawn_obstacle(wall))
 
     # Spawn walls
-    for i, wall in enumerate(walls):
-        spawn_entities.append(create_spawn_obstacle(wall, i))
+    for wall in walls:
+        spawn_entities.append(create_spawn_obstacle(wall))
 
     # Bridge ROS topics and Gazebo messages for establishing communication
     bridge = Node(
