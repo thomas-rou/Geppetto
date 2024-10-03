@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
-//import { EndMissionRequest, RobotRequest, StartMissionRequest, MessageOperation } from '@common/interfaces/request.interface';
 import { MessageOperation } from '@common/interfaces/MessageOperation';
 import { StartMission } from '@common/interfaces/StartMission';
 import { EndMission } from '@common/interfaces/EndMission';
