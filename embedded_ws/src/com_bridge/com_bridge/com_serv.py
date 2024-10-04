@@ -88,10 +88,8 @@ class ComServNode(Node):
         twist_msg.linear.z = 0.0
         twist_msg.angular.x = 0.0
         twist_msg.angular.y = 0.0
-        twist_msg.angular.z = 1.8
-        
+        twist_msg.angular.z = 1.8        
         self.mission_mouvements.publish(twist_msg)
-
 
     def destroy_node(self):
         super().destroy_node()
