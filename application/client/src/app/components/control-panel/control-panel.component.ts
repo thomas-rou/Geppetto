@@ -4,6 +4,7 @@ import { RobotCommunicationService } from '@app/services/robot-communication/rob
 import { Subscription } from 'rxjs';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { StartMissionPopupComponent } from '@app/components/start-mission-popup/start-mission-popup.component';
+import { RobotId } from '@common/enums/RobotId';
 
 @Component({
     selector: 'app-control-panel',
@@ -76,6 +77,16 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
                 this.robotService.endMission();
             } catch (error) {
                 console.error('Error stopping mission', error);
+            }
+        }
+    }
+
+    identifyRobot(target: RobotId) {
+        if (this.verifySocketConnection()) {
+            try {
+                this.robotService.identifyRobot(target);
+            } catch (error) {
+                console.error('Error identifying robot', error);
             }
         }
     }

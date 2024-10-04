@@ -4,6 +4,7 @@ import { StartMissionPopupComponent } from './start-mission-popup.component';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
 import { Robot } from '@app/classes/robot/robot';
 import { RobotStatus } from '@app/enums/robot-status';
+import { RobotId } from '@common/enums/RobotId';
 
 describe('StartMissionPopupComponent', () => {
     let component: StartMissionPopupComponent;
@@ -12,8 +13,8 @@ describe('StartMissionPopupComponent', () => {
 
     beforeEach(async () => {
         const robotManagementServiceMock = {
-            robot1: new Robot('1', 'Robot1', RobotStatus.Idle, 100, { x: 0, y: 0 }, 0.0),
-            robot2: new Robot('2', 'Robot2', RobotStatus.Idle, 100, { x: 0, y: 0 }, 0.0),
+            robot1: new Robot(RobotId.robot1, 'Robot1', RobotStatus.Idle, 100, { x: 0, y: 0 }, 0.0),
+            robot2: new Robot(RobotId.robot2, 'Robot2', RobotStatus.Idle, 100, { x: 0, y: 0 }, 0.0),
         };
 
         await TestBed.configureTestingModule({
@@ -64,5 +65,13 @@ describe('StartMissionPopupComponent', () => {
         expect(component.robot1.orientation).toBe(90.0);
         expect(component.robot2.position).toEqual({ x: 30, y: 40 });
         expect(component.robot2.orientation).toBe(180.0);
+    });
+    
+    it('should emit cancelMission event when onCancel is called', () => {
+        spyOn(component.cancelMission, 'emit');
+
+        component.onCancel();
+
+        expect(component.cancelMission.emit).toHaveBeenCalled();
     });
 });

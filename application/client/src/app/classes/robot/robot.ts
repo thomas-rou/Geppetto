@@ -1,15 +1,16 @@
 import { RobotStatus } from '@app/enums/robot-status';
 import { Position } from '@common/types/Position';
+import { RobotId } from '@common/enums/RobotId';
 
 export class Robot {
-    private _id: string;
+    private _id: RobotId;
     private _name: string;
     private _status: RobotStatus;
     private _battery: number;
     private _position: Position;
     private _orientation: number;
 
-    constructor(id: string, name: string, status: RobotStatus, battery: number, position: Position, orientation: number) {
+    constructor(id: RobotId, name: string, status: RobotStatus, battery: number, position: Position, orientation: number) {
         this._id = id;
         this._name = name;
         this._status = status;
@@ -18,7 +19,7 @@ export class Robot {
         this._orientation = orientation;
     }
 
-    get id(): string {
+    get id(): RobotId {
         return this._id;
     }
 

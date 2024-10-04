@@ -1,8 +1,9 @@
-import { RobotCommandFromInterface } from '@common/enums/SocketsEvents';
+import { RobotCommand } from '@common/enums/RobotCommand';
 import { EndMission } from '@common/interfaces/EndMission';
 import { StartMission } from '@common/interfaces/StartMission';
 import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
 import { RobotService } from '@app/services/robot/robot.service';
+import { RobotId } from '@common/enums/RobotId';
 import { Injectable, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -19,9 +20,9 @@ export class MissionCommandGateway {
     private controllingClient: Socket | null = null;
 
     constructor() {
-        this.robot1 = new RobotService(process.env.ROBOT1_IP);
-        this.robot2 = new RobotService(process.env.ROBOT2_IP);
-        this.gazebo = new RobotService(process.env.GAZEBO_IP);
+        this.robot1 = new RobotService(process.env.ROBOT1_IP, RobotId.robot1);
+        this.robot2 = new RobotService(process.env.ROBOT2_IP, RobotId.robot2);
+        this.gazebo = new RobotService(process.env.GAZEBO_IP, RobotId.gazebo);
     }
 
     handleDisconnect(client: Socket) {
@@ -31,84 +32,92 @@ export class MissionCommandGateway {
         }
     }
 
-    verifyPermissionToControl(client: Socket) {
+    verifyPermissionToControl(client: Socket): boolean {
         if (this.controllingClient === null) {
             this.controllingClient = client;
             this.logger.log(`Client ${client.id} is now controlling the robots`);
+            return true;
         } else if (this.controllingClient !== client) {
-            this.logger.log(`Client ${client.id} send a control command, but another client is already controlling`);
+            this.logger.log(`Client ${client.id} sent a control command, but another client is already controlling`);
             client.emit('commandError', 'Another client is controlling the robots');
             return false;
         }
         return true;
     }
 
-    @SubscribeMessage(RobotCommandFromInterface.StartMission)
+    private handleMissionCommand(client: Socket, payload: { target: RobotId[] }, command: 'start' | 'stop') {
+        if (!this.verifyPermissionToControl(client)) {
+            client.emit('commandError', 'The system is already being controlled');
+            return;
+        }
+
+        const targets = payload.target;
+        const commands = {
+            start: {
+                log: 'Start mission',
+                method: 'startMission',
+                successMessage: 'Mission started'
+            },
+            stop: {
+                log: 'Stop mission',
+                method: 'stopMission',
+                successMessage: 'Mission stopped'
+            }
+        };
+
+        try {
+            if (targets.includes(RobotId.robot1) && targets.includes(RobotId.robot2)) {
+                this.logger.log(`${commands[command].log} for robots command received from client`);
+                this.robot1[commands[command].method]();
+                this.robot2[commands[command].method]();
+                this.server.emit('missionStatus', `${commands[command].successMessage} for robots`);
+            } else if (targets.includes(RobotId.gazebo)) {
+                this.logger.log(`${commands[command].log} for simulation command received from client`);
+                this.gazebo[commands[command].method]();
+                this.server.emit('missionStatus', `${commands[command].successMessage} for the simulation`);
+            } else {
+                this.logger.error('Invalid mission command');
+                this.server.emit('commandError', `Invalid ${command} mission command`);
+            }
+        } catch (e) {
+            this.logger.error(`Error in ${command}MissionRobots: ${e.message}`);
+            this.server.emit('commandError', `${e.message} please try again`);
+        }
+    }
+
+    @SubscribeMessage(RobotCommand.StartMission)
     startMissionRobots(client: Socket, payload: StartMission) {
-        try {
-            if (this.verifyPermissionToControl(client)) {
-                if (payload.target === 'robot') {
-                    this.logger.log('Start mission for robots command received from client');
-                    this.robot1.startMission();
-                    this.robot2.startMission();
-                    this.server.emit('missionStatus', 'Mission started for robots');
-                } else if (payload.target === 'simulation') {
-                    this.logger.log('Start mission for simulation command received from client');
-                    this.gazebo.startMission();
-                    this.server.emit('missionStatus', 'Mission started for the simulation');
-                } else {
-                    this.logger.error('Invalid mission start command');
-                    this.server.emit('commandError', 'Invalid start mission command');
-                }
-            } else {
-                client.emit('commandError', 'The system is already being controlled');
-            }
-        } catch (e) {
-            this.logger.error('Error in startMissionRobots: ' + e.message);
-            this.server.emit('commandError', `${e.message} please try again`);
-        }
+        this.handleMissionCommand(client, payload, 'start');
     }
 
-    @SubscribeMessage(RobotCommandFromInterface.EndMission)
+    @SubscribeMessage(RobotCommand.EndMission)
     stopMissionFromRobots(client: Socket, payload: EndMission) {
-        try {
-            if (this.verifyPermissionToControl(client)) {
-                if (payload.target === 'robot') {
-                    this.logger.log('Stop mission for robots command received from client');
-                    this.robot1.stopMission();
-                    this.robot2.stopMission();
-                    this.server.emit('missionStatus', 'Mission stopped for robots');
-                } else if (payload.target === 'simulation') {
-                    this.logger.log('Stop mission for simulation command received from client');
-                    this.gazebo.stopMission();
-                    this.server.emit('missionStatus', 'Mission stopped for the simulation');
-                } else {
-                    this.logger.error('Invalid mission start command');
-                    this.server.emit('commandError', 'Invalid start mission command');
-                }
-            } else {
-                client.emit('commandError', 'The system is already being controlled');
-            }
-        } catch (e) {
-            this.logger.error('Error in stopMissionFromRobots: ' + e.message);
-            this.server.emit('commandError', `${e.message} please try again`);
-        }
+        this.handleMissionCommand(client, payload, 'stop');
     }
 
-    @SubscribeMessage(RobotCommandFromInterface.IdentifyRobot)
+    @SubscribeMessage(RobotCommand.IdentifyRobot)
     identifyRobot(client: Socket, payload: IdentifyRobot) {
+        if (!this.verifyPermissionToControl(client)) {
+            client.emit('commandError', 'The system is already being controlled');
+            return;
+        }
+
         try {
-            if (this.verifyPermissionToControl(client)) {
-                if (payload.target === '1') {
+            switch (payload.target) {
+                case RobotId.robot1:
                     this.logger.log('Identify robot 1 command received from client');
-                    this.robot1.identify(payload.target);
-                } else if (payload.target === '2') {
+                    this.robot1.identify();
+                    this.server.emit('robotIdentification', 'Robot 1 was identified');
+                    break;
+                case RobotId.robot2:
                     this.logger.log('Identify robot 2 command received from client');
-                    this.robot2.identify(payload.target);
-                }
-                this.server.emit('robotIdentification', 'Robot was identified');
-            } else {
-                client.emit('commandError', 'The system is already being controlled');
+                    this.robot2.identify();
+                    this.server.emit('robotIdentification', 'Robot 2 was identified');
+                    break;
+                default:
+                    this.logger.error('Invalid identify robot command');
+                    this.server.emit('commandError', 'Invalid identify robot command');
+                    return;
             }
         } catch (e) {
             this.logger.error('Error in identifyRobot: ' + e.message);

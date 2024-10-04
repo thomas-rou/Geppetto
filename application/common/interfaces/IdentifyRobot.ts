@@ -1,4 +1,5 @@
+import { RobotId } from '@common/enums/RobotId';
 export interface IdentifyRobot {
     command: string;
-    target: string;
+    target: RobotId;
 }

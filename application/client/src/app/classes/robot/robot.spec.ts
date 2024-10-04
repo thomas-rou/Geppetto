@@ -1,9 +1,10 @@
+import { RobotId } from '@common/enums/RobotId';
 import { Robot } from './robot';
 import { RobotStatus } from '@app/enums/robot-status';
 
 describe('Robot', () => {
     let robot: Robot;
-    const id = '1';
+    const id = RobotId.robot1;
     const initialName = 'TestBot';
     const initialStatus = RobotStatus.Idle;
     const initialBattery = 100;

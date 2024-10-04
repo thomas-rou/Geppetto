@@ -4,6 +4,8 @@ import { RobotManagementService } from '@app/services/robot-management/robot-man
 import { SocketTestHelper } from '@app/classes/socket-test-helper/socket-test-helper';
 import { Socket } from 'socket.io-client';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
+import { RobotId } from '@common/enums/RobotId';
+import { RobotCommand } from '@common/enums/RobotCommand';
 class SocketHandlerServiceMock extends SocketHandlerService {
     // Override connect() is required to not actually connect the socket
     // eslint-disable-next-line  @typescript-eslint/no-empty-function
@@ -51,22 +53,26 @@ describe('RobotCommunicationService', () => {
 
     it('should emit startMission for robot and simulation', () => {
         service.startMission();
-        expect(sendSpy).toHaveBeenCalledWith('start_mission', {
-            command: 'start_mission',
-            target: 'robot',
+        expect(sendSpy).toHaveBeenCalledWith(RobotCommand.StartMission, {
+            command: RobotCommand.StartMission,
+            target: [RobotId.robot1, RobotId.robot2],
             mission_details: {
-                orientation: robotManagementService.robot1.orientation,
-                position: robotManagementService.robot1.position,
+                orientation1: robotManagementService.robot1.orientation,
+                position1: robotManagementService.robot1.position,
+                orientation2: robotManagementService.robot2.orientation,
+                position2: robotManagementService.robot2.position,
             },
             timestamp: jasmine.any(String),
         });
-
+    
         expect(sendSpy).toHaveBeenCalledWith('start_mission', {
             command: 'start_mission',
-            target: 'simulation',
+            target: [RobotId.gazebo],
             mission_details: {
-                orientation: robotManagementService.robot1.orientation,
-                position: robotManagementService.robot1.position,
+                orientation1: robotManagementService.robot1.orientation,
+                position1: robotManagementService.robot1.position,
+                orientation2: robotManagementService.robot2.orientation,
+                position2: robotManagementService.robot2.position,
             },
             timestamp: jasmine.any(String),
         });
@@ -74,14 +80,14 @@ describe('RobotCommunicationService', () => {
 
     it('should emit endMission for robot and simulation', () => {
         service.endMission();
-        expect(sendSpy).toHaveBeenCalledWith('end_mission', {
-            command: 'end_mission',
-            target: 'robot',
+        expect(sendSpy).toHaveBeenCalledWith(RobotCommand.EndMission, {
+            command: RobotCommand.EndMission,
+            target: [RobotId.robot1, RobotId.robot2],
             timestamp: jasmine.any(String),
         });
-        expect(sendSpy).toHaveBeenCalledWith('end_mission', {
-            command: 'end_mission',
-            target: 'simulation',
+        expect(sendSpy).toHaveBeenCalledWith(RobotCommand.EndMission, {
+            command: RobotCommand.EndMission,
+            target: [RobotId.gazebo],
             timestamp: jasmine.any(String),
         });
     });
@@ -116,8 +122,8 @@ describe('RobotCommunicationService', () => {
 
     it('should emit notifyRobotsToCommunicate', () => {
         service.notifyRobotsToCommunicate();
-        expect(sendSpy).toHaveBeenCalledWith('initiate_p2p', {
-            command: 'P2P',
+        expect(sendSpy).toHaveBeenCalledWith(RobotCommand.InitiateP2P, {
+            command: RobotCommand.InitiateP2P,
             timestamp: jasmine.any(String),
         });
     });
@@ -132,10 +138,10 @@ describe('RobotCommunicationService', () => {
     });
 
     it('should emit identifyRobot', () => {
-        service.identifyRobot('robot1');
-        expect(sendSpy).toHaveBeenCalledWith('identify_robot', {
-            command: 'identify_robot',
-            target: 'robot1',
+        service.identifyRobot(RobotId.robot1);
+        expect(sendSpy).toHaveBeenCalledWith(RobotCommand.IdentifyRobot, {
+            command: RobotCommand.IdentifyRobot,
+            target: RobotId.robot1,
         });
     });
 
