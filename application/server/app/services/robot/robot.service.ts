@@ -3,7 +3,11 @@ import { WebSocket } from 'ws';
 import { MessageOperation } from '@common/interfaces/MessageOperation';
 import { StartMission } from '@common/interfaces/StartMission';
 import { EndMission } from '@common/interfaces/EndMission';
-import { RobotCommand, Operation, Topic, TopicType, RobotId } from '@common/enums/SocketsEvents';
+import { RobotCommand } from '@common/enums/RobotCommand';
+import { Operation } from '@common/enums/Operation';
+import { Topic } from '@common/enums/Topic';
+import { TopicType } from '@common/enums/TopicType';
+import { RobotId } from '@common/enums/RobotId';
 import { BasicCommand } from '@common/interfaces/BasicCommand';
 
 @Injectable()
@@ -77,8 +81,13 @@ export class RobotService {
         this.publishToTopic(Topic.start_mission, TopicType.start_mission, {
             command: RobotCommand.StartMission,
             mission_details: {
-                orientation: 0.0,
-                position: {
+                orientation1: 0.0,
+                position1: {
+                    x: 0.0,
+                    y: 0.0,
+                },
+                orientation2: 0.0,
+                position2: {
                     x: 0.0,
                     y: 0.0,
                 },

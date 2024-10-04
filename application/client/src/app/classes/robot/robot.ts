@@ -1,6 +1,6 @@
 import { RobotStatus } from '@app/enums/robot-status';
 import { Position } from '@common/types/Position';
-import { RobotId } from '@common/enums/SocketsEvents';
+import { RobotId } from '@common/enums/RobotId';
 
 export class Robot {
     private _id: RobotId;

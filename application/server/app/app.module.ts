@@ -10,7 +10,7 @@ import { MongooseModule } from '@nestjs/mongoose';
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: async (config: ConfigService) => ({
-                uri: process.env.DATABASE_CONNECTION_STRING.replace('${BD_NAME}', process.env.BD_NAME),
+                uri: process.env.DATABASE_CONNECTION_STRING.replace('${BD_NAME}', 'localhost'),
             }),
         }),
     ],

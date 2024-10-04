@@ -1,12 +1,15 @@
-import { RobotCommand } from "../enums/SocketsEvents";
-import {BasicCommand} from "./BasicCommand"
-import {Position} from "./Position"
+import { RobotCommand } from "@common/enums/RobotCommand";
+import { BasicCommand } from "@common/interfaces/BasicCommand"
+import { Position } from "@common/types/Position"
+import { RobotId } from '@common/enums/RobotId'
 
 export interface StartMission extends BasicCommand {
     command: RobotCommand.StartMission;
-    target: string;
+    target: RobotId[];
     mission_details: {
-        orientation: number;
-        position: Position
+        orientation1: number;
+        position1: Position;
+        orientation2: number;
+        position2: Position;
     };
 }

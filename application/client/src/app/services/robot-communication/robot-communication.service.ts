@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
-import { RobotCommand } from '@common/enums/SocketsEvents';
 import { EndMission } from '@common/interfaces/EndMission';
 import { StartMission } from '@common/interfaces/StartMission';
 import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
@@ -11,7 +10,8 @@ import { NotifyRobotsToCommunicate } from '@common/interfaces/NotifyRobotsToComm
 import { FindFurthestRobot } from '@common/interfaces/FindFurthestRobot';
 import { Observable, Subject } from 'rxjs';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
-import { RobotId } from '@common/enums/SocketsEvents';
+import { RobotCommand } from '@common/enums/RobotCommand';
+import { RobotId } from '@common/enums/RobotId';
 
 @Injectable({
     providedIn: 'root',
@@ -102,10 +102,12 @@ export class RobotCommunicationService {
     startMissionRobot(): void {
         const message: StartMission = {
             command: RobotCommand.StartMission,
-            target: 'robot',
+            target: [RobotId.robot1, RobotId.robot2],
             mission_details: {
-                orientation: this.robot1.orientation,
-                position: this.robot1.position,
+                orientation1: this.robot1.orientation,
+                position1: this.robot1.position,
+                orientation2: this.robot2.orientation,
+                position2: this.robot2.position,
             },
             timestamp: new Date().toISOString(),
         };
@@ -120,7 +122,7 @@ export class RobotCommunicationService {
     endMissionRobot(): void {
         const message: EndMission = {
             command: RobotCommand.EndMission,
-            target: 'robot',
+            target: [RobotId.robot1, RobotId.robot2],
             timestamp: new Date().toISOString(),
         };
         this.socketService.send(RobotCommand.EndMission, message);
@@ -129,10 +131,12 @@ export class RobotCommunicationService {
     startMissionGazebo(): void {
         const message: StartMission = {
             command: RobotCommand.StartMission,
-            target: 'simulation',
+            target: [RobotId.gazebo],
             mission_details: {
-                orientation: this.robot1.orientation,
-                position: this.robot1.position,
+                orientation1: this.robot1.orientation,
+                position1: this.robot1.position,
+                orientation2: this.robot2.orientation,
+                position2: this.robot2.position,
             },
             timestamp: new Date().toISOString(),
         };
@@ -142,7 +146,7 @@ export class RobotCommunicationService {
     endMissionGazebo(): void {
         const message: EndMission = {
             command: RobotCommand.EndMission,
-            target: 'simulation',
+            target: [RobotId.gazebo],
             timestamp: new Date().toISOString(),
         };
         this.socketService.send(RobotCommand.EndMission, message);
@@ -195,7 +199,7 @@ export class RobotCommunicationService {
 
     identifyRobot(target: RobotId): void {
         const message: IdentifyRobot = {
-            command: 'identify_robot',
+            command: RobotCommand.IdentifyRobot,
             target,
         };
         this.socketService.send(RobotCommand.IdentifyRobot, message);
