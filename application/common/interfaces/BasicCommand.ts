@@ -1,4 +1,4 @@
-import { RobotCommand } from "@common/enums/RobotCommand";
+import { RobotCommand } from '@common/enums/RobotCommand';
 export interface BasicCommand {
     command: RobotCommand;
     timestamp: string;
