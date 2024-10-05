@@ -23,8 +23,8 @@ class MissionManager(Node):
         try:
             battery_level = round((battery_data.battery_voltage/BATTERY_CAPACITY)*100)
             mission_status = MissionStatus()
+            mission_status.robot_status = os.getenv('MISSION_STATUS')
             mission_status.battery_level = battery_level
-            mission_status.mission_status = os.getenv('MISSION_STATUS')
             self.mission_status_publisher.publish(mission_status)
         except:
             self.get_logger().info("Failed to publish mission status")
