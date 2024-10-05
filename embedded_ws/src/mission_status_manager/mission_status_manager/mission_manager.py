@@ -22,7 +22,7 @@ class MissionManager(Node):
     def status_publication_callback(self, battery_data):
         try:
             battery_level = round((battery_data.battery_voltage/BATTERY_CAPACITY)*100)
-            mission_status = MissionStatus()
+            mission_status = MissionManager()
             mission_status.battery_level = battery_level
             mission_status.mission_status = os.getenv('MISSION_STATUS')
             self.mission_status_publisher.publish(mission_status)
