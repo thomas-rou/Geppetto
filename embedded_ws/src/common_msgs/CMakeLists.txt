@@ -21,6 +21,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/StartMission.msg"
   "msg/StopMission.msg"
   "msg/IdentifyRobot.msg"
+  "msg/MissionStatus.msg"
   DEPENDENCIES std_msgs
 )
 
