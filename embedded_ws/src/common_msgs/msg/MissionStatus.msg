@@ -1,2 +1,2 @@
 string robot_status
-Int32 battery_level
+int32 battery_level
