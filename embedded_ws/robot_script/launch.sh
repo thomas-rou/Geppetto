@@ -1,5 +1,5 @@
 MAIN_BRANCH="develop"
-export MISSION_STATUS="EN ATTENTE"
+echo "EN ATTENTE" > /tmp/.mission_status
 AUDIO_DEVICE_ID=$(pactl list short sinks | grep "USB_PnP_Audio_Device" | awk '{print $1}')
 sudo chown nvidia:nvidia /dev/ttyTHS1 &&
     if [ -d ~/geppetto/ ]; then

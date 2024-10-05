@@ -1,3 +1,4 @@
+from embedded_ws.common.common_methods import get_mission_status, set_mission_status
 import rclpy
 from rclpy.node import Node
 from limo_msgs.msg import LimoStatus
@@ -23,8 +24,10 @@ class MissionManager(Node):
         try:
             battery_level = round((battery_data.battery_voltage/BATTERY_CAPACITY)*100)
             mission_status = MissionStatus()
-            mission_status.robot_status = os.getenv('MISSION_STATUS')
             mission_status.battery_level = battery_level
+            if mission_status.battery_level <= 30:
+                set_mission_status("BATTERIE FAIBLE")
+            mission_status.mission_status = get_mission_status()
             self.mission_status_publisher.publish(mission_status)
         except Exception as e:
             self.get_logger().info("Failed to publish mission status: "+str(e))
