@@ -26,8 +26,8 @@ class MissionManager(Node):
             mission_status.robot_status = os.getenv('MISSION_STATUS')
             mission_status.battery_level = battery_level
             self.mission_status_publisher.publish(mission_status)
-        except:
-            self.get_logger().info("Failed to publish mission status")
+        except Exception as e:
+            self.get_logger().info("Failed to publish mission status: "+str(e))
 
     def destroy_node(self):
         super().destroy_node()
