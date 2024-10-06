@@ -1,0 +1,10 @@
+# Définition du but (Goal)
+float64 initial_x
+float64 initial_y
+---
+# Définition du retour (Result)
+string status
+---
+# Définition du feedback (Feedback)
+float64 current_x
+float64 current_y
