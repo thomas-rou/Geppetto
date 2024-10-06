@@ -1,5 +1,6 @@
 # com_bridge/com_serv.py
 
+from embedded_ws.common.common_methods import set_mission_status
 import rclpy
 from rclpy.node import Node
 from common_msgs.msg import StartMission, StopMission, IdentifyRobot
@@ -45,6 +46,7 @@ class ComServNode(Node):
             "command": msg.command,
             "timestamp": msg.timestamp
         }
+        set_mission_status("EN RETOUR A LA BASE")
         json_str = json.dumps(json_data)
         self.get_logger().info('Mission stopped')
         if self.timer_active:
@@ -69,7 +71,7 @@ class ComServNode(Node):
             },
             "timestamp": msg.timestamp
         }
-
+        set_mission_status("EN MISSION")
         if not self.timer_active:
             self.timer = self.create_timer(self.timer_period, self.timer_callback)
             self.timer_active = True
@@ -88,10 +90,8 @@ class ComServNode(Node):
         twist_msg.linear.z = 0.0
         twist_msg.angular.x = 0.0
         twist_msg.angular.y = 0.0
-        twist_msg.angular.z = 1.8
-        
+        twist_msg.angular.z = 1.8        
         self.mission_mouvements.publish(twist_msg)
-
 
     def destroy_node(self):
         super().destroy_node()

@@ -1,0 +1,2 @@
+string robot_status
+int32 battery_level
