@@ -4,6 +4,7 @@ import { RobotManagementService } from '@app/services/robot-management/robot-man
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { Robot } from '@app/classes/robot/robot';
 import { RobotStatus } from '@app/enums/robot-status';
+import { RobotId } from '@common/enums/RobotId';
 
 describe('StatusDisplayComponent', () => {
     let component: StatusDisplayComponent;
@@ -35,7 +36,7 @@ describe('StatusDisplayComponent', () => {
     });
 
     it('should call identifyRobot on RobotCommunicationService with correct robot id', () => {
-        const robot: Robot = new Robot('1', 'Robot 1', RobotStatus.Idle, 100, { x: 0, y: 0 }, 0.0);
+        const robot: Robot = new Robot(RobotId.robot1, 'Robot 1', RobotStatus.Idle, 100, { x: 0, y: 0 }, 0.0);
         component.identifyRobot(robot);
         expect(robotCommunicationService.identifyRobot).toHaveBeenCalledWith(robot.id);
     });

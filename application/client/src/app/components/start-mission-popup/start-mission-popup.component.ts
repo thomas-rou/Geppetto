@@ -39,7 +39,7 @@ export class StartMissionPopupComponent {
 
         this.startMission.emit();
     }
-    
+
     onCancel() {
         this.cancelMission.emit();
     }

@@ -146,4 +146,10 @@ describe('ControlPanelComponent', () => {
         component.ngOnInit();
         expect(console.log).toHaveBeenCalledWith('WebSocket is disconnected');
     });
+
+    it('should set showPopup to false when onCancel is called', () => {
+        component.showPopup = true;
+        component.onCancel();
+        expect(component.showPopup).toBe(false);
+    });
 });
