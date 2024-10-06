@@ -54,32 +54,6 @@
         </visual>
       </link>
     </model>
-
-    <!-- <model name="plate">
-      <static>true</static>
-      <link name="link">
-        <pose>0 0 0.01 0 0 0</pose>
-        <collision name="collision">
-          <geometry>
-            <box>
-              <size>3 3 0.01</size>
-            </box>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <box>
-              <size>3 3 0.01</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.1 0.1 0.1 1</ambient>
-            <diffuse>0.5 0.5 0.5 1</diffuse>
-            <specular>0.8 0.8 0.8 1</specular>
-          </material>
-        </visual>
-      </link>
-    </model> -->
     
   </world>
 </sdf>
