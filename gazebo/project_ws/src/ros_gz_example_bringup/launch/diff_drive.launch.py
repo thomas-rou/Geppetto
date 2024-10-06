@@ -14,7 +14,6 @@
 
 import os
 import sys
-import random
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
@@ -34,97 +33,24 @@ sys.path.append(helpers_dir)
 
 from helpers import *
 
-
-def load_model_sdf(package_name, model_name, index):
-    pkg_project_description = get_package_share_directory(package_name)
-    sdf_file = os.path.join(pkg_project_description, "models", model_name, "model.sdf")
-
-    with open(sdf_file, "r") as infp:
-        robot_desc = infp.read()
-
-    # Replace template {index} with the current robot index
-    robot_desc = robot_desc.replace("{index}", str(index))
-
-    return robot_desc
-
-
-def create_robot_state_publisher(robot_desc, index):
-    return Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        name=f"robot_state_publisher{index}",
-        output="both",
-        parameters=[
-            {"use_sim_time": True},
-            {"robot_description": robot_desc},
-        ],
-        remappings=[("/robot_description", f"/robot_description{index}")],
-    )
-
+# Starter entities
 
 # fmt: off
-# see if can combine or make class mehtod
+robots = [
+    Robot(name="pino", pose=Pose(y=0)),
+    Robot(name="chio", pose=Pose(y=1)),
+]
 
-def create_spawn_robot(robot: Robot, index: int):
-    return Node(
-        package="ros_gz_sim",
-        executable="create",
-        output="screen",
-        arguments=[
-            "-topic", f"/robot_description{index}",
-            "-name", f"limo_diff_drive{index}",
-            "-x", str(robot.pose.x),
-            "-y", str(robot.pose.y),
-            "-z", str(robot.pose.z),
-            "-R", str(robot.pose.roll),
-            "-P", str(robot.pose.pitch),
-            "-Y", str(robot.pose.yaw),
-        ],
-    )
-
-
-def create_spawn_obstacle(obstacle: Obstacle) -> Node:
-    pkg_project_description = get_package_share_directory("ros_gz_example_description")
-    sdf_file = os.path.join(
-        pkg_project_description, "models", obstacle.name, "model.sdf"
-    )
-
-    with open(sdf_file, "r") as infp:
-        obstacle_desc = infp.read()
-
-    index = Obstacle.get_id()
-    
-    obstacle_desc = obstacle_desc.replace("{index}", str(index))
-    obstacle_desc = obstacle_desc.replace("{size_x}", str(obstacle.size.x))
-    obstacle_desc = obstacle_desc.replace("{size_y}", str(obstacle.size.y))
-    obstacle_desc = obstacle_desc.replace("{size_z}", str(obstacle.size.z))
-
-    return Node(
-        package="ros_gz_sim",
-        executable="create",
-        output="screen",
-        arguments=[
-            "-name", f"{obstacle.name}{index}",
-            "-string", obstacle_desc,
-            "-x", str(obstacle.pose.x),
-            "-y", str(obstacle.pose.y),
-            "-z", str(obstacle.pose.z),
-            "-R", str(obstacle.pose.roll),
-            "-P", str(obstacle.pose.pitch),
-            "-Y", str(obstacle.pose.yaw),
-        ],
-    )
-
-
+boundary_walls = [
+    Wall(pose=Pose(y= max_width/2),                                         size=Size(x=max_width), starter_wall=True), # west wall
+    Wall(pose=Pose(y=-max_width/2),                                         size=Size(x=max_width), starter_wall=True), # east wall
+    Wall(pose=Pose(x= max_width/2 - wall_thickness/2, yaw=horizontal_yaw),  size=Size(x=max_width - wall_gap), starter_wall=True), # north wall
+    Wall(pose=Pose(x=-max_width/2 + wall_thickness/2, yaw=horizontal_yaw),  size=Size(x=max_width - wall_gap), starter_wall=True), # south wall
+]
 # fmt: on
 
 
 def generate_launch_description():
-
-    # Dynamically generate independent robots
-
-    # Configure ROS nodes for launch
-
     # Setup project paths
     pkg_ros_gz_sim = get_package_share_directory("ros_gz_sim")
 
@@ -144,26 +70,8 @@ def generate_launch_description():
         }.items(),
     )
 
-    # Load and setup robots
-    robot_state_publishers = []
-    spawn_entities = []
-
-    # Load the limo models
-    for i, robot in enumerate(robots):
-        robot_desc = load_model_sdf(
-            "ros_gz_example_description", "limo_diff_drive_template", i
-        )
-        robot_state_publishers.append(create_robot_state_publisher(robot_desc, i))
-        spawn_entities.append(create_spawn_robot(robot, i))
-
-    # Spawn boundary walls
-    for wall in boundary_walls:
-        spawn_entities.append(create_spawn_obstacle(wall))
-
     # Spawn random wall obstacles
-    wall_obstacles = generate_random_wall_obstacles(n_wall_obstacles)
-    for wall in wall_obstacles:
-        spawn_entities.append(create_spawn_obstacle(wall))
+    Wall.generate_random_wall_obstacles(n_wall_obstacles)
 
     # Bridge ROS topics and Gazebo messages for establishing communication
     bridge = Node(
@@ -186,7 +94,7 @@ def generate_launch_description():
         [
             gz_sim,
             bridge,
-            *robot_state_publishers,
-            *spawn_entities,
+            *Robot.robot_state_publishers,
+            *Entity.spawned_entities_nodes,
         ]
     )
