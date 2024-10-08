@@ -1,7 +1,16 @@
 import numpy as np
 
+
 class Pose:
-    def __init__(self, x=0.0, y=0.0, z=0.1, roll=0.0, pitch=0.0, yaw=0.0):
+    def __init__(
+        self,
+        x: float = 0.0,
+        y: float = 0.0,
+        z: float = 0.1,
+        roll: float = 0.0,
+        pitch: float = 0.0,
+        yaw: float = 0.0,
+    ) -> None:
         self.x = x
         self.y = y
         self.z = z
@@ -9,5 +18,5 @@ class Pose:
         self.pitch = pitch
         self.yaw = yaw
 
-    def to_array(self):
+    def to_array(self) -> np.ndarray:
         return np.array([self.x, self.y, self.z])

@@ -8,10 +8,11 @@ class Obstacle(Entity):
     _id = 0
 
     @abstractmethod
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         pass
 
-    def get_id():
+    @staticmethod
+    def get_id() -> int:
         current_id = Obstacle._id
         Obstacle._id += 1
         return current_id
@@ -49,7 +50,8 @@ class Obstacle(Entity):
         )
 
         Entity.spawned_entities_nodes.append(obstacle_node)
+        return obstacle_node
 
     @classmethod
-    def check_spawn_kill(cls, obstacle):
+    def check_spawn_kill(cls, obstacle: "Obstacle") -> bool:
         return super().check_spawn_kill(obstacle)

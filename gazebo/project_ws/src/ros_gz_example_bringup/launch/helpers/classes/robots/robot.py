@@ -14,19 +14,20 @@ class Robot(Entity):
         model_name="limo_diff_drive_template",
         pose: Pose = None,
         size: Size = Size(x=0.20, y=0.20, z=0.1),
-    ):
+    ) -> None:
         self.name = name
         self.model_name = model_name
         self.build_entity(pose, size)
         self.index = Robot.get_id()
         self.spawn_robot()
 
-    def get_id():
+    @staticmethod
+    def get_id() -> int:
         current_id = Robot._id
         Robot._id += 1
         return current_id
 
-    def load_model_sdf(self):
+    def load_model_sdf(self) -> str:
         robot_desc = Entity.load_model_sdf(self.model_name)
 
         # Replace template {index} with the current robot index
@@ -34,7 +35,7 @@ class Robot(Entity):
 
         return robot_desc
 
-    def create_robot_state_publisher(self):
+    def create_robot_state_publisher(self) -> None:
         robot_desc = self.load_model_sdf()
 
         robot_state_publisher = Node(
@@ -50,7 +51,7 @@ class Robot(Entity):
         )
         Robot.robot_state_publishers.append(robot_state_publisher)
 
-    def spawn_robot(self):
+    def spawn_robot(self) -> Node:
         if Robot.check_spawn_kill(self):
             return
 
@@ -81,7 +82,8 @@ class Robot(Entity):
         )
 
         Entity.spawned_entities_nodes.append(robot_node)
+        return robot_node
 
     @classmethod
-    def check_spawn_kill(cls, robot):
+    def check_spawn_kill(cls, robot: "Robot") -> bool:
         return super().check_spawn_kill(robot)

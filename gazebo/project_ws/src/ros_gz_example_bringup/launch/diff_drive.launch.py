@@ -18,7 +18,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
 
 # import helpers directory
@@ -35,17 +35,16 @@ from helpers import *
 
 # Starter entities
 
-# fmt: off
 robots = [
-    Robot(name="pino", pose=Pose(y=0)),
-    Robot(name="chio", pose=Pose(y=1)),
+    Robot(name=name, pose=pose) for name, pose in zip(ROBOT_NAMES, ROBOT_STARTER_POSES)
 ]
 
+# fmt: off
 boundary_walls = [
-    Wall(pose=Pose(y= max_width/2),                                         size=Size(x=max_width), starter_wall=True), # west wall
-    Wall(pose=Pose(y=-max_width/2),                                         size=Size(x=max_width), starter_wall=True), # east wall
-    Wall(pose=Pose(x= max_width/2 - wall_thickness/2, yaw=horizontal_yaw),  size=Size(x=max_width - wall_gap), starter_wall=True), # north wall
-    Wall(pose=Pose(x=-max_width/2 + wall_thickness/2, yaw=horizontal_yaw),  size=Size(x=max_width - wall_gap), starter_wall=True), # south wall
+    Wall(pose=Pose(y= MAP_WIDTH/2),                                         size=Size(x=MAP_WIDTH), starter_wall=True), # west wall
+    Wall(pose=Pose(y=-MAP_WIDTH/2),                                         size=Size(x=MAP_WIDTH), starter_wall=True), # east wall
+    Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP), starter_wall=True), # north wall
+    Wall(pose=Pose(x=-MAP_WIDTH/2 + WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP), starter_wall=True), # south wall
 ]
 # fmt: on
 
@@ -71,7 +70,7 @@ def generate_launch_description():
     )
 
     # Spawn random wall obstacles
-    Wall.generate_random_wall_obstacles(n_wall_obstacles)
+    Wall.generate_random_wall_obstacles(N_WALL_OBSTACLES)
 
     # Bridge ROS topics and Gazebo messages for establishing communication
     bridge = Node(

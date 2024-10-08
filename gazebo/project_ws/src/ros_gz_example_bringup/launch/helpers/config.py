@@ -1,17 +1,21 @@
 import math
 from .classes.core.pose import Pose
-from .classes.core.size import Size
-
-# size of the map
-max_width = 10
-max_height = 5
-
-# number of entities
-robot_count = 2
-n_wall_obstacles = 10
 
 # constants
-horizontal_yaw = math.pi / 2
-wall_thickness = 0.1
-atomic_gap = 0.0001
-wall_gap = wall_thickness + atomic_gap
+DEFAULT_POSITION = 0.0
+HORIZONTAL_YAW = math.pi / 2
+WALL_THICKNESS = 0.1
+ATOMIC_GAP = 0.0001
+WALL_GAP = WALL_THICKNESS + ATOMIC_GAP
+
+# size of the map
+MAP_WIDTH = 10
+MAP_HEIGHT = 5
+
+# obstacles
+N_WALL_OBSTACLES = 10
+MIN_WALL_SIZE = 0.5
+
+# robots
+ROBOT_NAMES = ["pino", "chio"]
+ROBOT_STARTER_POSES = [Pose(y=0), Pose(y=1)]

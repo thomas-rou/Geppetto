@@ -17,24 +17,25 @@ helpers_dir = os.path.join(
 sys.path.append(helpers_dir)
 
 from helpers.config import *
+from helpers.classes.core.direction import Direction
 
 
 class Wall(Obstacle):
     def __init__(
         self, pose: Pose = None, size: Size = None, starter_wall: bool = False
-    ):
+    ) -> None:
         self.name = "wall"
         self.build_entity(pose, size)
 
         if starter_wall and not Wall.check_spawn_kill(self):
             self.spawn_wall()
 
-    def spawn_wall(self):
+    def spawn_wall(self) -> None:
         self.index = Obstacle.get_id()
         self.spawn_obstacle(self.name, self.index)
 
     @staticmethod
-    def generate_random_wall_obstacles(n_walls: int):
+    def generate_random_wall_obstacles(n_walls: int) -> None:
         n_border_walls = random.randint(0, n_walls)
         n_inner_walls = n_walls - n_border_walls
 
@@ -49,40 +50,41 @@ class Wall(Obstacle):
 
     # fmt: off
     @staticmethod
-    def _generate_random_border_wall():
+    def _generate_random_border_wall() -> 'Wall':
         while True:
-            start = random.randint(0, 3) # 4 sides
-            size=Size(x=random.uniform(0.5, max_width/2))
+            start = random.randint(len(Direction))
+            size=Size(x=random.uniform(MIN_WALL_SIZE, MAP_WIDTH/2))
             match(start):
-                case 0 : # north
+                case Direction.NORTH :
                     wall = Wall(
-                        pose=Pose(y=random.uniform(-max_width / 2 + wall_gap, max_width / 2 - wall_gap), x=max_width / 2 - size.x / 2 - wall_gap), size=size)
-                case 1 : # south
+                        pose=Pose(y=random.uniform(-MAP_WIDTH / 2 + WALL_GAP, MAP_WIDTH / 2 - WALL_GAP), x=MAP_WIDTH / 2 - size.x / 2 - WALL_GAP), size=size)
+                case Direction.SOUTH : 
                     wall = Wall(
-                        pose=Pose(y=random.uniform(-max_width / 2 + wall_gap, max_width / 2 - wall_gap), x=-max_width / 2 + size.x / 2 + wall_gap), size=size)
-                case 2 : # west
+                        pose=Pose(y=random.uniform(-MAP_WIDTH / 2 + WALL_GAP, MAP_WIDTH / 2 - WALL_GAP), x=-MAP_WIDTH / 2 + size.x / 2 + WALL_GAP), size=size)
+                case Direction.WEST : 
                     wall = Wall(
-                        pose=Pose(x=random.uniform(-max_width / 2 + wall_gap, max_width / 2 - wall_gap), y=max_width / 2 - size.x / 2  - wall_thickness / 2, yaw=horizontal_yaw), size=size)
-                case 3 : # east
+                        pose=Pose(x=random.uniform(-MAP_WIDTH / 2 + WALL_GAP, MAP_WIDTH / 2 - WALL_GAP), y=MAP_WIDTH / 2 - size.x / 2  - WALL_THICKNESS / 2, yaw=HORIZONTAL_YAW), size=size)
+                case Direction.EAST : 
                     wall = Wall(
-                        pose=Pose(x=random.uniform(-max_width / 2 + wall_gap, max_width / 2 - wall_gap), y=-max_width / 2 + size.x / 2 + wall_thickness / 2, yaw=horizontal_yaw), size=size)
+                        pose=Pose(x=random.uniform(-MAP_WIDTH / 2 + WALL_GAP, MAP_WIDTH / 2 - WALL_GAP), y=-MAP_WIDTH / 2 + size.x / 2 + WALL_THICKNESS / 2, yaw=HORIZONTAL_YAW), size=size)
             if not Wall.check_spawn_kill(wall):
                 break
 
         return wall
     
     @staticmethod
-    def _generate_random_inner_wall():
+    def _generate_random_inner_wall() -> 'Wall':
         while True:
             wall = Wall(
-                        pose=Pose(x=random.uniform(-max_height / 2 + wall_thickness, max_height / 2 - wall_thickness), y=random.uniform(-max_width  / 2 + wall_thickness, max_width / 2 - wall_thickness), yaw=random.uniform(0, math.pi)), 
-                        size=Size(x=random.uniform(0.5, max_width/2)))
+                        pose=Pose(x=random.uniform(-MAP_HEIGHT / 2 + WALL_THICKNESS, MAP_HEIGHT / 2 - WALL_THICKNESS), y=random.uniform(-MAP_WIDTH  / 2 + WALL_THICKNESS, MAP_WIDTH / 2 - WALL_THICKNESS), yaw=random.uniform(0, math.pi)), 
+                        size=Size(x=random.uniform(MIN_WALL_SIZE, MAP_WIDTH / 2)))
             
             if not Wall.check_spawn_kill(wall):
                 break
 
         return wall
+
     # fmt: on
     @classmethod
-    def check_spawn_kill(cls, wall):
+    def check_spawn_kill(cls, wall: "Wall") -> bool:
         return super().check_spawn_kill(wall)
