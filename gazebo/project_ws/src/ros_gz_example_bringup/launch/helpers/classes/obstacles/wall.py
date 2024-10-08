@@ -52,7 +52,7 @@ class Wall(Obstacle):
     @staticmethod
     def _generate_random_border_wall() -> 'Wall':
         while True:
-            start = random.randint(len(Direction))
+            start = Direction(random.randint(0, len(Direction) - 1))
             size=Size(x=random.uniform(MIN_WALL_SIZE, MAP_WIDTH/2))
             match(start):
                 case Direction.NORTH :
@@ -69,7 +69,6 @@ class Wall(Obstacle):
                         pose=Pose(x=random.uniform(-MAP_WIDTH / 2 + WALL_GAP, MAP_WIDTH / 2 - WALL_GAP), y=-MAP_WIDTH / 2 + size.x / 2 + WALL_THICKNESS / 2, yaw=HORIZONTAL_YAW), size=size)
             if not Wall.check_spawn_kill(wall):
                 break
-
         return wall
     
     @staticmethod
