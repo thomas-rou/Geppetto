@@ -10,12 +10,12 @@ export class SubscriptionServiceService {
     public robot1: RobotService;
     public robot2: RobotService;
     public gazebo: RobotService;
+    server: any;
     constructor() {
         this.robot1 = new RobotService(process.env.ROBOT1_IP, RobotId.robot1);
         this.robot2 = new RobotService(process.env.ROBOT2_IP, RobotId.robot2);
         this.gazebo = new RobotService(process.env.GAZEBO_IP, RobotId.gazebo);
     }
-    missionStatus: MissionStatus;
     public async subscribeToTopic(gateway: MissionCommandGateway) {
         // Subscription for robot 1
         await this.robot1.subscribeToTopic(Topic.mission_status1, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
@@ -27,6 +27,7 @@ export class SubscriptionServiceService {
     }
 
     missionStatusCallback(message) {
-        this.missionStatus = message;
+        const missionStatus: MissionStatus = message.msg;
+        this.server.emit('missionStatus', missionStatus);
     }
 }

@@ -44,7 +44,7 @@ class ComServNode(Node):
             "command": msg.command,
             "timestamp": msg.timestamp
         }
-        set_mission_status("EN RETOUR A LA BASE")
+        set_mission_status("EN ATTENTE")
         json_str = json.dumps(json_data)
         self.get_logger().info('Mission stopped')
         if self.timer_active:
