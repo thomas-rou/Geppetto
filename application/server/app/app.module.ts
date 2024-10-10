@@ -2,6 +2,7 @@ import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MissionCommandGateway } from '@app/gateways/mission-command/mission-command.gateway';
 import { MongooseModule } from '@nestjs/mongoose';
+import { SubscriptionServiceService } from './services/subscription-service/subscription-service.service';
 
 @Module({
     imports: [
@@ -14,6 +15,6 @@ import { MongooseModule } from '@nestjs/mongoose';
             }),
         }),
     ],
-    providers: [MissionCommandGateway, Logger],
+    providers: [MissionCommandGateway, Logger, SubscriptionServiceService],
 })
 export class AppModule {}

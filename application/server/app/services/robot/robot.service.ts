@@ -42,9 +42,9 @@ export class RobotService {
         });
     }
 
-    async subscribeToTopic(topicName: Topic, topicType: TopicType) {
+    async subscribeToTopic(topicName: Topic, topicType: TopicType, handleIncomingMessage: (message) => void) {
         try {
-            if (this.ws.readyState === WebSocket.CLOSED) {
+            if (this.ws.readyState !== WebSocket.OPEN) {
                 await this.connect();
             }
             const subscribeMessage: MessageOperation = {
@@ -54,6 +54,17 @@ export class RobotService {
             };
             this.ws.send(JSON.stringify(subscribeMessage));
             this.logger.log(`Subscription to topic ${topicName} of robot ${this._robotIp}`);
+            this.ws.addEventListener('message', (event) => {
+            try {
+                this.logger.log(`Incoming message from topic ${topicName}: ${event.data}`);
+                const messageData = JSON.parse(event.data);
+                if (messageData.topic === topicName) {
+                    handleIncomingMessage(messageData);
+                }
+            } catch (error) {
+                this.logger.error(`Error processing message from topic ${topicName}: ${error}`);
+            }
+        });
         } catch (error) {
             this.logger.error(`Error connecting to robot ${this._robotIp}`);
         }
@@ -61,7 +72,7 @@ export class RobotService {
 
     async publishToTopic(topicName: Topic, topicType: TopicType, message: BasicCommand) {
         try {
-            if (this.ws.readyState === WebSocket.CLOSED) {
+            if (this.ws.readyState !== WebSocket.OPEN) {
                 await this.connect();
             }
             const publishMessage: MessageOperation = {
