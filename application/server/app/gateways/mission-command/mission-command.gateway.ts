@@ -2,7 +2,6 @@ import { RobotCommand } from '@common/enums/RobotCommand';
 import { EndMission } from '@common/interfaces/EndMission';
 import { StartMission } from '@common/interfaces/StartMission';
 import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
-import { RobotService } from '@app/services/robot/robot.service';
 import { RobotId } from '@common/enums/RobotId';
 import { Injectable, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
