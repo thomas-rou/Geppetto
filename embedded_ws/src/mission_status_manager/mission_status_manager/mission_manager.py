@@ -3,7 +3,7 @@ import rclpy
 from rclpy.node import Node
 from limo_msgs.msg import LimoStatus
 from common_msgs.msg import MissionStatus
-from com_bridge.common_methods import set_mission_status
+from com_bridge.common_methods import set_mission_status, get_mission_status
 BATTERY_CAPACITY = 12.0
 
 import os

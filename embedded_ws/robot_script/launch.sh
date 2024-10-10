@@ -22,7 +22,7 @@ cd ~/geppetto/embedded_ws/
 colcon build
 source install/setup.bash
 ros2 run com_bridge com_serv &
-ros2 run mission_status_manager mission_manager
+ros2 run mission_status_manager mission_manager &
 source install/setup.bash
 ros2 run rosbridge_server rosbridge_websocket &
 pactl set-default-sink $AUDIO_DEVICE_ID
