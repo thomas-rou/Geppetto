@@ -1,2 +1,3 @@
+string robot_id
 string robot_status
 int32 battery_level

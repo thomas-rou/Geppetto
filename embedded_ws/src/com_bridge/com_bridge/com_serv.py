@@ -1,6 +1,3 @@
-# com_bridge/com_serv.py
-
-from embedded_ws.common.common_methods import set_mission_status
 import rclpy
 from rclpy.node import Node
 from common_msgs.msg import StartMission, StopMission, IdentifyRobot
@@ -9,6 +6,7 @@ from geometry_msgs.msg import Twist
 import os
 import subprocess
 import json
+from com_bridge.common_methods import set_mission_status
 
 class ComServNode(Node):
     def __init__(self):

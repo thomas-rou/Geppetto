@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
-import { Robot } from '@app/classes/robot/robot';
+import { RobotId } from '@common/enums/RobotId';
 
 @Component({
     selector: 'app-status-display',
@@ -23,7 +23,7 @@ export class StatusDisplayComponent {
         return this.robotManagementService.robot2;
     }
 
-    identifyRobot(robot: Robot) {
-        this.robotService.identifyRobot(robot.id);
+    identifyRobot(target: RobotId) {
+        this.robotService.identifyRobot(target);
     }
 }

@@ -105,9 +105,9 @@ export class RobotService {
 
     identify() {
         var topicCommand;
-        if (this._robotNumber = RobotId.robot1) {
+        if (this._robotNumber == RobotId.robot1) {
             topicCommand = Topic.identify_command1;
-        } else if (this._robotNumber = RobotId.robot1) {
+        } else if (this._robotNumber == RobotId.robot2) {
             topicCommand = Topic.identify_command2;
         }
         this.publishToTopic(topicCommand, TopicType.identify_robot, {

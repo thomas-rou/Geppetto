@@ -1,8 +1,9 @@
-from embedded_ws.common.common_methods import get_mission_status, set_mission_status
+import os
 import rclpy
 from rclpy.node import Node
 from limo_msgs.msg import LimoStatus
 from common_msgs.msg import MissionStatus
+from com_bridge.common_methods import set_mission_status
 BATTERY_CAPACITY = 12.0
 
 import os
@@ -24,6 +25,7 @@ class MissionManager(Node):
         try:
             battery_level = round((battery_data.battery_voltage/BATTERY_CAPACITY)*100)
             mission_status = MissionStatus()
+            mission_status.robot_id = os.getenv('ROBOT')
             mission_status.battery_level = battery_level
             if mission_status.battery_level <= 30:
                 set_mission_status("BATTERIE FAIBLE")
