@@ -60,7 +60,6 @@ class ComServNode(Node):
             self.timer_active = False
 
     def start_mission_callback(self, msg):
-        self.get_logger().debug(f'MISSION MESSAGE: {json.dumps(msg.mission_details)}')
         json_data = {
             "command": msg.command,
             "orientation": msg.mission_details.orientation1,
