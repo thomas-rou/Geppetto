@@ -62,10 +62,10 @@ class ComServNode(Node):
     def start_mission_callback(self, msg):
         json_data = {
             "command": msg.command,
-            "orientation": msg.mission_details.orientation,
+            "orientation": msg.mission_details.orientation1,
             "position": {
-                "x": msg.mission_details.position.x,
-                "y": msg.mission_details.position.y
+                "x": msg.mission_details.position1.x,
+                "y": msg.mission_details.position1.y
             },
             "timestamp": msg.timestamp
         }

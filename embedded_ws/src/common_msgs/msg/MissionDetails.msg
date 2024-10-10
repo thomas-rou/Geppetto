@@ -1,2 +1,4 @@
-float64 orientation
-Position position
+float64 orientation1
+Position position1
+float64 orientation2
+Position position2
