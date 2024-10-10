@@ -29,7 +29,7 @@ class MissionManager(Node):
             mission_status.battery_level = battery_level
             if mission_status.battery_level <= 30:
                 set_mission_status("BATTERIE FAIBLE")
-            mission_status.mission_status = get_mission_status()
+            mission_status.robot_status = get_mission_status()
             self.mission_status_publisher.publish(mission_status)
         except Exception as e:
             self.get_logger().info("Failed to publish mission status: "+str(e))
