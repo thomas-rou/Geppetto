@@ -18,7 +18,30 @@ export class MissionCommandGateway {
     private controllingClient: Socket | null = null;
 
     constructor(private subscriptionService: SubscriptionServiceService) {
-        this.subscriptionService.subscribeToTopic(this);
+        // create a timer that will run this method as long as it fails
+        const timerRobot1 = setInterval(async () => {
+            try {
+                await this.subscriptionService.subscribeToTopicRobot1(this);
+                clearInterval(timerRobot1);
+            } catch (e) {}
+        }, 5000);
+
+        const timerRobot2 = setInterval(async () => {
+            try {
+                await this.subscriptionService.subscribeToTopicRobot2(this);
+                clearInterval(timerRobot2);
+            } catch (e) {}
+        }
+        , 5000);
+
+        const timerGazebo = setInterval(async () => {
+            try {
+                await this.subscriptionService.subscribeToTopicGazebo(this);
+                clearInterval(timerGazebo);
+            } catch (e) {}
+        }
+        , 5000);
+
     }
 
     handleDisconnect(client: Socket) {

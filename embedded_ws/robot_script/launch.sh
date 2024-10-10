@@ -1,6 +1,7 @@
 MAIN_BRANCH="develop"
 echo "EN ATTENTE" > /tmp/.mission_status
 AUDIO_DEVICE_ID=$(pactl list short sinks | grep "USB_PnP_Audio_Device" | awk '{print $1}')
+pactl set-default-sink $AUDIO_DEVICE_ID
 sudo chown nvidia:nvidia /dev/ttyTHS1 &&
     if [ -d ~/geppetto/ ]; then
         cd ~/geppetto/
@@ -24,5 +25,4 @@ source install/setup.bash
 ros2 run com_bridge com_serv &
 ros2 run mission_status_manager mission_manager &
 source install/setup.bash
-ros2 run rosbridge_server rosbridge_websocket &
-pactl set-default-sink $AUDIO_DEVICE_ID
+ros2 run rosbridge_server rosbridge_websocket

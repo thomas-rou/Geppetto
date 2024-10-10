@@ -16,14 +16,20 @@ export class SubscriptionServiceService {
         this.robot2 = new RobotService(process.env.ROBOT2_IP, RobotId.robot2);
         this.gazebo = new RobotService(process.env.GAZEBO_IP, RobotId.gazebo);
     }
-    public async subscribeToTopic(gateway: MissionCommandGateway) {
-        // Subscription for robot 1
+
+    async subscribeToTopicRobot1(gateway: MissionCommandGateway){
         await this.robot1.subscribeToTopic(Topic.mission_status1, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
-
-        // Subscription for robot 2
+    }
+    async subscribeToTopicRobot2(gateway: MissionCommandGateway){
         await this.robot2.subscribeToTopic(Topic.mission_status2, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
+    }
+    async subscribeToTopicGazebo(gateway: MissionCommandGateway){
+    }
 
-        // Subscription for gazebo
+    async subscribeToTopic(gateway: MissionCommandGateway) {
+        await this.subscribeToTopicRobot1(gateway);
+        await this.subscribeToTopicRobot2(gateway);
+        await this.subscribeToTopicGazebo(gateway);
     }
 
     missionStatusCallback(message) {
