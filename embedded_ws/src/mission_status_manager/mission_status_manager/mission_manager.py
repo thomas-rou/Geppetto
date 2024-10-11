@@ -4,6 +4,7 @@ from rclpy.node import Node
 from limo_msgs.msg import LimoStatus
 from common_msgs.msg import MissionStatus
 from com_bridge.common_methods import set_mission_status, get_mission_status
+from com_bridge.common_enums import Robot_Status
 BATTERY_CAPACITY = 12.0
 
 import os
@@ -27,9 +28,11 @@ class MissionManager(Node):
             mission_status = MissionStatus()
             mission_status.robot_id = os.getenv('ROBOT')
             mission_status.battery_level = battery_level
-            if mission_status.battery_level <= 30:
-                set_mission_status("BATTERIE FAIBLE")
             mission_status.robot_status = get_mission_status()
+            if mission_status.battery_level <= 30 and mission_status.robot_status != Robot_Status.LOW_BATTERY:
+                mission_status.robot_status = Robot_Status.LOW_BATTERY
+                set_mission_status(Robot_Status.LOW_BATTERY)
+                # TODO: call low battery callback here
             self.mission_status_publisher.publish(mission_status)
         except Exception as e:
             self.get_logger().info("Failed to publish mission status: "+str(e))
