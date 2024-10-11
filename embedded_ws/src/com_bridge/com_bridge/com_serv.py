@@ -7,7 +7,7 @@ import os
 import subprocess
 import json
 from com_bridge.common_methods import set_mission_status
-from com_bridge.common_enums import Robot_Status
+from com_bridge.common_enums import RobotStatus
 
 class ComServNode(Node):
     def __init__(self):
@@ -45,7 +45,7 @@ class ComServNode(Node):
             "command": msg.command,
             "timestamp": msg.timestamp
         }
-        set_mission_status(Robot_Status.WAITING)
+        set_mission_status(RobotStatus.WAITING)
         json_str = json.dumps(json_data)
         self.get_logger().info('Mission stopped')
         if self.timer_active:
@@ -70,7 +70,7 @@ class ComServNode(Node):
             },
             "timestamp": msg.timestamp
         }
-        set_mission_status(Robot_Status.MISSION_ON_GOING)
+        set_mission_status(RobotStatus.MISSION_ON_GOING)
         if not self.timer_active:
             self.timer = self.create_timer(self.timer_period, self.timer_callback)
             self.timer_active = True
