@@ -3,6 +3,7 @@ from rclpy.node import Node
 from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from common_msgs.action import Mission
 from rclpy.executors import MultiThreadedExecutor
+from typing import Tuple
 
 class MissionServer(Node):
     def __init__(self):
