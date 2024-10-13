@@ -41,10 +41,10 @@ robots = [
 
 # fmt: off
 boundary_walls = [
-    Wall(pose=Pose(y= MAP_WIDTH/2),                                         size=Size(x=MAP_WIDTH), starter_wall=True), # west wall
-    Wall(pose=Pose(y=-MAP_WIDTH/2),                                         size=Size(x=MAP_WIDTH), starter_wall=True), # east wall
-    Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP), starter_wall=True), # north wall
-    Wall(pose=Pose(x=-MAP_WIDTH/2 + WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP), starter_wall=True), # south wall
+    Wall(pose=Pose(y= MAP_WIDTH/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # west wall
+    Wall(pose=Pose(y=-MAP_WIDTH/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # east wall
+    Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # north wall
+    Wall(pose=Pose(x=-MAP_WIDTH/2 + WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # south wall
 ]
 # fmt: on
 
