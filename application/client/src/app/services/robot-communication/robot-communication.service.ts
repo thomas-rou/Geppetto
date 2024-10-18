@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy, OnInit } from '@angular/core';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
+import { NotificationService } from '@app/services/notification/notification.service';
 import { EndMission } from '@common/interfaces/EndMission';
 import { StartMission } from '@common/interfaces/StartMission';
 import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
@@ -8,25 +9,56 @@ import { ReturnToBase } from '@common/interfaces/ReturnToBase';
 import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 import { NotifyRobotsToCommunicate } from '@common/interfaces/NotifyRobotsToCommunicate';
 import { FindFurthestRobot } from '@common/interfaces/FindFurthestRobot';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { RobotCommand } from '@common/enums/RobotCommand';
 import { RobotId } from '@common/enums/RobotId';
+import { RobotStatus } from '@common/interfaces/RobotStatus';
 
 @Injectable({
     providedIn: 'root',
 })
-export class RobotCommunicationService {
+export class RobotCommunicationService implements OnInit, OnDestroy {
+    private robotStatusSubject = new Subject<RobotStatus>();
     private missionStatusSubject = new Subject<string>();
     private robotIdentificationSubject = new Subject<string>();
     private commandErrorSubject = new Subject<string>();
     private connectionStatusSubject = new Subject<boolean>();
 
+    private socketConnected: boolean = false;
+
+    private subscriptions: Subscription[] = [];
+
     constructor(
         public socketService: SocketHandlerService,
         private robotManagementService: RobotManagementService,
+        private notificationService: NotificationService,
     ) {
         this.connect();
+    }
+
+    ngOnInit(): void {
+        this.subscriptions.push(
+            this.onMissionStatus().subscribe((message) => {
+                this.notificationService.sendNotification(message);
+            }),
+            this.onRobotIdentification().subscribe((message) => {
+                this.notificationService.sendNotification(message);
+            }),
+            this.onCommandError().subscribe((message) => {
+                this.notificationService.sendNotification(`Error: ${message}`);
+            }),
+
+            this.onConnectionStatus().subscribe((isConnected) => {
+                if (isConnected) console.log('WebSocket is connected');
+                else console.log('WebSocket is disconnected');
+                this.socketConnected = isConnected;
+            }),
+
+            this.onRobotStatus().subscribe((message: RobotStatus) => {
+                this.updateRobotStatus(message);
+            })
+        );
     }
 
     get robot1() {
@@ -59,6 +91,12 @@ export class RobotCommunicationService {
         });
     }
 
+    handleRobotStatus() {
+        this.socketService.on('roboyStatus', (message: RobotStatus) => {
+            this.robotStatusSubject.next(message);
+        });
+    }
+
     handleRobotIdentification() {
         this.socketService.on('robotIdentification', (message: string) => {
             this.robotIdentificationSubject.next(message);
@@ -80,6 +118,10 @@ export class RobotCommunicationService {
 
     onMissionStatus(): Observable<string> {
         return this.missionStatusSubject.asObservable();
+    }
+
+    onRobotStatus(): Observable<RobotStatus> {
+        return this.robotStatusSubject.asObservable();
     }
 
     onRobotIdentification(): Observable<string> {
@@ -215,5 +257,25 @@ export class RobotCommunicationService {
 
     disconnect(): void {
         this.socketService.disconnect();
+    }
+
+    verifySocketConnection() {
+        if (this.socketConnected) return true;
+        else this.notificationService.sendNotification('No socket connection has been established');
+        return false;
+    }
+
+    private updateRobotStatus(status: RobotStatus): void {
+        if (status.robot_id === RobotId.robot1) {
+            this.robot1.status = status.robot_status;
+            this.robot1.battery = status.battery_level;
+        } else if (status.robot_id === RobotId.robot2) {
+            this.robot2.status = status.robot_status;
+            this.robot2.battery = status.battery_level;
+        }
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions.forEach((sub) => sub.unsubscribe());
     }
 }
