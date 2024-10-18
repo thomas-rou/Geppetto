@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'com_serv = com_bridge.com_serv:main'
+            'com_serv = com_bridge.com_serv:main',
+            'mission_server = com_bridge.mission_server:main',
         ],
     },
 )
