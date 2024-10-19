@@ -9,7 +9,7 @@ BATTERY_CAPACITY = 12.0
 
 import os
 
-class MissionManager(Node):
+class MissionStatusManager(Node):
     def __init__(self):
         super().__init__('mission_manager')
         self.get_logger().info(f"Mission manager Launched waiting for messages in {os.getenv('ROBOT')}")
@@ -42,7 +42,7 @@ class MissionManager(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = MissionManager()
+    node = MissionStatusManager()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
