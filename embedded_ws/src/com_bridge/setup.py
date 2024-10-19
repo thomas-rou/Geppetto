@@ -11,6 +11,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', ['launch/com_bridge_launch.py']), 
+        ('share/' + package_name + '/launch', ['launch/com_bridge_launch_gazebo.py']), 
     ],
     install_requires=['setuptools'],
     zip_safe=True,
