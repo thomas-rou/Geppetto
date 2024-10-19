@@ -1,6 +1,6 @@
 # com_bridge/com_serv.py
 
-from embedded_ws.common.common_methods import set_mission_status
+from com_bridge.common_methods import set_mission_status
 import rclpy
 from rclpy.node import Node
 from common_msgs.msg import IdentifyRobot
@@ -31,7 +31,7 @@ class IdentifyNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = ComServNode()
+    node = IdentifyNode()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
