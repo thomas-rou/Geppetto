@@ -34,7 +34,6 @@ class MissionServer(Node):
         self._current_x = 0.0
         self._current_y = 0.0
         self._current_orientation = 0.0
-        self._mission_status = "Not Started"
 
         # Variables pour le mouvement aléatoire
         self._direction_persistence = 0
@@ -42,9 +41,16 @@ class MissionServer(Node):
 
     @property
     def mission_active(self):
-        if get_mission_status() == RobotStatus.LOW_BATTERY:
+        if self._mission_status == RobotStatus.LOW_BATTERY:
             return False
-        return get_mission_status() == RobotStatus.MISSION_ON_GOING
+        return self._mission_status == RobotStatus.MISSION_ON_GOING
+    @property
+    def _mission_status(self):
+        return get_mission_status()
+
+    @_mission_status.setter
+    def _mission_status(self, status):
+        set_mission_status(status)
 
     def new_missions_callback(self, msg: StartMission):
         try:
@@ -53,7 +59,7 @@ class MissionServer(Node):
                     "A goal is already being executed. Rejecting new goal request."
                 )
                 return
-            set_mission_status(RobotStatus.MISSION_ON_GOING)
+            self._mission_status = RobotStatus.MISSION_ON_GOING
             robot_id = '2' if os.getenv('ROBOT') == 'robot_2' else '1'
             position = getattr(msg.mission_details, f'position{robot_id}')
             orientation = getattr(msg.mission_details, f'orientation{robot_id}')
@@ -82,7 +88,7 @@ class MissionServer(Node):
                 self.get_logger().info("Cancelling the current mission.")
             else:
                 self.get_logger().info("No active mission to cancel.")
-            set_mission_status(RobotStatus.WAITING)
+            self._mission_status = RobotStatus.WAITING
         except Exception as e:
             self.get_logger().info(f"Failed to cancel mission: {e}")
 
