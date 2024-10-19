@@ -1,18 +1,20 @@
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
-from common_msgs.msg import StartMission, StopMission, Feedback
-from std_msgs.msg import Bool
+from common_msgs.msg import StartMission, StopMission
 from rclpy.executors import MultiThreadedExecutor
 from random import uniform, choice
 from typing import Tuple
 from com_bridge.common_methods import set_mission_status, get_mission_status
 from com_bridge.common_enums import RobotStatus
+import os
 
 
 class MissionServer(Node):
     def __init__(self):
         super().__init__("mission_server")
+        
+        self.get_logger().info(f"Server Launched waiting for messages in {os.getenv('ROBOT')}")
 
         # Subscription pour démarrer et arrêter les missions
         self.start_mission_subscription = self.create_subscription(
@@ -45,41 +47,44 @@ class MissionServer(Node):
         return get_mission_status() == RobotStatus.MISSION_ON_GOING
 
     def new_missions_callback(self, msg: StartMission):
-        set_mission_status(RobotStatus.MISSION_ON_GOING)
-        if self.mission_active:
+        try:
+            if self.mission_active:
+                self.get_logger().info(
+                    "A goal is already being executed. Rejecting new goal request."
+                )
+                return
+            set_mission_status(RobotStatus.MISSION_ON_GOING)
+            robot_id = '2' if os.getenv('ROBOT') == 'robot_2' else '1'
+            position = getattr(msg.mission_details, f'position{robot_id}')
+            orientation = getattr(msg.mission_details, f'orientation{robot_id}')
+            self._current_x = position.x
+            self._current_y = position.y
+            self._current_orientation = orientation
+
             self.get_logger().info(
-                "A goal is already being executed. Rejecting new goal request."
+                f"Accepting new mission. Starting at position: ({self._current_x}, {self._current_y}) with orientation: {self._current_orientation}"
             )
-            return
-        
-        robot_id = '2' if os.getenv('ROBOT') == 'robot_2' else '1'
-        position = getattr(msg.mission_details, f'position{robot_id}')
-        orientation = getattr(msg.mission_details, f'orientation{robot_id}')
-        self._current_x = position.x
-        self._current_y = position.y
-        self._current_orientation = orientation
 
-        self.get_logger().info(
-            f"Accepting new mission. Starting at position: ({self._current_x}, {self._current_y}) with orientation: {self._current_orientation}"
-        )
-
-        self.mission_active = True
-        self._timer = self.create_timer(
-            0.5, self.random_move
-        )  # Exécuter le mouvement toutes les 0.5 secondes
-        self._feedback_timer = self.create_timer(
-            1.0, self.publish_feedback
-        )  # Publier le feedback à 1 Hz
+            self._timer = self.create_timer(
+                0.5, self.random_move
+            )  # Exécuter le mouvement toutes les 0.5 secondes
+            self._feedback_timer = self.create_timer(
+                1.0, self.publish_feedback
+            )  # Publier le feedback à 1 Hz
+        except Exception as e:
+            self.get_logger().info(f"Failed to start mission: {e}")
 
     def stop_mission_callback(self, msg: StopMission):
-        set_mission_status(RobotStatus.WAITING)
-        if self.mission_active:
-            self.mission_active = False
-            self.destroy_timer(self._timer)
-            self.destroy_timer(self._feedback_timer)  # Arrêter le timer de feedback
-            self.get_logger().info("Cancelling the current mission.")
-        else:
-            self.get_logger().info("No active mission to cancel.")
+        try:
+            if self.mission_active:
+                self.destroy_timer(self._timer)
+                self.destroy_timer(self._feedback_timer)  # Arrêter le timer de feedback
+                self.get_logger().info("Cancelling the current mission.")
+            else:
+                self.get_logger().info("No active mission to cancel.")
+            set_mission_status(RobotStatus.WAITING)
+        except Exception as e:
+            self.get_logger().info(f"Failed to cancel mission: {e}")
 
     def random_move(self):
         if self.mission_active:
