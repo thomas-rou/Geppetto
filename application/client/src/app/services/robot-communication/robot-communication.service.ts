@@ -1,6 +1,5 @@
 import { Injectable, OnDestroy, OnInit } from '@angular/core';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
-import { NotificationService } from '@app/services/notification/notification.service';
 import { EndMission } from '@common/interfaces/EndMission';
 import { StartMission } from '@common/interfaces/StartMission';
 import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
@@ -25,36 +24,17 @@ export class RobotCommunicationService implements OnInit, OnDestroy {
     private commandErrorSubject = new Subject<string>();
     private connectionStatusSubject = new Subject<boolean>();
 
-    private socketConnected: boolean = false;
-
     private subscriptions: Subscription[] = [];
 
     constructor(
         public socketService: SocketHandlerService,
         private robotManagementService: RobotManagementService,
-        private notificationService: NotificationService,
     ) {
         this.connect();
     }
 
     ngOnInit(): void {
         this.subscriptions.push(
-            this.onMissionStatus().subscribe((message) => {
-                this.notificationService.sendNotification(message);
-            }),
-            this.onRobotIdentification().subscribe((message) => {
-                this.notificationService.sendNotification(message);
-            }),
-            this.onCommandError().subscribe((message) => {
-                this.notificationService.sendNotification(`Error: ${message}`);
-            }),
-
-            this.onConnectionStatus().subscribe((isConnected) => {
-                if (isConnected) console.log('WebSocket is connected');
-                else console.log('WebSocket is disconnected');
-                this.socketConnected = isConnected;
-            }),
-
             this.onRobotStatus().subscribe((message: RobotStatus) => {
                 this.updateRobotStatus(message);
             })
@@ -257,12 +237,6 @@ export class RobotCommunicationService implements OnInit, OnDestroy {
 
     disconnect(): void {
         this.socketService.disconnect();
-    }
-
-    verifySocketConnection() {
-        if (this.socketConnected) return true;
-        else this.notificationService.sendNotification('No socket connection has been established');
-        return false;
     }
 
     private updateRobotStatus(status: RobotStatus): void {
