@@ -13,6 +13,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(action_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
@@ -21,8 +22,10 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/StartMission.msg"
   "msg/StopMission.msg"
   "msg/IdentifyRobot.msg"
+  "action/Mission.action"
   "msg/MissionStatus.msg"
   DEPENDENCIES std_msgs
+  DEPENDENCIES action_msgs
 )
 
 if(BUILD_TESTING)

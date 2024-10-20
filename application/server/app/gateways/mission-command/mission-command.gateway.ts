@@ -16,32 +16,7 @@ export class MissionCommandGateway {
     private readonly logger = new Logger(MissionCommandGateway.name);
     private controllingClient: Socket | null = null;
 
-    constructor(private subscriptionService: SubscriptionServiceService) {
-        // create a timer that will run this method as long as it fails
-        const timerRobot1 = setInterval(async () => {
-            try {
-                await this.subscriptionService.subscribeToTopicRobot1(this);
-                clearInterval(timerRobot1);
-            } catch (e) {}
-        }, 5000);
-
-        const timerRobot2 = setInterval(async () => {
-            try {
-                await this.subscriptionService.subscribeToTopicRobot2(this);
-                clearInterval(timerRobot2);
-            } catch (e) {}
-        }
-        , 5000);
-
-        const timerGazebo = setInterval(async () => {
-            try {
-                await this.subscriptionService.subscribeToTopicGazebo(this);
-                clearInterval(timerGazebo);
-            } catch (e) {}
-        }
-        , 5000);
-
-    }
+    constructor(private subscriptionService: SubscriptionServiceService) {}
 
     handleDisconnect(client: Socket) {
         if (this.controllingClient === client) {
@@ -63,7 +38,7 @@ export class MissionCommandGateway {
         return true;
     }
 
-    private handleMissionCommand(client: Socket, payload: { target: RobotId[] }, command: 'start' | 'stop') {
+    private async handleMissionCommand(client: Socket, payload: { target: RobotId[] }, command: 'start' | 'stop') {
         if (!this.verifyPermissionToControl(client)) {
             client.emit('commandError', 'The system is already being controlled');
             return;
@@ -97,6 +72,7 @@ export class MissionCommandGateway {
                 this.logger.error('Invalid mission command');
                 this.server.emit('commandError', `Invalid ${command} mission command`);
             }
+            if (command === 'start') await this.subscriptionService.subscribeToTopic(this);
         } catch (e) {
             this.logger.error(`Error in ${command}MissionRobots: ${e.message}`);
             this.server.emit('commandError', `${e.message} please try again`);
