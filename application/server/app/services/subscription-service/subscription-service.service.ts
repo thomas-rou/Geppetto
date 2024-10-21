@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MissionStatus } from '@common/interfaces/MissionStatus';
+import { RobotStatus } from '@common/interfaces/RobotStatus';
 import { RobotService } from '../robot/robot.service';
 import { Topic } from '@common/enums/Topic';
 import { TopicType } from '@common/enums/TopicType';
@@ -33,7 +33,7 @@ export class SubscriptionServiceService {
     }
 
     missionStatusCallback(message) {
-        const missionStatus: MissionStatus = message.msg;
-        this.server.emit('missionStatus', missionStatus);
+        const robotStatus: RobotStatus = message.msg;
+        this.server.emit('robotStatus', robotStatus);
     }
 }

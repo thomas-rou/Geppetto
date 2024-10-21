@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { StartMissionPopupComponent } from './start-mission-popup.component';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
 import { Robot } from '@app/classes/robot/robot';
-import { RobotStatus } from '@app/enums/robot-status';
 import { RobotId } from '@common/enums/RobotId';
 
 describe('StartMissionPopupComponent', () => {
@@ -13,8 +12,8 @@ describe('StartMissionPopupComponent', () => {
 
     beforeEach(async () => {
         const robotManagementServiceMock = {
-            robot1: new Robot(RobotId.robot1, 'Robot1', RobotStatus.Idle, 100, { x: 0, y: 0 }, 0.0),
-            robot2: new Robot(RobotId.robot2, 'Robot2', RobotStatus.Idle, 100, { x: 0, y: 0 }, 0.0),
+            robot1: new Robot(RobotId.robot1, 'Robot1', 'EN ATTENTE', 100, { x: 0, y: 0 }, 0.0),
+            robot2: new Robot(RobotId.robot2, 'Robot2', 'EN ATTENTE', 100, { x: 0, y: 0 }, 0.0),
         };
 
         await TestBed.configureTestingModule({
