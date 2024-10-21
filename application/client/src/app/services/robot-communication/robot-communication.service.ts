@@ -229,10 +229,10 @@ export class RobotCommunicationService implements OnInit, OnDestroy {
     }
 
     private updateRobotStatus(status: RobotStatus): void {
-        if (status.robot_id[status.robot_id.length-1] === '1') {
+        if (status.robot_id === RobotId.robot1) {
             this.robot1.status = status.robot_status;
             this.robot1.battery = status.battery_level;
-        } else if (status.robot_id[status.robot_id.length-1] === '2') {
+        } else if (status.robot_id === RobotId.robot2) {
             this.robot2.status = status.robot_status;
             this.robot2.battery = status.battery_level;
         }

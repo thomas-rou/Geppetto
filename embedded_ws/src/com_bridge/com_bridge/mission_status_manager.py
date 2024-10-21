@@ -26,7 +26,7 @@ class MissionStatusManager(Node):
         try:
             battery_level = round((battery_data.battery_voltage/BATTERY_CAPACITY)*100)
             mission_status = MissionStatus()
-            mission_status.robot_id = os.getenv('ROBOT')
+            mission_status.robot_id = os.getenv('ROBOT')[-1]
             mission_status.battery_level = battery_level
             mission_status.robot_status = get_mission_status()
             if mission_status.battery_level <= 30 and mission_status.robot_status != RobotStatus.LOW_BATTERY:
