@@ -8,7 +8,7 @@ import { ReturnToBase } from '@common/interfaces/ReturnToBase';
 import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 import { NotifyRobotsToCommunicate } from '@common/interfaces/NotifyRobotsToCommunicate';
 import { FindFurthestRobot } from '@common/interfaces/FindFurthestRobot';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { RobotCommand } from '@common/enums/RobotCommand';
 import { RobotId } from '@common/enums/RobotId';
@@ -18,13 +18,10 @@ import { RobotStatus } from '@common/interfaces/RobotStatus';
     providedIn: 'root',
 })
 export class RobotCommunicationService implements OnInit, OnDestroy {
-    private robotStatusSubject = new Subject<RobotStatus>();
     private missionStatusSubject = new Subject<string>();
     private robotIdentificationSubject = new Subject<string>();
     private commandErrorSubject = new Subject<string>();
     private connectionStatusSubject = new Subject<boolean>();
-
-    private subscriptions: Subscription[] = [];
 
     constructor(
         public socketService: SocketHandlerService,
@@ -34,11 +31,6 @@ export class RobotCommunicationService implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.subscriptions.push(
-            this.onRobotStatus().subscribe((message: RobotStatus) => {
-                this.updateRobotStatus(message);
-            })
-        );
     }
 
     get robot1() {
@@ -74,7 +66,7 @@ export class RobotCommunicationService implements OnInit, OnDestroy {
 
     handleRobotStatus() {
         this.socketService.on('robotStatus', (message: RobotStatus) => {
-            this.robotStatusSubject.next(message);
+            this.updateRobotStatus(message);
         });
     }
 
@@ -99,10 +91,6 @@ export class RobotCommunicationService implements OnInit, OnDestroy {
 
     onMissionStatus(): Observable<string> {
         return this.missionStatusSubject.asObservable();
-    }
-
-    onRobotStatus(): Observable<RobotStatus> {
-        return this.robotStatusSubject.asObservable();
     }
 
     onRobotIdentification(): Observable<string> {
@@ -241,16 +229,15 @@ export class RobotCommunicationService implements OnInit, OnDestroy {
     }
 
     private updateRobotStatus(status: RobotStatus): void {
-        if (status.robot_id === RobotId.robot1) {
+        if (status.robot_id[status.robot_id.length-1] === '1') {
             this.robot1.status = status.robot_status;
             this.robot1.battery = status.battery_level;
-        } else if (status.robot_id === RobotId.robot2) {
+        } else if (status.robot_id[status.robot_id.length-1] === '2') {
             this.robot2.status = status.robot_status;
             this.robot2.battery = status.battery_level;
         }
     }
 
     ngOnDestroy(): void {
-        this.subscriptions.forEach((sub) => sub.unsubscribe());
     }
 }
