@@ -55,6 +55,7 @@ export class RobotCommunicationService implements OnInit, OnDestroy {
             this.handleMissionStatus();
             this.handleRobotIdentification();
             this.handleCommandError();
+            this.handleRobotStatus();
         }
     }
 
@@ -72,7 +73,7 @@ export class RobotCommunicationService implements OnInit, OnDestroy {
     }
 
     handleRobotStatus() {
-        this.socketService.on('roboyStatus', (message: RobotStatus) => {
+        this.socketService.on('robotStatus', (message: RobotStatus) => {
             this.robotStatusSubject.next(message);
         });
     }
