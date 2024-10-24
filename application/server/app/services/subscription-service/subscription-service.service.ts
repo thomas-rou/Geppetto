@@ -24,12 +24,12 @@ export class SubscriptionServiceService {
         await this.robot2.subscribeToTopic(Topic.mission_status2, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
     }
     async subscribeToTopicGazebo(gateway: MissionCommandGateway){
+        await this.gazebo.subscribeToTopic(Topic.gazebo_mission_status, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
     }
 
-    async subscribeToTopic(gateway: MissionCommandGateway) {
+    async subscribeToTopicRobots(gateway: MissionCommandGateway) {
         await this.subscribeToTopicRobot1(gateway);
         await this.subscribeToTopicRobot2(gateway);
-        await this.subscribeToTopicGazebo(gateway);
     }
 
     missionStatusCallback(message) {

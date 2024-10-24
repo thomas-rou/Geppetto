@@ -5,4 +5,5 @@ export enum Topic {
     identify_command2 = '/robot_2/identify_command',
     mission_status1 = '/robot_1/mission_status',
     mission_status2 = '/robot_2/mission_status',
+    gazebo_mission_status = '/gazebo/mission_status',
 }
