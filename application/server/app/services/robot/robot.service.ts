@@ -20,7 +20,6 @@ export class RobotService {
     constructor(robotIp: string, robotNb: RobotId) {
         this._robotIp = robotIp;
         this._robotNumber = robotNb;
-        this.connect();
     }
 
     async connect() {
@@ -71,7 +70,7 @@ export class RobotService {
 
     async publishToTopic(topicName: Topic, topicType: TopicType, message: BasicCommand) {
         try {
-            if (this.ws.readyState !== WebSocket.OPEN) {
+            if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
                 await this.connect();
             }
             const publishMessage: MessageOperation = {
@@ -87,8 +86,8 @@ export class RobotService {
         }
     }
 
-    startMission() {
-        this.publishToTopic(Topic.start_mission, TopicType.start_mission, {
+    async startMission() {
+        await this.publishToTopic(Topic.start_mission, TopicType.start_mission, {
             command: RobotCommand.StartMission,
             mission_details: {
                 orientation1: 0.0,
@@ -106,21 +105,21 @@ export class RobotService {
         } as StartMission);
     }
 
-    stopMission() {
-        this.publishToTopic(Topic.stop_mission, TopicType.stop_mission, {
+    async stopMission() {
+        await this.publishToTopic(Topic.stop_mission, TopicType.stop_mission, {
             command: RobotCommand.EndMission,
             timestamp: new Date().toISOString(),
         } as EndMission);
     }
 
-    identify() {
+    async identify() {
         var topicCommand;
         if (this._robotNumber == RobotId.robot1) {
             topicCommand = Topic.identify_command1;
         } else if (this._robotNumber == RobotId.robot2) {
             topicCommand = Topic.identify_command2;
         }
-        this.publishToTopic(topicCommand, TopicType.identify_robot, {
+        await this.publishToTopic(topicCommand, TopicType.identify_robot, {
             command: RobotCommand.IdentifyRobot,
             timestamp: new Date().toISOString(),
         } as BasicCommand);

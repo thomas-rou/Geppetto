@@ -61,12 +61,12 @@ export class MissionCommandGateway {
         try {
             if (targets.includes(RobotId.robot1) && targets.includes(RobotId.robot2)) {
                 this.logger.log(`${commands[command].log} for robots command received from client`);
-                this.subscriptionService.robot1[commands[command].method]();
-                this.subscriptionService.robot2[commands[command].method]();
+                await this.subscriptionService.robot1[commands[command].method]();
+                await this.subscriptionService.robot2[commands[command].method]();
                 this.server.emit('missionStatus', `${commands[command].successMessage} for robots`);
             } else if (targets.includes(RobotId.gazebo)) {
                 this.logger.log(`${commands[command].log} for simulation command received from client`);
-                this.subscriptionService.gazebo[commands[command].method]();
+                await this.subscriptionService.gazebo[commands[command].method]();
                 this.server.emit('missionStatus', `${commands[command].successMessage} for the simulation`);
             } else {
                 this.logger.error('Invalid mission command');
@@ -80,17 +80,17 @@ export class MissionCommandGateway {
     }
 
     @SubscribeMessage(RobotCommand.StartMission)
-    startMissionRobots(client: Socket, payload: StartMission) {
-        this.handleMissionCommand(client, payload, 'start');
+    async startMissionRobots(client: Socket, payload: StartMission) {
+        await this.handleMissionCommand(client, payload, 'start');
     }
 
     @SubscribeMessage(RobotCommand.EndMission)
-    stopMissionFromRobots(client: Socket, payload: EndMission) {
-        this.handleMissionCommand(client, payload, 'stop');
+    async stopMissionFromRobots(client: Socket, payload: EndMission) {
+        await this.handleMissionCommand(client, payload, 'stop');
     }
 
     @SubscribeMessage(RobotCommand.IdentifyRobot)
-    identifyRobot(client: Socket, payload: IdentifyRobot) {
+    async identifyRobot(client: Socket, payload: IdentifyRobot) {
         if (!this.verifyPermissionToControl(client)) {
             client.emit('commandError', 'The system is already being controlled');
             return;
@@ -100,12 +100,12 @@ export class MissionCommandGateway {
             switch (payload.target) {
                 case RobotId.robot1:
                     this.logger.log('Identify robot 1 command received from client');
-                    this.subscriptionService.robot1.identify();
+                    await this.subscriptionService.robot1.identify();
                     this.server.emit('robotIdentification', 'Robot 1 was identified');
                     break;
                 case RobotId.robot2:
                     this.logger.log('Identify robot 2 command received from client');
-                    this.subscriptionService.robot2.identify();
+                    await this.subscriptionService.robot2.identify();
                     this.server.emit('robotIdentification', 'Robot 2 was identified');
                     break;
                 default:
