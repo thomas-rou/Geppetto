@@ -62,9 +62,14 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
         }
     }
 
-    onMissionStart() {
+    onPhysicalMissionStart() {
         this.showPopup = false;
-        this.robotService.startMission();
+        this.robotService.startMissionRobot();
+    }
+
+    onSimulationMissionStart() {
+        this.showPopup = false;
+        this.robotService.startMissionGazebo();
     }
 
     onCancel() {

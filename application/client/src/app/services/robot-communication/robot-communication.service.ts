@@ -105,11 +105,6 @@ export class RobotCommunicationService implements OnInit, OnDestroy {
         return this.connectionStatusSubject.asObservable();
     }
 
-    startMission(): void {
-        this.startMissionRobot();
-        this.startMissionGazebo();
-    }
-
     startMissionRobot(): void {
         const message: StartMission = {
             command: RobotCommand.StartMission,

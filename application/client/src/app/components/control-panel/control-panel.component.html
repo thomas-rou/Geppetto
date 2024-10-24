@@ -6,5 +6,5 @@
         <button id="return-home" (click)="returnHome()">Retour à la Maison</button>
         <button id="update-software" (click)="updateSoftware()">Mettre à Jour</button>
     </div>
-    <app-start-mission-popup *ngIf="showPopup" (startMission)="onMissionStart()" (cancelMission)="onCancel()"></app-start-mission-popup>
+    <app-start-mission-popup *ngIf="showPopup" (startPhysicalMission)="onPhysicalMissionStart()" (startSimulationMission)="onSimulationMissionStart()" (cancelMission)="onCancel()"></app-start-mission-popup>
 </section>

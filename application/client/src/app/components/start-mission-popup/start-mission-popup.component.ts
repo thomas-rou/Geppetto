@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Robot } from '@app/classes/robot/robot';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
@@ -8,10 +9,11 @@ import { RobotManagementService } from '@app/services/robot-management/robot-man
     templateUrl: './start-mission-popup.component.html',
     styleUrls: ['./start-mission-popup.component.scss'],
     standalone: true,
-    imports: [FormsModule],
+    imports: [CommonModule, FormsModule],
 })
 export class StartMissionPopupComponent {
-    @Output() startMission = new EventEmitter<{ robot1: Robot; robot2: Robot }>();
+    @Output() startSimulationMission = new EventEmitter<{ robot1: Robot; robot2: Robot }>();
+    @Output() startPhysicalMission = new EventEmitter<{ robot1: Robot; robot2: Robot }>();
     @Output() cancelMission = new EventEmitter<void>();
 
     robot1X: number = 0;
@@ -20,6 +22,8 @@ export class StartMissionPopupComponent {
     robot2X: number = 0;
     robot2Y: number = 0;
     robot2Orientation: number = 0.0;
+
+    selectedOption: string = "simulation";
 
     constructor(private managementService: RobotManagementService) {}
 
@@ -37,7 +41,14 @@ export class StartMissionPopupComponent {
         this.robot1.orientation = this.robot1Orientation;
         this.robot2.orientation = this.robot2Orientation;
 
-        this.startMission.emit();
+        switch (this.selectedOption) {
+            case "simulation":
+                this.startSimulationMission.emit();
+                break;
+            case "physical":
+                this.startPhysicalMission.emit();
+                break;
+        }
     }
 
     onCancel() {

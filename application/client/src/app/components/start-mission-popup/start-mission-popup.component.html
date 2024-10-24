@@ -1,6 +1,22 @@
 <div class="popup-container" (click)="onCancel()">
     <div class="popup-content" (click)="$event.stopPropagation()">
         <h2>Lancement de Mission</h2>
+        <div class="options">
+            <button
+              class="option"
+              [ngClass]="{ selected: selectedOption === 'simulation' }"
+              (click)="selectedOption = 'simulation'"
+            >
+              Simulation
+            </button>
+            <button
+              class="option"
+              [ngClass]="{ selected: selectedOption === 'physical' }"
+              (click)="selectedOption = 'physical'"
+            >
+              Physique
+            </button>
+          </div>
         <div class="robot">
             <h3>{{ robot1.name }}</h3>
             <div class="input">
