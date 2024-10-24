@@ -1,6 +1,10 @@
 FROM ubuntu:22.04
 ARG DEBIAN_FRONTEND=noninteractive
 
+ENV ROBOT=gazebo
+
+RUN echo "EN ATTENTE" > /tmp/.mission_status
+
 RUN apt update; apt upgrade -y
 # INSTALL UTILS
 RUN apt install lsb-release wget curl gnupg python3-pip git -y
