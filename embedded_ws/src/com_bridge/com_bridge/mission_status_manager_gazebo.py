@@ -7,7 +7,7 @@ from com_bridge.common_enums import RobotStatus
 
 TIMER_PERIOD = 1.0
 
-class MissionStatusManagerGazebo:
+class MissionStatusManagerGazebo(Node):
     def __init__(self):
         super().__init__("mission_manager_status_gazebo")
         self.battery_level = 100
@@ -18,8 +18,8 @@ class MissionStatusManagerGazebo:
             MissionStatus, f"{os.getenv('ROBOT')}/mission_status", 10
         )
         self.timer = self.create_timer(TIMER_PERIOD, self.publish_mission_status)
-        
-    def decrease_battery_level (self):
+
+    def decrease_battery_level(self):
         self.battery_level -= 0.1
         round(self.battery_level)
 
@@ -28,8 +28,8 @@ class MissionStatusManagerGazebo:
             self.decrease_battery_level()
             mission_status = MissionStatus()
             # TODO: get robot id from gazebo
-            mission_status.robot_id = os.getenv("ROBOT")[-1]
-            mission_status.battery_level = self.battery_level
+            mission_status.robot_id = ""
+            mission_status.battery_level = int(self.battery_level)
             mission_status.robot_status = get_mission_status()
             if (
                 mission_status.battery_level <= 30
