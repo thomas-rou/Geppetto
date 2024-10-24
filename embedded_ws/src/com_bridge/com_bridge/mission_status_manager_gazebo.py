@@ -6,6 +6,7 @@ from com_bridge.common_methods import set_mission_status, get_mission_status
 from com_bridge.common_enums import RobotStatus
 
 TIMER_PERIOD = 1.0
+BATTERY_THRESHOLD = 0
 
 class MissionStatusManagerGazebo(Node):
     def __init__(self):
@@ -20,7 +21,8 @@ class MissionStatusManagerGazebo(Node):
         self.timer = self.create_timer(TIMER_PERIOD, self.publish_mission_status)
 
     def decrease_battery_level(self):
-        self.battery_level -= 0.1
+        if self.battery_level > BATTERY_THRESHOLD:
+            self.battery_level -= 0.1
         round(self.battery_level)
 
     def publish_mission_status(self):
