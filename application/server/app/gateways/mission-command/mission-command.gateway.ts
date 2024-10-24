@@ -74,7 +74,7 @@ export class MissionCommandGateway {
             }
             if (command === 'start') await this.subscriptionService.subscribeToTopic(this);
         } catch (e) {
-            this.logger.error(`Error in ${command}MissionRobots: ${e.message}`);
+            this.logger.error(`Error in ${command} MissionRobots: ${e.message}`);
             this.server.emit('commandError', `${e.message} please try again`);
         }
     }

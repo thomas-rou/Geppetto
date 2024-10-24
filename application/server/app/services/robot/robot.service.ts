@@ -33,6 +33,7 @@ export class RobotService {
 
             this.ws.onerror = (error) => {
                 this.logger.error(`WebSocket error: ${error.message}`);
+                reject(error);
             };
 
             this.ws.onclose = () => {
@@ -64,7 +65,7 @@ export class RobotService {
             }
         });
         } catch (error) {
-            this.logger.error(`Error connecting to robot ${this._robotIp}`);
+            this.logger.error(`Subscription to ${this._robotIp} failed with error: ${error.message}`);
         }
     }
 
@@ -82,7 +83,7 @@ export class RobotService {
             this.ws.send(JSON.stringify(publishMessage));
             this.logger.log(`Publish message to topic ${topicName} of robot ${this._robotIp}:`);
         } catch (error) {
-            this.logger.error(`Error connecting to robot ${this._robotIp}`);
+            this.logger.error(`Publish to ${this._robotIp} failed with error: ${error.message}`);
         }
     }
 
