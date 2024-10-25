@@ -1,10 +1,10 @@
 import { Topic } from '@common/enums/Topic';
 import { TopicType } from '@common/enums/TopicType';
 import { Operation } from '@common/enums/Operation';
-import { RobotCommand } from '@common/enums/RobotCommand';
+import { BasicCommand } from './BasicCommand';
 export interface MessageOperation {
   op: Operation;
   topic: Topic;
   type: TopicType;
-  msg?: RobotCommand;
+  msg?: BasicCommand;
 }

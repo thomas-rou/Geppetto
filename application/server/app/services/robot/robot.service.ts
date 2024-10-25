@@ -42,9 +42,9 @@ export class RobotService {
         });
     }
 
-    async subscribeToTopic(topicName: Topic, topicType: TopicType) {
+    async subscribeToTopic(topicName: Topic, topicType: TopicType, handleIncomingMessage: (message) => void) {
         try {
-            if (this.ws.readyState === WebSocket.CLOSED) {
+            if (this.ws.readyState !== WebSocket.OPEN) {
                 await this.connect();
             }
             const subscribeMessage: MessageOperation = {
@@ -54,6 +54,16 @@ export class RobotService {
             };
             this.ws.send(JSON.stringify(subscribeMessage));
             this.logger.log(`Subscription to topic ${topicName} of robot ${this._robotIp}`);
+            this.ws.addEventListener('message', (event) => {
+            try {
+                const messageData = JSON.parse(event.data);
+                if (messageData.topic === topicName) {
+                    handleIncomingMessage(messageData);
+                }
+            } catch (error) {
+                this.logger.error(`Error processing message from topic ${topicName}: ${error}`);
+            }
+        });
         } catch (error) {
             this.logger.error(`Error connecting to robot ${this._robotIp}`);
         }
@@ -61,14 +71,14 @@ export class RobotService {
 
     async publishToTopic(topicName: Topic, topicType: TopicType, message: BasicCommand) {
         try {
-            if (this.ws.readyState === WebSocket.CLOSED) {
+            if (this.ws.readyState !== WebSocket.OPEN) {
                 await this.connect();
             }
             const publishMessage: MessageOperation = {
                 op: Operation.publish,
                 topic: topicName,
                 type: topicType,
-                msg: message.command,
+                msg: message,
             };
             this.ws.send(JSON.stringify(publishMessage));
             this.logger.log(`Publish message to topic ${topicName} of robot ${this._robotIp}:`);
@@ -105,9 +115,9 @@ export class RobotService {
 
     identify() {
         var topicCommand;
-        if (this._robotNumber = RobotId.robot1) {
+        if (this._robotNumber == RobotId.robot1) {
             topicCommand = Topic.identify_command1;
-        } else if (this._robotNumber = RobotId.robot1) {
+        } else if (this._robotNumber == RobotId.robot2) {
             topicCommand = Topic.identify_command2;
         }
         this.publishToTopic(topicCommand, TopicType.identify_robot, {

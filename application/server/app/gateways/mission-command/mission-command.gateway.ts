@@ -2,11 +2,11 @@ import { RobotCommand } from '@common/enums/RobotCommand';
 import { EndMission } from '@common/interfaces/EndMission';
 import { StartMission } from '@common/interfaces/StartMission';
 import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
-import { RobotService } from '@app/services/robot/robot.service';
 import { RobotId } from '@common/enums/RobotId';
 import { Injectable, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { SubscriptionServiceService } from '@app/services/subscription-service/subscription-service.service';
 
 @Injectable()
 @WebSocketGateway()
@@ -14,16 +14,9 @@ export class MissionCommandGateway {
     @WebSocketServer()
     server: Server;
     private readonly logger = new Logger(MissionCommandGateway.name);
-    private robot1: RobotService;
-    private robot2: RobotService;
-    private gazebo: RobotService;
     private controllingClient: Socket | null = null;
 
-    constructor() {
-        this.robot1 = new RobotService(process.env.ROBOT1_IP, RobotId.robot1);
-        this.robot2 = new RobotService(process.env.ROBOT2_IP, RobotId.robot2);
-        this.gazebo = new RobotService(process.env.GAZEBO_IP, RobotId.gazebo);
-    }
+    constructor(private subscriptionService: SubscriptionServiceService) {}
 
     handleDisconnect(client: Socket) {
         if (this.controllingClient === client) {
@@ -45,7 +38,7 @@ export class MissionCommandGateway {
         return true;
     }
 
-    private handleMissionCommand(client: Socket, payload: { target: RobotId[] }, command: 'start' | 'stop') {
+    private async handleMissionCommand(client: Socket, payload: { target: RobotId[] }, command: 'start' | 'stop') {
         if (!this.verifyPermissionToControl(client)) {
             client.emit('commandError', 'The system is already being controlled');
             return;
@@ -56,29 +49,30 @@ export class MissionCommandGateway {
             start: {
                 log: 'Start mission',
                 method: 'startMission',
-                successMessage: 'Mission started'
+                successMessage: 'Mission started',
             },
             stop: {
                 log: 'Stop mission',
                 method: 'stopMission',
-                successMessage: 'Mission stopped'
-            }
+                successMessage: 'Mission stopped',
+            },
         };
 
         try {
             if (targets.includes(RobotId.robot1) && targets.includes(RobotId.robot2)) {
                 this.logger.log(`${commands[command].log} for robots command received from client`);
-                this.robot1[commands[command].method]();
-                this.robot2[commands[command].method]();
+                this.subscriptionService.robot1[commands[command].method]();
+                this.subscriptionService.robot2[commands[command].method]();
                 this.server.emit('missionStatus', `${commands[command].successMessage} for robots`);
             } else if (targets.includes(RobotId.gazebo)) {
                 this.logger.log(`${commands[command].log} for simulation command received from client`);
-                this.gazebo[commands[command].method]();
+                this.subscriptionService.gazebo[commands[command].method]();
                 this.server.emit('missionStatus', `${commands[command].successMessage} for the simulation`);
             } else {
                 this.logger.error('Invalid mission command');
                 this.server.emit('commandError', `Invalid ${command} mission command`);
             }
+            if (command === 'start') await this.subscriptionService.subscribeToTopic(this);
         } catch (e) {
             this.logger.error(`Error in ${command}MissionRobots: ${e.message}`);
             this.server.emit('commandError', `${e.message} please try again`);
@@ -106,12 +100,12 @@ export class MissionCommandGateway {
             switch (payload.target) {
                 case RobotId.robot1:
                     this.logger.log('Identify robot 1 command received from client');
-                    this.robot1.identify();
+                    this.subscriptionService.robot1.identify();
                     this.server.emit('robotIdentification', 'Robot 1 was identified');
                     break;
                 case RobotId.robot2:
                     this.logger.log('Identify robot 2 command received from client');
-                    this.robot2.identify();
+                    this.subscriptionService.robot2.identify();
                     this.server.emit('robotIdentification', 'Robot 2 was identified');
                     break;
                 default:

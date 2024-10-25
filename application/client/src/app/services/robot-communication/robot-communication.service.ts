@@ -12,6 +12,7 @@ import { Observable, Subject } from 'rxjs';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { RobotCommand } from '@common/enums/RobotCommand';
 import { RobotId } from '@common/enums/RobotId';
+import { RobotStatus } from '@common/interfaces/RobotStatus';
 
 @Injectable({
     providedIn: 'root',
@@ -29,6 +30,7 @@ export class RobotCommunicationService {
         this.connect();
     }
 
+
     get robot1() {
         return this.robotManagementService.robot1;
     }
@@ -43,6 +45,7 @@ export class RobotCommunicationService {
             this.handleMissionStatus();
             this.handleRobotIdentification();
             this.handleCommandError();
+            this.handleRobotStatus();
         }
     }
 
@@ -56,6 +59,12 @@ export class RobotCommunicationService {
     handleMissionStatus() {
         this.socketService.on('missionStatus', (message: string) => {
             this.missionStatusSubject.next(message);
+        });
+    }
+
+    handleRobotStatus() {
+        this.socketService.on('robotStatus', (message: RobotStatus) => {
+            this.updateRobotStatus(message);
         });
     }
 
@@ -216,4 +225,15 @@ export class RobotCommunicationService {
     disconnect(): void {
         this.socketService.disconnect();
     }
+
+    private updateRobotStatus(status: RobotStatus): void {
+        if (status.robot_id === RobotId.robot1) {
+            this.robot1.status = status.robot_status;
+            this.robot1.battery = status.battery_level;
+        } else if (status.robot_id === RobotId.robot2) {
+            this.robot2.status = status.robot_status;
+            this.robot2.battery = status.battery_level;
+        }
+    }
+
 }
