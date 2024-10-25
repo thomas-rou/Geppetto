@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
 import { EndMission } from '@common/interfaces/EndMission';
 import { StartMission } from '@common/interfaces/StartMission';
@@ -17,7 +17,7 @@ import { RobotStatus } from '@common/interfaces/RobotStatus';
 @Injectable({
     providedIn: 'root',
 })
-export class RobotCommunicationService implements OnInit, OnDestroy {
+export class RobotCommunicationService {
     private missionStatusSubject = new Subject<string>();
     private robotIdentificationSubject = new Subject<string>();
     private commandErrorSubject = new Subject<string>();
@@ -30,8 +30,6 @@ export class RobotCommunicationService implements OnInit, OnDestroy {
         this.connect();
     }
 
-    ngOnInit(): void {
-    }
 
     get robot1() {
         return this.robotManagementService.robot1;
@@ -233,6 +231,4 @@ export class RobotCommunicationService implements OnInit, OnDestroy {
         }
     }
 
-    ngOnDestroy(): void {
-    }
 }

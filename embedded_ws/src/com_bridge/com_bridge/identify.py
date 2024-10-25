@@ -8,6 +8,7 @@ from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 import os
 import subprocess
+from com_bridge.common_enums import GlobalConst
 import json
 
 class IdentifyNode(Node):
@@ -18,7 +19,7 @@ class IdentifyNode(Node):
             IdentifyRobot,
             f"{os.getenv('ROBOT')}/identify_command",
             self.identification_callback,
-            10
+            GlobalConst.QUEUE_SIZE
         )
 
     def identification_callback(self, msg):
