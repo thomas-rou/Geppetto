@@ -46,7 +46,7 @@ class MissionStatusManagerGazebo(Node):
                 # TODO: call low battery callback here
             self.mission_status_publisher.publish(mission_status)
         except Exception as e:
-            self.logger.log_message(LogType.INFO, "Failed to publish mission status: " + str(e))
+            self.logger.log_message(LogType.ERROR, "Failed to publish mission status: " + str(e))
 
 
 def main(args=None):

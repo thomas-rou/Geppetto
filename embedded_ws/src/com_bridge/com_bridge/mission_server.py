@@ -5,7 +5,7 @@ from common_msgs.msg import StartMission, StopMission
 from rclpy.executors import MultiThreadedExecutor
 from random import uniform, choice
 from typing import Tuple
-from com_bridge.common_methods import get_robot_id, set_mission_status, get_mission_status
+from com_bridge.common_methods import clear_logs, get_robot_id, set_mission_status, get_mission_status
 from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
 from com_bridge.log import LoggerNode
 import os
@@ -60,6 +60,7 @@ class MissionServer(Node):
                     "A goal is already being executed. Rejecting new goal request."
                 )
                 return
+            clear_logs()
             self._mission_status = RobotStatus.MISSION_ON_GOING
             robot_id = get_robot_id()
             position = getattr(msg.mission_details, f'position{robot_id}')

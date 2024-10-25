@@ -50,7 +50,7 @@ class LoggerNode(Node):
 
     def log_message(self, log_type, message):
         log_message = self.build_log_message(log_type, message)
-        with open("/tmp/.log", "a") as f:
+        with open("/tmp/mission.log", "a") as f:
             f.write(log_message.source + "\t" + log_message.log_type + "\t" + log_message.date + "\t" + log_message.message + "\n")
         self.log_publisher.publish(log_message)
         self.native_log(log_type, message)

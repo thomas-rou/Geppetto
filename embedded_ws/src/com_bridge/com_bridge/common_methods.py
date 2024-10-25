@@ -11,7 +11,7 @@ def get_mission_status():
 
 def get_robot_id():
     env_robot = os.getenv('ROBOT')
-    robot_id = None
+    robot_id = ""
     if env_robot is not None and env_robot[-1] in [RobotID.ROBOT_1, RobotID.ROBOT_2]:
         robot_id = env_robot[-1]
     else:
@@ -20,4 +20,8 @@ def get_robot_id():
 
 def get_robot_name():
     return os.getenv('ROBOT')
+
+def clear_logs():
+    with open('/tmp/mission.log', 'w') as f:
+        f.write('')
     
