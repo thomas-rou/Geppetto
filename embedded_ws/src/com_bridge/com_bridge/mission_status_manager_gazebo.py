@@ -2,7 +2,7 @@ import os
 import rclpy
 from rclpy.node import Node
 from common_msgs.msg import MissionStatus
-from com_bridge.common_methods import set_mission_status, get_robot_id
+from com_bridge.common_methods import set_mission_status, get_mission_status, get_robot_id
 from com_bridge.common_enums import RobotStatus, GlobalConst
 
 TIMER_PERIOD = 1.0
