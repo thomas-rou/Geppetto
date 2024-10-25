@@ -1,5 +1,8 @@
-<section class="status-display">
-    <h2>Statut des Robots</h2>
+<section class="status-display" [@collapseExpand]="isCollapsed ? 'collapsed' : 'expanded'">
+    <h2 (click)="toggleCollapse()">
+        <span>Statut des Robots</span>
+        <span>{{ isCollapsed ? '&#x2b;' : '&#x2212;' }}</span>
+    </h2>
     <div class="robot-status">
         <div class="robot" id="robot1">
             <button class="robot-name" title="Identifier" (click)="identifyRobot(robot1.id)">{{ robot1.name }}</button>

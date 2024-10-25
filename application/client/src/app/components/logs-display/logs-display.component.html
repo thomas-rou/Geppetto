@@ -1,5 +1,8 @@
-<section class="logs">
-    <h2>Logs</h2>
+<section class="logs" [@collapseExpand]="isCollapsed ? 'collapsed' : 'expanded'">
+    <h2 (click)="toggleCollapse()">
+        <span>Logs</span>
+        <span>{{ isCollapsed ? '&#x2b;' : '&#x2212;' }}</span>
+    </h2>
     <div id="log-terminal" class="terminal" #logTerminal>
     </div>
 </section>

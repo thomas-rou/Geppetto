@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { NotificationService } from '@app/services/notification/notification.service';
 import { StartMissionPopupComponent } from '@app/components/start-mission-popup/start-mission-popup.component';
 import { RobotId } from '@common/enums/RobotId';
+import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
 
 @Component({
     selector: 'app-control-panel',
@@ -12,11 +13,13 @@ import { RobotId } from '@common/enums/RobotId';
     templateUrl: './control-panel.component.html',
     styleUrls: ['./control-panel.component.scss'],
     imports: [CommonModule, StartMissionPopupComponent],
+    animations: [collapseExpandAnimation]
 })
 export class ControlPanelComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription[] = [];
     private socketConnected: boolean = false;
     showPopup: boolean = false;
+    isCollapsed = false;
 
     constructor(
         private robotService: RobotCommunicationService,
@@ -48,6 +51,10 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
         if (event.key === 'Escape') {
             this.showPopup = false;
         }
+    }
+
+    toggleCollapse() {
+        this.isCollapsed = !this.isCollapsed;
     }
 
     verifySocketConnection() {
