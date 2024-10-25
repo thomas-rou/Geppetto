@@ -4,7 +4,8 @@ from rclpy.node import Node
 from limo_msgs.msg import LimoStatus
 from common_msgs.msg import MissionStatus
 from com_bridge.common_methods import set_mission_status, get_mission_status
-from com_bridge.common_enums import RobotStatus
+from com_bridge.common_enums import LogType, RobotStatus
+from com_bridge.log import LoggerNode
 BATTERY_CAPACITY = 12.0
 
 import os
@@ -12,7 +13,8 @@ import os
 class MissionStatusManager(Node):
     def __init__(self):
         super().__init__('mission_manager')
-        self.get_logger().info(f"Mission manager Launched waiting for messages in {os.getenv('ROBOT')}")
+        self.logger = LoggerNode()
+        self.logger.log_message(LogType.INFO, f"Mission manager Launched waiting for messages in {os.getenv('ROBOT')}")
         self.mission_status_publisher = self.create_publisher(MissionStatus,f"{os.getenv('ROBOT')}/mission_status", 10)
 
         self.battery_subscription = self.create_subscription(
@@ -35,7 +37,7 @@ class MissionStatusManager(Node):
                 # TODO: call low battery callback here
             self.mission_status_publisher.publish(mission_status)
         except Exception as e:
-            self.get_logger().info("Failed to publish mission status: "+str(e))
+            self.logger.log_message(LogType.INFO, "Failed to publish mission status: "+str(e))
 
     def destroy_node(self):
         super().destroy_node()

@@ -13,9 +13,8 @@ class MissionStatusManagerGazebo(Node):
     def __init__(self):
         super().__init__("mission_manager_status_gazebo")
         self.battery_level = 100
-        logger = LoggerNode()
-        # logger.log_message(LogType.INFO, "Testing")
-        self.get_logger().info(
+        self.logger = LoggerNode()
+        self.logger.log_message(LogType.INFO, 
             f"Mission manager Launched waiting for messages in {os.getenv('ROBOT')}"
         )
         self.mission_status_publisher = self.create_publisher(
@@ -45,7 +44,7 @@ class MissionStatusManagerGazebo(Node):
                 # TODO: call low battery callback here
             self.mission_status_publisher.publish(mission_status)
         except Exception as e:
-            self.get_logger().info("Failed to publish mission status: " + str(e))
+            self.logger.log_message(LogType.INFO, "Failed to publish mission status: " + str(e))
 
 
 def main(args=None):

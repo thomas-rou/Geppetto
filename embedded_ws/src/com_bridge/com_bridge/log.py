@@ -1,5 +1,5 @@
 from com_bridge.common_methods import get_robot_id, get_robot_name
-from com_bridge.common_enums import GlobalConst
+from com_bridge.common_enums import GlobalConst, LogType
 import rclpy
 from rclpy.node import Node
 from common_msgs.msg import LogMessage
@@ -21,11 +21,11 @@ class LoggerNode(Node):
         super().__init__("log_node")
         self.robot_id = get_robot_id()
         self.robot_name = get_robot_name()
-        self.get_logger().info(
-            f"Log node Launched waiting for messages in {self.robot_name}"
-        )
         self.log_publisher = self.create_publisher(
             LogMessage, f"{self.robot_name}/log", GlobalConst.LOG_QUEUE_SIZE
+        )
+        self.log_message(LogType.INFO, 
+            f"Log node Launched waiting for messages in {self.robot_name}"
         )
         self._initialized = True
 
@@ -37,11 +37,24 @@ class LoggerNode(Node):
         log_message.message = message
         return log_message
 
+    def native_log(self, log_type, message):
+        match log_type:
+            case LogType.INFO:
+                self.get_logger().info(message)
+            case LogType.WARNING:
+                self.get_logger().warn(message)
+            case LogType.ERROR:
+                self.get_logger().error(message)
+            case LogType.DEBUG:
+                self.get_logger().debug(message)
+
     def log_message(self, log_type, message):
         log_message = self.build_log_message(log_type, message)
         with open("/tmp/.log", "a") as f:
             f.write(log_message.source + "\t" + log_message.log_type + "\t" + log_message.date + "\t" + log_message.message + "\n")
         self.log_publisher.publish(log_message)
+        self.native_log(log_type, message)
+        
 
 
 def main(args=None):
