@@ -5,16 +5,19 @@ from rclpy.node import Node
 from common_msgs.msg import LogMessage
 from datetime import datetime
 
-class Logger(Node):
+class LoggerNode(Node):
 
     _instance = None  # Variable de classe pour stocker l'instance unique
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
-            cls._instance = super(Logger, cls).__new__(cls)
+            cls._instance = super(LoggerNode, cls).__new__(cls)
+            cls._instance._initialized = False 
         return cls._instance
 
     def __init__(self):
+        if self._initialized:
+            return
         super().__init__("log_node")
         self.robot_id = get_robot_id()
         self.robot_name = get_robot_name()
@@ -24,6 +27,7 @@ class Logger(Node):
         self.log_publisher = self.create_publisher(
             LogMessage, f"{self.robot_name}/log", GlobalConst.LOG_QUEUE_SIZE
         )
+        self._initialized = True
 
     def build_log_message(self, log_type, message) -> LogMessage:
         log_message = LogMessage()
@@ -42,7 +46,7 @@ class Logger(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = Logger()
+    node = LoggerNode()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
