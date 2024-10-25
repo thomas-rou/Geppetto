@@ -9,3 +9,10 @@ class RobotName:
     ROBOT_1 = "robot_1"
     ROBOT_2 = "robot_2"
     GAZEBO = "gazebo"
+    
+class RobotID:
+    ROBOT_1 = "1"
+    ROBOT_2 = "2"
+    
+class GlobalConst:
+    QUEUE_SIZE = int(10)
