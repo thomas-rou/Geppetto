@@ -1,4 +1,3 @@
-import os
 import rclpy
 from rclpy.node import Node
 from common_msgs.msg import MissionStatus
