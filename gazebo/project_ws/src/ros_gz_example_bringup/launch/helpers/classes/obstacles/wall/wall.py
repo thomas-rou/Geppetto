@@ -1,9 +1,10 @@
 import os
 import sys
 import random
-from .obstacle import Obstacle
-from ..core.pose import Pose
-from ..core.size import Size
+from .wall_type import Wall_Type
+from ..obstacle import Obstacle
+from ...core.pose import Pose
+from ...core.size import Size
 from ament_index_python.packages import get_package_share_directory
 
 # import helpers directory
@@ -22,9 +23,13 @@ from helpers.classes.core.direction import Direction
 
 class Wall(Obstacle):
     def __init__(
-        self, pose: Pose = None, size: Size = None, starter_wall: bool = False
+        self,
+        pose: Pose = None,
+        size: Size = None,
+        starter_wall: bool = False,
+        wall_type: Wall_Type = Wall_Type.REGULAR,
     ) -> None:
-        self.name = "wall"
+        self.name = wall_type.value
         self.build_entity(pose, size)
 
         if starter_wall and not Wall.check_spawn_kill(self):

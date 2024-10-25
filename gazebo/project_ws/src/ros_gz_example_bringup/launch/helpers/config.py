@@ -5,6 +5,8 @@ from .classes.core.pose import Pose
 DEFAULT_POSITION = 0.0
 HORIZONTAL_YAW = math.pi / 2
 ATOMIC_GAP = 0.0001
+AVIARY_MAP_SIZE = 3
+AVIARY_WALL_SIZE = 0.175
 
 # size of the map
 MAP_WIDTH = 10
@@ -21,4 +23,4 @@ WALL_GAP = WALL_THICKNESS + ATOMIC_GAP
 
 # robots
 ROBOT_NAMES = ["pino", "chio"]
-ROBOT_STARTER_POSES = [Pose(y=0), Pose(y=1)]
+ROBOT_STARTER_POSES = [Pose(y=0, z=0.1), Pose(y=1, z=0.1)]
