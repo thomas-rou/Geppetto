@@ -8,7 +8,6 @@ from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 import os
 import subprocess
-import json
 
 class IdentifyNode(Node):
     def __init__(self):

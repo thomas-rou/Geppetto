@@ -3,7 +3,8 @@ import rclpy
 from rclpy.node import Node
 from common_msgs.msg import MissionStatus
 from com_bridge.common_methods import set_mission_status, get_mission_status
-from com_bridge.common_enums import RobotStatus
+from com_bridge.common_enums import RobotStatus, LogType
+from com_bridge.log import Logger
 
 TIMER_PERIOD = 1.0
 BATTERY_THRESHOLD = 0
@@ -12,6 +13,8 @@ class MissionStatusManagerGazebo(Node):
     def __init__(self):
         super().__init__("mission_manager_status_gazebo")
         self.battery_level = 100
+        logger = Logger()
+        logger.log_message(LogType.INFO, "Testing")
         self.get_logger().info(
             f"Mission manager Launched waiting for messages in {os.getenv('ROBOT')}"
         )
