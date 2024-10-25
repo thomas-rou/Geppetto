@@ -4,6 +4,7 @@ import { RobotManagementService } from '@app/services/robot-management/robot-man
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { Robot } from '@app/classes/robot/robot';
 import { RobotId } from '@common/enums/RobotId';
+import { RobotState } from '@common/enums/RobotState';
 
 describe('StatusDisplayComponent', () => {
     let component: StatusDisplayComponent;
@@ -13,8 +14,8 @@ describe('StatusDisplayComponent', () => {
     beforeEach(() => {
         const robotCommunicationSpy = jasmine.createSpyObj('RobotCommunicationService', ['identifyRobot']);
         const robotManagementSpy = jasmine.createSpyObj('RobotManagementService', [], {
-            robot1: { id: '1', name: 'Robot 1', status: 'EN ATTENTE', battery: 100, position: { x: 0, y: 0 }, orientation: 0.0 } as Robot,
-            robot2: { id: '2', name: 'Robot 2', status: 'EN ATTENTE', battery: 100, position: { x: 0, y: 0 }, orientation: 0.0 } as Robot,
+            robot1: { id: '1', name: 'Robot 1', status: RobotState.WAITING, battery: 100, position: { x: 0, y: 0 }, orientation: 0.0 } as Robot,
+            robot2: { id: '2', name: 'Robot 2', status: RobotState.WAITING, battery: 100, position: { x: 0, y: 0 }, orientation: 0.0 } as Robot,
         });
 
         TestBed.configureTestingModule({
@@ -35,7 +36,7 @@ describe('StatusDisplayComponent', () => {
     });
 
     it('should call identifyRobot on RobotCommunicationService with correct robot id', () => {
-        const robot: Robot = new Robot(RobotId.robot1, 'Robot 1', 'EN ATTENTE', 100, { x: 0, y: 0 }, 0.0);
+        const robot: Robot = new Robot(RobotId.robot1, 'Robot 1', RobotState.WAITING, 100, { x: 0, y: 0 }, 0.0);
         component.identifyRobot(robot.id);
         expect(robotCommunicationService.identifyRobot).toHaveBeenCalledWith(robot.id);
     });

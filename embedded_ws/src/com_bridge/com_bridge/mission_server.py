@@ -5,8 +5,8 @@ from common_msgs.msg import StartMission, StopMission
 from rclpy.executors import MultiThreadedExecutor
 from random import uniform, choice
 from typing import Tuple
-from com_bridge.common_methods import set_mission_status, get_mission_status
-from com_bridge.common_enums import RobotStatus
+from com_bridge.common_methods import set_mission_status, get_mission_status, get_robot_id
+from com_bridge.common_enums import RobotStatus, GlobalConst
 import os
 
 
@@ -18,16 +18,16 @@ class MissionServer(Node):
 
         # Subscription pour démarrer et arrêter les missions
         self.start_mission_subscription = self.create_subscription(
-            StartMission, "start_mission_command", self.new_missions_callback, 10
+            StartMission, "start_mission_command", self.new_missions_callback, GlobalConst.QUEUE_SIZE
         )
 
         self.stop_mission_subscription = self.create_subscription(
-            StopMission, "stop_mission_command", self.stop_mission_callback, 10
+            StopMission, "stop_mission_command", self.stop_mission_callback, GlobalConst.QUEUE_SIZE
         )
 
         # TODO: feedback msg publisher
 
-        self.mission_mouvements = self.create_publisher(Twist, "cmd_vel", 10)
+        self.mission_mouvements = self.create_publisher(Twist, "cmd_vel", GlobalConst.QUEUE_SIZE)
         self._timer = None
         self._feedback_timer = None
 
@@ -60,7 +60,7 @@ class MissionServer(Node):
                 )
                 return
             self._mission_status = RobotStatus.MISSION_ON_GOING
-            robot_id = '2' if os.getenv('ROBOT') == 'robot_2' else '1'
+            robot_id = get_robot_id()
             position = getattr(msg.mission_details, f'position{robot_id}')
             orientation = getattr(msg.mission_details, f'orientation{robot_id}')
             self._current_x = position.x
