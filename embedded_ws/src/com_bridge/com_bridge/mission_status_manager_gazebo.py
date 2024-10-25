@@ -38,8 +38,8 @@ class MissionStatusManagerGazebo(Node):
         try:
             self.decrease_battery_level()
             mission_status = MissionStatus()
-            mission_status.robot_id = self.robot_id()
-            mission_status.battery_level = self.battery_level
+            mission_status.robot_id = self.robot_id
+            mission_status.battery_level = int(self.battery_level)
             mission_status.robot_status = get_mission_status()
             if (
                 mission_status.battery_level <= BATTERY_THRESHOLD
