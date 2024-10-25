@@ -1,6 +1,7 @@
 # com_bridge/com_serv.py
 
 from com_bridge.common_methods import set_mission_status
+from com_bridge.common_enums import GlobalConst, LogType
 import rclpy
 from rclpy.node import Node
 from common_msgs.msg import IdentifyRobot
@@ -8,13 +9,14 @@ from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 import os
 import subprocess
-from com_bridge.common_enums import GlobalConst
-import json
+from com_bridge.log import LoggerNode
+
 
 class IdentifyNode(Node):
     def __init__(self):
         super().__init__('identify_node')
-        self.get_logger().info(f"Server Launched waiting for messages in {os.getenv('ROBOT')}")
+        self.logger = LoggerNode()
+        self.logger.log_message(LogType.INFO, f"Server Launched waiting for messages in {os.getenv('ROBOT')}")
         self.identification_subscription = self.create_subscription(
             IdentifyRobot,
             f"{os.getenv('ROBOT')}/identify_command",
@@ -23,7 +25,7 @@ class IdentifyNode(Node):
         )
 
     def identification_callback(self, msg):
-        self.get_logger().info(f'identification')
+        self.logger.log_message(LogType.INFO, f'identification')
         command = ["mpg123", "sounds/tp_pas_heure.mp3"]
         subprocess.run(command)
 

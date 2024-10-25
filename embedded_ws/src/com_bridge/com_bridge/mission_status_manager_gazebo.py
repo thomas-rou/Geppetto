@@ -2,8 +2,9 @@ import os
 import rclpy
 from rclpy.node import Node
 from common_msgs.msg import MissionStatus
-from com_bridge.common_methods import set_mission_status, get_mission_status, get_robot_id
-from com_bridge.common_enums import RobotStatus, GlobalConst
+from com_bridge.common_methods import get_robot_id, set_mission_status, get_mission_status
+from com_bridge.common_enums import GlobalConst, RobotStatus, LogType
+from com_bridge.log import LoggerNode
 
 TIMER_PERIOD = 1.0
 BATTERY_THRESHOLD = 30.0
@@ -14,7 +15,8 @@ class MissionStatusManagerGazebo(Node):
     def __init__(self):
         super().__init__("mission_manager_status_gazebo")
         self.battery_level = 100
-        self.get_logger().info(
+        self.logger = LoggerNode()
+        self.logger.log_message(LogType.INFO, 
             f"Mission manager Launched waiting for messages in {os.getenv('ROBOT')}"
         )
         self.mission_status_publisher = self.create_publisher(
@@ -33,7 +35,7 @@ class MissionStatusManagerGazebo(Node):
             mission_status = MissionStatus()
             # TODO: get robot id from gazebo
             mission_status.robot_id = get_robot_id()
-            mission_status.battery_level = = int(self.battery_level)
+            mission_status.battery_level = int(self.battery_level)
             mission_status.robot_status = get_mission_status()
             if (
                 mission_status.battery_level <= BATTERY_THRESHOLD
@@ -44,7 +46,7 @@ class MissionStatusManagerGazebo(Node):
                 # TODO: call low battery callback here
             self.mission_status_publisher.publish(mission_status)
         except Exception as e:
-            self.get_logger().info("Failed to publish mission status: " + str(e))
+            self.logger.log_message(LogType.INFO, "Failed to publish mission status: " + str(e))
 
 
 def main(args=None):

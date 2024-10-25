@@ -16,3 +16,10 @@ class RobotID:
     
 class GlobalConst:
     QUEUE_SIZE = int(10)
+    LOG_QUEUE_SIZE = int(100)
+    
+class LogType:
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+    DEBUG = "DEBUG"
