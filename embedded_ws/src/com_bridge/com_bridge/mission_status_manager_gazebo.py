@@ -8,15 +8,24 @@ from com_bridge.common_enums import RobotStatus
 TIMER_PERIOD = 1.0
 BATTERY_THRESHOLD = 0
 
+
 class MissionStatusManagerGazebo(Node):
     def __init__(self):
         super().__init__("mission_manager_status_gazebo")
+        self.declare_parameter("robot_id", "Unknown")
+
         self.battery_level = 100
-        self.get_logger().info(
-            f"Mission manager Launched waiting for messages in {os.getenv('ROBOT')}"
+        self.robot_id = (
+            self.get_parameter("robot_id")
+            .get_parameter_value()
+            .string_value
         )
+        self.get_logger().info(
+            f"Mission manager Launched for robot {self.robot_id}. Waiting for messages from Gazebo"
+        )
+
         self.mission_status_publisher = self.create_publisher(
-            MissionStatus, f"{os.getenv('ROBOT')}/mission_status", 10
+            MissionStatus, f"{self.robot_id}/mission_status", 10
         )
         self.timer = self.create_timer(TIMER_PERIOD, self.publish_mission_status)
 
@@ -29,8 +38,7 @@ class MissionStatusManagerGazebo(Node):
         try:
             self.decrease_battery_level()
             mission_status = MissionStatus()
-            # TODO: get robot id from gazebo
-            mission_status.robot_id = ""
+            mission_status.robot_id = self.robot_id
             mission_status.battery_level = int(self.battery_level)
             mission_status.robot_status = get_mission_status()
             if (
