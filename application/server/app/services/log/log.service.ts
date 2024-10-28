@@ -23,10 +23,9 @@ export class LogService {
                 second: '2-digit',
                 hour12: false,
             })
-            .replace(' ', 'T')
-            .replace(/:/g, ' ')
-            .replace('T', 'h')
-            .replace(' ', 'min ');
+            .replace(':', 'h ')
+            .replace(':', 'min ')
+            .concat('s');
         logMessage.message = message;
         return logMessage;
     }
