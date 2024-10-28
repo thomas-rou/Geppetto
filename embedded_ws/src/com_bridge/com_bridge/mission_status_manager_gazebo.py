@@ -14,13 +14,17 @@ BATTERY_THRESHOLD = 0
 class MissionStatusManagerGazebo(Node):
     def __init__(self):
         super().__init__("mission_manager_status_gazebo")
+        self.declare_parameter("robot_id", "gazebo")
         self.battery_level = 100
+        self.robot_id = (
+            self.get_parameter("robot_id").get_parameter_value().string_value
+        )
         self.logger = LoggerNode()
         self.logger.log_message(LogType.INFO, 
-            f"Mission manager Launched waiting for messages in {os.getenv('ROBOT')}"
+            f"Mission manager Launched waiting for messages in {{self.robot_id}}"
         )
         self.mission_status_publisher = self.create_publisher(
-            MissionStatus, f"{os.getenv('ROBOT')}/mission_status", GlobalConst.QUEUE_SIZE
+            MissionStatus, f"{self.robot_id}/mission_status", GlobalConst.QUEUE_SIZE
         )
         self.timer = self.create_timer(TIMER_PERIOD, self.publish_mission_status)
 
@@ -34,7 +38,7 @@ class MissionStatusManagerGazebo(Node):
             self.decrease_battery_level()
             mission_status = MissionStatus()
             # TODO: get robot id from gazebo
-            mission_status.robot_id = get_robot_id()
+            mission_status.robot_id = self.robot_id[-1]
             mission_status.battery_level = int(self.battery_level)
             mission_status.robot_status = get_mission_status()
             if (
