@@ -51,8 +51,8 @@ describe('RobotCommunicationService', () => {
         expect(service.robot2).toEqual(robotManagementService.robot2);
     });
 
-    it('should emit startMission for robot and simulation', () => {
-        service.startMission();
+    it('should emit startMissionRobot for robot and simulation', () => {
+        service.startMissionRobot();
         expect(sendSpy).toHaveBeenCalledWith(RobotCommand.StartMission, {
             command: RobotCommand.StartMission,
             target: [RobotId.robot1, RobotId.robot2],
@@ -64,7 +64,10 @@ describe('RobotCommunicationService', () => {
             },
             timestamp: jasmine.any(String),
         });
-    
+    });
+
+    it('should emit startMissionGazebo for robot and simulation', () => {
+        service.startMissionGazebo();
         expect(sendSpy).toHaveBeenCalledWith('start_mission', {
             command: 'start_mission',
             target: [RobotId.gazebo],
