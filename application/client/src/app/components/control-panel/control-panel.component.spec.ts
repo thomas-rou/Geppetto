@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ControlPanelComponent } from './control-panel.component';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
-import { NotificationService } from '@app/services/notification/notification.service';
 import { of } from 'rxjs';
 import { StartMissionPopupComponent } from '@app/components/start-mission-popup/start-mission-popup.component';
 import { CommonModule } from '@angular/common';
@@ -10,7 +9,6 @@ describe('ControlPanelComponent', () => {
     let component: ControlPanelComponent;
     let fixture: ComponentFixture<ControlPanelComponent>;
     let robotService: jasmine.SpyObj<RobotCommunicationService>;
-    let notificationService: jasmine.SpyObj<NotificationService>;
 
     beforeEach(async () => {
         const robotServiceSpy = jasmine.createSpyObj('RobotCommunicationService', [
@@ -18,25 +16,23 @@ describe('ControlPanelComponent', () => {
             'onRobotIdentification',
             'onCommandError',
             'onConnectionStatus',
-            'startMission',
+            'startMissionRobot',
+            'startMissionGazebo',
             'endMission',
             'returnToBase',
             'updateControllerCode',
         ]);
-        const notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['sendNotification']);
-
+        
         await TestBed.configureTestingModule({
             imports: [CommonModule, StartMissionPopupComponent],
             providers: [
                 { provide: RobotCommunicationService, useValue: robotServiceSpy },
-                { provide: NotificationService, useValue: notificationServiceSpy },
             ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ControlPanelComponent);
         component = fixture.componentInstance;
         robotService = TestBed.inject(RobotCommunicationService) as jasmine.SpyObj<RobotCommunicationService>;
-        notificationService = TestBed.inject(NotificationService) as jasmine.SpyObj<NotificationService>;
 
         robotService.onMissionStatus.and.returnValue(of('Mission Status'));
         robotService.onRobotIdentification.and.returnValue(of('Robot Identification'));
@@ -69,7 +65,6 @@ describe('ControlPanelComponent', () => {
 
         component['socketConnected'] = false;
         expect(component.verifySocketConnection()).toBe(false);
-        expect(notificationService.sendNotification).toHaveBeenCalledWith('No socket connection has been established');
     });
 
     it('should start mission if socket is connected', () => {
@@ -85,9 +80,9 @@ describe('ControlPanelComponent', () => {
     });
 
     it('should handle mission start', () => {
-        component.onMissionStart();
+        component.onPhysicalMissionStart();
         expect(component.showPopup).toBe(false);
-        expect(robotService.startMission).toHaveBeenCalled();
+        expect(robotService.startMissionRobot).toHaveBeenCalled();
     });
 
     it('should stop mission if socket is connected', () => {
