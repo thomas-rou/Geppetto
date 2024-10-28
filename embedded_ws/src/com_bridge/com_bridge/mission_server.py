@@ -14,6 +14,10 @@ import os
 class MissionServer(Node):
     def __init__(self):
         super().__init__("mission_server")
+        self.declare_parameter("robot_id", "")
+        self.robot_id = (
+            self.get_parameter("robot_id").get_parameter_value().string_value
+        )
         self.logger = LoggerNode()
         self.logger.log_message(LogType.INFO, f"Server Launched waiting for messages in {os.getenv('ROBOT')}")
 
@@ -62,7 +66,8 @@ class MissionServer(Node):
                 return
             clear_logs()
             self._mission_status = RobotStatus.MISSION_ON_GOING
-            robot_id = get_robot_id()
+            robot_id = self.robot_id[-1] if self.robot_id else get_robot_id()
+            self.logger.log_message(LogType.INFO, f"Received new mission for robot {robot_id}")
             position = getattr(msg.mission_details, f'position{robot_id}')
             orientation = getattr(msg.mission_details, f'orientation{robot_id}')
             self._current_x = position.x

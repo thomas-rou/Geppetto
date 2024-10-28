@@ -21,7 +21,7 @@ class MissionStatusManagerGazebo(Node):
         )
         self.logger = LoggerNode()
         self.logger.log_message(LogType.INFO, 
-            f"Mission manager Launched waiting for messages in {{self.robot_id}}"
+            f"Mission manager Launched waiting for messages in {self.robot_id}"
         )
         self.mission_status_publisher = self.create_publisher(
             MissionStatus, f"{self.robot_id}/mission_status", GlobalConst.QUEUE_SIZE
