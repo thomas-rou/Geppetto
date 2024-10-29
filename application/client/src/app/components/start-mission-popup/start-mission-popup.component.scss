@@ -1,3 +1,28 @@
+.options {
+    width: 100%;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--color-quinary);
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+.option {
+    width: 50%;
+    border: none;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    cursor: pointer;
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+}
+
+.option.selected {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
 @keyframes appear {
     0% { opacity: 0; }
     100% { opacity: 1; }

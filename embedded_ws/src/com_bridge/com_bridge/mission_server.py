@@ -5,16 +5,21 @@ from common_msgs.msg import StartMission, StopMission
 from rclpy.executors import MultiThreadedExecutor
 from random import uniform, choice
 from typing import Tuple
-from com_bridge.common_methods import set_mission_status, get_mission_status, get_robot_id
-from com_bridge.common_enums import RobotStatus, GlobalConst
+from com_bridge.common_methods import clear_logs, get_robot_id, set_mission_status, get_mission_status
+from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
+from com_bridge.log import LoggerNode
 import os
 
 
 class MissionServer(Node):
     def __init__(self):
         super().__init__("mission_server")
-        
-        self.get_logger().info(f"Server Launched waiting for messages in {os.getenv('ROBOT')}")
+        self.declare_parameter("robot_id", "")
+        self.robot_id = (
+            self.get_parameter("robot_id").get_parameter_value().string_value
+        )
+        self.logger = LoggerNode()
+        self.logger.log_message(LogType.INFO, f"Server Launched waiting for messages in {os.getenv('ROBOT')}")
 
         # Subscription pour démarrer et arrêter les missions
         self.start_mission_subscription = self.create_subscription(
@@ -55,19 +60,21 @@ class MissionServer(Node):
     def new_missions_callback(self, msg: StartMission):
         try:
             if self.mission_active:
-                self.get_logger().info(
+                self.logger.log_message(LogType.INFO, 
                     "A goal is already being executed. Rejecting new goal request."
                 )
                 return
+            clear_logs()
             self._mission_status = RobotStatus.MISSION_ON_GOING
-            robot_id = get_robot_id()
+            robot_id = self.robot_id[-1] if self.robot_id else get_robot_id()
+            self.logger.log_message(LogType.INFO, f"Received new mission for robot {robot_id}")
             position = getattr(msg.mission_details, f'position{robot_id}')
             orientation = getattr(msg.mission_details, f'orientation{robot_id}')
             self._current_x = position.x
             self._current_y = position.y
             self._current_orientation = orientation
 
-            self.get_logger().info(
+            self.logger.log_message(LogType.INFO, 
                 f"Accepting new mission. Starting at position: ({self._current_x}, {self._current_y}) with orientation: {self._current_orientation}"
             )
 
@@ -78,19 +85,19 @@ class MissionServer(Node):
                 1.0, self.publish_feedback
             )  # Publier le feedback à 1 Hz
         except Exception as e:
-            self.get_logger().info(f"Failed to start mission: {e}")
+            self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")
 
     def stop_mission_callback(self, msg: StopMission):
         try:
             if self.mission_active:
                 self.destroy_timer(self._timer)
                 self.destroy_timer(self._feedback_timer)  # Arrêter le timer de feedback
-                self.get_logger().info("Cancelling the current mission.")
+                self.logger.log_message(LogType.INFO, "Cancelling the current mission.")
             else:
-                self.get_logger().info("No active mission to cancel.")
+                self.logger.log_message(LogType.INFO, "No active mission to cancel.")
             self._mission_status = RobotStatus.WAITING
         except Exception as e:
-            self.get_logger().info(f"Failed to cancel mission: {e}")
+            self.logger.log_message(LogType.INFO, f"Failed to cancel mission: {e}")
 
     def random_move(self):
         if self.mission_active:
@@ -126,7 +133,7 @@ class MissionServer(Node):
             feedback_msg = None
 
             # Publier les données de position et l'état de la mission
-            self.get_logger().info(
+            self.logger.log_message(LogType.INFO, 
                 f"Feedback: Position ({self._current_x:.2f}, {self._current_y:.2f}), Orientation: {self._current_orientation}, Status: {self._mission_status}"
             )
 
@@ -137,7 +144,7 @@ class MissionServer(Node):
         twist_msg.linear.x, twist_msg.linear.y, twist_msg.linear.z = linear
         twist_msg.angular.x, twist_msg.angular.y, twist_msg.angular.z = angular
         self.mission_mouvements.publish(twist_msg)
-        self.get_logger().info(
+        self.logger.log_message(LogType.INFO, 
             f"Publishing cmd_vel: linear={linear}, angular={angular}"
         )
 

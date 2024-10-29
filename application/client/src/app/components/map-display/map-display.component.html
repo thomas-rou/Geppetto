@@ -1,5 +1,8 @@
-<section class="map">
-    <h2>Carte d'Exploration</h2>
+<section class="map" [@collapseExpand]="isCollapsed ? 'collapsed' : 'expanded'">
+    <h2 (click)="toggleCollapse()">
+        <span>Carte d'Exploration</span>
+        <span>{{ isCollapsed ? '&#x2b;' : '&#x2212;' }}</span>
+    </h2>
     <div id="map-display">
         <p>La carte sera ici.</p>
     </div>

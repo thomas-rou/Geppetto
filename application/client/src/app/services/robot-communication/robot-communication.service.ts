@@ -13,6 +13,7 @@ import { SocketHandlerService } from '@app/services/socket-handler/socket-handle
 import { RobotCommand } from '@common/enums/RobotCommand';
 import { RobotId } from '@common/enums/RobotId';
 import { RobotStatus } from '@common/interfaces/RobotStatus';
+import { LogMessage } from '@common/interfaces/LogMessage';
 
 @Injectable({
     providedIn: 'root',
@@ -22,6 +23,7 @@ export class RobotCommunicationService {
     private robotIdentificationSubject = new Subject<string>();
     private commandErrorSubject = new Subject<string>();
     private connectionStatusSubject = new Subject<boolean>();
+    private logSubject = new Subject<string>();
 
     constructor(
         public socketService: SocketHandlerService,
@@ -46,6 +48,7 @@ export class RobotCommunicationService {
             this.handleRobotIdentification();
             this.handleCommandError();
             this.handleRobotStatus();
+            this.handleLog();
         }
     }
 
@@ -65,6 +68,13 @@ export class RobotCommunicationService {
     handleRobotStatus() {
         this.socketService.on('robotStatus', (message: RobotStatus) => {
             this.updateRobotStatus(message);
+        });
+    }
+
+    handleLog() {
+        this.socketService.on('log', (message: LogMessage) => {
+            const formattedLog = `[${message.date}] ${message.source} - ${message.log_type}: ${message.message}`;
+            this.logSubject.next(formattedLog);
         });
     }
 
@@ -103,9 +113,8 @@ export class RobotCommunicationService {
         return this.connectionStatusSubject.asObservable();
     }
 
-    startMission(): void {
-        this.startMissionRobot();
-        this.startMissionGazebo();
+    onLog(): Observable<string> {
+        return this.logSubject.asObservable();
     }
 
     startMissionRobot(): void {
@@ -235,5 +244,4 @@ export class RobotCommunicationService {
             this.robot2.battery = status.battery_level;
         }
     }
-
 }

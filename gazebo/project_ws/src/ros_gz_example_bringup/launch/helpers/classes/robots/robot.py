@@ -20,6 +20,7 @@ class Robot(Entity):
         self.build_entity(pose, size)
         self.index = Robot.get_id()
         self.spawn_robot()
+        self.activate_status_simulation()
 
     @staticmethod
     def get_id() -> int:
@@ -87,3 +88,21 @@ class Robot(Entity):
     @classmethod
     def check_spawn_kill(cls, robot: "Robot") -> bool:
         return super().check_spawn_kill(robot)
+
+    def activate_status_simulation(self) -> None:
+        battery_node = Node(
+            package="com_bridge",
+            executable="mission_status_manager_gazebo",
+            name="status",
+            parameters=[{"robot_id": f"robot_{self.index + 1}"}],
+            output="screen",
+        )
+        mission_node = Node(
+            package="com_bridge",
+            executable="mission_controller",
+            name="mission_controller",
+            parameters=[{"robot_id": f"robot_{self.index + 1}"}],
+            output="screen",
+        )
+        Robot.robot_state_publishers.append(battery_node)
+        Robot.robot_state_publishers.append(mission_node)
