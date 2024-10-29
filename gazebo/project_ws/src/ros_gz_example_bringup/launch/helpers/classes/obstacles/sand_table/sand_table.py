@@ -23,7 +23,7 @@ from helpers.classes.core.direction import Direction
 class Sand_Table(Obstacle):
     def __init__(
         self,
-        pose: Pose = Pose(z=-WALL_THICKNESS / 4),
+        pose: Pose = Pose(z=-WALL_THICKNESS / N_BOUNDARY_WALLS),
         size: Size = None,
     ) -> None:
         self.name = "sand_table"
