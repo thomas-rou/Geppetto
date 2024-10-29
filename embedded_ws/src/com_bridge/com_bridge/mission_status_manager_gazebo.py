@@ -10,12 +10,13 @@ TIMER_PERIOD = 1.0
 BATTERY_THRESHOLD = 30.0
 DECREASE_BATTERY_LEVEL = 0.1
 BATTERY_THRESHOLD = 0
+MAX_BATTERY_LEVEL = 100
 
 class MissionStatusManagerGazebo(Node):
     def __init__(self):
         super().__init__("mission_manager_status_gazebo")
         self.declare_parameter("robot_id", "gazebo")
-        self.battery_level = 100
+        self.battery_level = MAX_BATTERY_LEVEL
         self.robot_id = (
             self.get_parameter("robot_id").get_parameter_value().string_value
         )
