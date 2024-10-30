@@ -58,7 +58,7 @@ export class LogService {
         try {
             const logMessage = this.buildLogMessage(logType, message);
             this.nativeLog(logType, message);
-            this.server.emit('log', logMessage);
+            if (this.server) this.server.emit('log', logMessage);
             if (this.missionService.missionId) await this.missionService.addLogToMission(this.missionService.missionId, logMessage);
         } catch (err) {
             console.log(err);
