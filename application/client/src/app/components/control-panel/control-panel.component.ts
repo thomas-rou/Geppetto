@@ -7,7 +7,7 @@ import { StartMissionPopupComponent } from '@app/components/start-mission-popup/
 import { RobotId } from '@common/enums/RobotId';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
 import { MissionService } from '@app/services/mission/mission.service';
-import { MissionType } from '@app/enums/ClientCommand';
+import { MissionType } from '@app/enums/MissionType';
 
 @Component({
     selector: 'app-control-panel',

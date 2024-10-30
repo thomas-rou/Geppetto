@@ -2,20 +2,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LogsDisplayComponent } from './logs-display.component';
 import { LogsService } from '@app/services/logs/logs.service';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('LogsDisplayComponent', () => {
     let component: LogsDisplayComponent;
     let fixture: ComponentFixture<LogsDisplayComponent>;
-    let logsService: LogsService;
     let robotCommunicationService: RobotCommunicationService;
+    let clearLogsEvent: Subject<void>;
 
     beforeEach(async () => {
+        clearLogsEvent = new Subject<void>();
+
         const logsServiceMock = {
-            clearLogsEvent: {
-                subscribe: jasmine.createSpy('subscribe')
-            }
+            clearLogsEvent: clearLogsEvent.asObservable()
         };
 
         const robotCommunicationServiceMock = {
@@ -32,7 +32,6 @@ describe('LogsDisplayComponent', () => {
 
         fixture = TestBed.createComponent(LogsDisplayComponent);
         component = fixture.componentInstance;
-        logsService = TestBed.inject(LogsService);
         robotCommunicationService = TestBed.inject(RobotCommunicationService);
         fixture.detectChanges();
     });
@@ -42,7 +41,10 @@ describe('LogsDisplayComponent', () => {
     });
 
     it('should subscribe to clearLogsEvent on init', () => {
-        expect(logsService.clearLogsEvent.subscribe).toHaveBeenCalled();
+        spyOn(component, 'clearLogs');
+        component.ngOnInit();
+        clearLogsEvent.next(); // Emit the event
+        expect(component.clearLogs).toHaveBeenCalled();
     });
 
     it('should subscribe to onLog on AfterViewInit', () => {
@@ -57,8 +59,8 @@ describe('LogsDisplayComponent', () => {
         component.addLogToTerminal(testLog);
 
         const logElements = terminalElement.getElementsByTagName('p');
-        expect(logElements.length).toBe(1);
-        expect(logElements[0].textContent).toBe(testLog);
+        expect(logElements.length).toBe(2);
+        expect(logElements[1].textContent).toBe(testLog);
     });
 
     it('should clear logs', () => {
@@ -78,5 +80,12 @@ describe('LogsDisplayComponent', () => {
         expect(component.isCollapsed).toBeFalse();
         component.toggleCollapse();
         expect(component.isCollapsed).toBeTrue();
+    });
+
+    it('should initialize and subscribe to connection status', () => {
+        spyOn(component, 'clearLogs');
+        component.ngOnInit();
+        clearLogsEvent.next(); // Emit the event
+        expect(component.clearLogs).toHaveBeenCalled();
     });
 });

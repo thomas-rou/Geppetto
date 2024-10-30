@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MissionType } from '@app/enums/ClientCommand';
+import { MissionType } from '@app/enums/MissionType';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { ClientCommand } from '@common/enums/ClientCommand';
 import { Mission } from '@common/interfaces/Mission';

@@ -50,4 +50,10 @@ describe('StatusDisplayComponent', () => {
     it('should return robot2 from RobotManagementService', () => {
         expect(component.robot2).toEqual(robotManagementService.robot2);
     });
+
+    it('should toggle collapse state', () => {
+        component.isCollapsed = false;
+        component.toggleCollapse();
+        expect(component.isCollapsed).toBeTrue();
+    });
 });

@@ -13,4 +13,10 @@ describe('LogsService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  it('should emit clearLogsEvent when triggerClearLogs is called', () => {
+    spyOn(service.clearLogsEvent, 'emit');
+    service.triggerClearLogs();
+    expect(service.clearLogsEvent.emit).toHaveBeenCalled();
+  });
 });

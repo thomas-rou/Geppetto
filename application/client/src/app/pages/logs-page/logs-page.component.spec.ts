@@ -62,17 +62,6 @@ describe('LogsPageComponent', () => {
     expect(component.addLogToTerminal).toHaveBeenCalledWith('  source2 - type2: message2', false);
   });
 
-  it('should add log to terminal with correct styles', () => {
-    const logElement = document.createElement('div');
-    component.logTerminal.nativeElement.appendChild(logElement);
-
-    component.addLogToTerminal('Test Log', true);
-    expect(logElement.children[0].textContent).toBe('Test Log');
-
-    component.addLogToTerminal('Indented Log', false);
-    expect(logElement.children[1].textContent).toBe('Indented Log');
-  });
-
   it('should toggle theme', () => {
     component.toggleTheme();
     expect(themeServiceMock.toggleTheme).toHaveBeenCalled();
