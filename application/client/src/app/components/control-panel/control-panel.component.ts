@@ -6,6 +6,8 @@ import { Subscription } from 'rxjs';
 import { StartMissionPopupComponent } from '@app/components/start-mission-popup/start-mission-popup.component';
 import { RobotId } from '@common/enums/RobotId';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
+import { MissionService } from '@app/services/mission/mission.service';
+import { MissionType } from '@app/enums/ClientCommand';
 
 @Component({
     selector: 'app-control-panel',
@@ -25,6 +27,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     constructor(
         private robotService: RobotCommunicationService,
         private logsService: LogsService,
+        private missionService: MissionService
     ) {}
 
     ngOnInit(): void {
@@ -60,12 +63,14 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     onPhysicalMissionStart() {
         this.showPopup = false;
         this.robotService.startMissionRobot();
+        this.missionService.setMissionType(MissionType.Physical);
         this.logsService.triggerClearLogs();
     }
 
     onSimulationMissionStart() {
         this.showPopup = false;
         this.robotService.startMissionGazebo();
+        this.missionService.setMissionType(MissionType.Simulation);
         this.logsService.triggerClearLogs();
     }
 
@@ -74,12 +79,13 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     }
 
     stopMission() {
-        if (this.verifySocketConnection()) {
-            try {
-                this.robotService.endMission();
-            } catch (error) {
-                console.error('Error stopping mission', error);
-            }
+        switch (this.missionService.getMissionType()) {
+            case MissionType.Physical:
+                this.robotService.endMissionRobot();
+                break;
+            case MissionType.Simulation:
+                this.robotService.endMissionGazebo();
+                break;
         }
     }
 
