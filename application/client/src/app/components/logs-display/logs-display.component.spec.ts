@@ -3,6 +3,7 @@ import { LogsDisplayComponent } from './logs-display.component';
 import { LogsService } from '@app/services/logs/logs.service';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { of } from 'rxjs';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('LogsDisplayComponent', () => {
     let component: LogsDisplayComponent;
@@ -22,7 +23,7 @@ describe('LogsDisplayComponent', () => {
         };
 
         await TestBed.configureTestingModule({
-            imports: [LogsDisplayComponent],
+            imports: [BrowserAnimationsModule, LogsDisplayComponent],
             providers: [
                 { provide: LogsService, useValue: logsServiceMock },
                 { provide: RobotCommunicationService, useValue: robotCommunicationServiceMock }

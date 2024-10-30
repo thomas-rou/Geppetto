@@ -5,6 +5,7 @@ import { RobotCommunicationService } from '@app/services/robot-communication/rob
 import { Robot } from '@app/classes/robot/robot';
 import { RobotId } from '@common/enums/RobotId';
 import { RobotState } from '@common/enums/RobotState';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('StatusDisplayComponent', () => {
     let component: StatusDisplayComponent;
@@ -19,6 +20,7 @@ describe('StatusDisplayComponent', () => {
         });
 
         TestBed.configureTestingModule({
+            imports: [BrowserAnimationsModule],
             providers: [
                 { provide: RobotCommunicationService, useValue: robotCommunicationSpy },
                 { provide: RobotManagementService, useValue: robotManagementSpy },

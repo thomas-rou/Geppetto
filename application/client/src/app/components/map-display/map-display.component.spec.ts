@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { MapDisplayComponent } from './map-display.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('MapDisplayComponent', () => {
     let component: MapDisplayComponent;
@@ -8,7 +8,7 @@ describe('MapDisplayComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [MapDisplayComponent],
+            imports: [MapDisplayComponent, BrowserAnimationsModule],
         }).compileComponents();
 
         fixture = TestBed.createComponent(MapDisplayComponent);

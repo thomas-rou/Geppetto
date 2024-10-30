@@ -4,6 +4,7 @@ import { RobotCommunicationService } from '@app/services/robot-communication/rob
 import { of } from 'rxjs';
 import { StartMissionPopupComponent } from '@app/components/start-mission-popup/start-mission-popup.component';
 import { CommonModule } from '@angular/common';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('ControlPanelComponent', () => {
     let component: ControlPanelComponent;
@@ -18,13 +19,14 @@ describe('ControlPanelComponent', () => {
             'onConnectionStatus',
             'startMissionRobot',
             'startMissionGazebo',
-            'endMission',
+            'endMissionRobot',
+            'endMissionGazebo',
             'returnToBase',
             'updateControllerCode',
         ]);
         
         await TestBed.configureTestingModule({
-            imports: [CommonModule, StartMissionPopupComponent],
+            imports: [CommonModule, BrowserAnimationsModule, StartMissionPopupComponent],
             providers: [
                 { provide: RobotCommunicationService, useValue: robotServiceSpy },
             ],
@@ -85,18 +87,16 @@ describe('ControlPanelComponent', () => {
         expect(robotService.startMissionRobot).toHaveBeenCalled();
     });
 
-    it('should stop mission if socket is connected', () => {
+    it('should stop robot mission if socket is connected', () => {
         spyOn(component, 'verifySocketConnection').and.returnValue(true);
         component.stopMission();
-        expect(robotService.endMission).toHaveBeenCalled();
+        expect(robotService.endMissionRobot).toHaveBeenCalled();
     });
 
-    it('should handle error when stopping mission', () => {
+    it('should stop simulation mission if socket is connected', () => {
         spyOn(component, 'verifySocketConnection').and.returnValue(true);
-        robotService.endMission.and.throwError('Error stopping mission');
-        spyOn(console, 'error');
         component.stopMission();
-        expect(console.error).toHaveBeenCalledWith('Error stopping mission', jasmine.any(Error));
+        expect(robotService.endMissionGazebo).toHaveBeenCalled();
     });
 
     it('should return home if socket is connected', () => {

@@ -81,13 +81,17 @@ describe('RobotCommunicationService', () => {
         });
     });
 
-    it('should emit endMission for robot and simulation', () => {
-        service.endMission();
+    it('should emit endMissionGazebo for simulation', () => {
+        service.endMissionRobot();
         expect(sendSpy).toHaveBeenCalledWith(RobotCommand.EndMission, {
             command: RobotCommand.EndMission,
             target: [RobotId.robot1, RobotId.robot2],
             timestamp: jasmine.any(String),
         });
+    });
+
+    it('should emit endMissionGazebo for simulation', () => {
+        service.endMissionGazebo();
         expect(sendSpy).toHaveBeenCalledWith(RobotCommand.EndMission, {
             command: RobotCommand.EndMission,
             target: [RobotId.gazebo],
