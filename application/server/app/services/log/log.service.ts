@@ -1,10 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { LogMessage } from '@common/interfaces/LogMessage';
 import { LogType } from '@common/enums/LogType';
+import { MissionService } from '../mission/mission.service';
 
 @Injectable()
 export class LogService {
     server: any;
+    private missionService: MissionService;
     constructor(server: any) {
         this.server = server;
     }
@@ -55,6 +57,7 @@ export class LogService {
             const logMessage = this.buildLogMessage(logType, message);
             this.nativeLog(logType, message);
             this.server.emit('log', logMessage);
+            this.missionService.addLogToMission(this.missionService.missionId, logMessage);
         } catch (err) {}
     }
 }

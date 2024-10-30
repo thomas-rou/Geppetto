@@ -9,6 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { SubscriptionServiceService } from '@app/services/subscription-service/subscription-service.service';
 import { LogService } from '@app/services/log/log.service';
 import { LogType } from '@common/enums/LogType';
+import { MissionService } from '@app/services/mission/mission.service';
 
 @Injectable()
 @WebSocketGateway()
@@ -17,6 +18,7 @@ export class MissionCommandGateway {
     server: Server;
     private logger : LogService;
     private controllingClient: Socket | null = null;
+    private missionService: MissionService;
 
     constructor(private subscriptionService: SubscriptionServiceService) {
         this.logger = new LogService(this.server);
@@ -65,6 +67,7 @@ export class MissionCommandGateway {
 
         try {
             if (targets.includes(RobotId.robot1) && targets.includes(RobotId.robot2)) {
+                await this.missionService.createMission();
                 this.logger.logToClient(LogType.INFO,`${commands[command].log} for robots command received from client`);
                 await this.subscriptionService.robot1[commands[command].method]();
                 await this.subscriptionService.robot2[commands[command].method]();

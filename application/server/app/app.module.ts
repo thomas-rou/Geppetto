@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MissionCommandGateway } from '@app/gateways/mission-command/mission-command.gateway';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SubscriptionServiceService } from './services/subscription-service/subscription-service.service';
+import { Mission, MissionSchema } from './model/database/Mission';
 
 @Module({
     imports: [
@@ -14,6 +15,7 @@ import { SubscriptionServiceService } from './services/subscription-service/subs
                 uri: process.env.DATABASE_CONNECTION_STRING.replace('${BD_NAME}', process.env.BD_NAME),
             }),
         }),
+        MongooseModule.forFeature([{ name: Mission.name, schema: MissionSchema }]),
     ],
     providers: [MissionCommandGateway, Logger, SubscriptionServiceService],
 })
