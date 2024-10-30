@@ -113,8 +113,6 @@ export class MissionCommandGateway {
             switch (payload.target) {
                 case RobotId.robot1:
                     await this.logger.logToClient(LogType.INFO, 'Identify robot 1 command received from client');
-                    // await this.subscriptionService.robot1.identify();
-                    // this.server.emit('robotIdentification', 'Robot 1 was identified');
                     break;
                 case RobotId.robot2:
                     await this.logger.logToClient(LogType.INFO, 'Identify robot 2 command received from client');
