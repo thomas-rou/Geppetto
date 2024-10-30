@@ -49,8 +49,8 @@ describe('StartMissionPopupComponent', () => {
         expect(component.robot2).toBe(robotManagementService.robot2);
     });
 
-    it('should emit startMission event with updated robot positions and orientations', () => {
-        spyOn(component.startMission, 'emit');
+    it('should emit startSimulationMission event with updated robot positions and orientations when simulation is selected', () => {
+        spyOn(component.startSimulationMission, 'emit');
 
         component.robot1X = 10;
         component.robot1Y = 20;
@@ -58,6 +58,7 @@ describe('StartMissionPopupComponent', () => {
         component.robot2X = 30;
         component.robot2Y = 40;
         component.robot2Orientation = 180.0;
+        component.selectedOption = 'simulation';
 
         component.onStartMission();
 
@@ -65,8 +66,29 @@ describe('StartMissionPopupComponent', () => {
         expect(component.robot1.orientation).toBe(90.0);
         expect(component.robot2.position).toEqual({ x: 30, y: 40 });
         expect(component.robot2.orientation).toBe(180.0);
+        expect(component.startSimulationMission.emit).toHaveBeenCalled();
     });
-    
+
+    it('should emit startPhysicalMission event with updated robot positions and orientations when physical is selected', () => {
+        spyOn(component.startPhysicalMission, 'emit');
+
+        component.robot1X = 10;
+        component.robot1Y = 20;
+        component.robot1Orientation = 90.0;
+        component.robot2X = 30;
+        component.robot2Y = 40;
+        component.robot2Orientation = 180.0;
+        component.selectedOption = 'physical';
+
+        component.onStartMission();
+
+        expect(component.robot1.position).toEqual({ x: 10, y: 20 });
+        expect(component.robot1.orientation).toBe(90.0);
+        expect(component.robot2.position).toEqual({ x: 30, y: 40 });
+        expect(component.robot2.orientation).toBe(180.0);
+        expect(component.startPhysicalMission.emit).toHaveBeenCalled();
+    });
+
     it('should emit cancelMission event when onCancel is called', () => {
         spyOn(component.cancelMission, 'emit');
 
