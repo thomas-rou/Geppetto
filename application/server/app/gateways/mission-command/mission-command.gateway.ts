@@ -16,17 +16,19 @@ import { MissionService } from '@app/services/mission/mission.service';
 export class MissionCommandGateway {
     @WebSocketServer()
     server: Server;
-    private logger : LogService;
+    private logger: LogService;
     private controllingClient: Socket | null = null;
-    private missionService: MissionService;
 
-    constructor(private subscriptionService: SubscriptionServiceService) {
+    constructor(
+        private subscriptionService: SubscriptionServiceService,
+        private missionService: MissionService,
+    ) {
         this.logger = new LogService(this.server);
     }
 
     handleDisconnect(client: Socket) {
         if (this.controllingClient === client) {
-            this.logger.logToClient(LogType.INFO,'Controlling client disconnected, allowing new controller');
+            this.logger.logToClient(LogType.INFO, 'Controlling client disconnected, allowing new controller');
             this.controllingClient = null;
         }
     }
@@ -35,10 +37,10 @@ export class MissionCommandGateway {
         if (this.controllingClient === null) {
             this.controllingClient = client;
             this.logger.server = this.server;
-            this.logger.logToClient(LogType.INFO,`Client ${client.id} is now controlling the robots`);
+            this.logger.logToClient(LogType.INFO, `Client ${client.id} is now controlling the robots`);
             return true;
         } else if (this.controllingClient !== client) {
-            this.logger.logToClient(LogType.INFO,`Client ${client.id} sent a control command, but another client is already controlling`);
+            this.logger.logToClient(LogType.INFO, `Client ${client.id} sent a control command, but another client is already controlling`);
             client.emit('commandError', 'Another client is controlling the robots');
             return false;
         }
@@ -67,23 +69,24 @@ export class MissionCommandGateway {
 
         try {
             if (targets.includes(RobotId.robot1) && targets.includes(RobotId.robot2)) {
+                this.logger.logToClient(LogType.INFO, `${commands[command].log} for robots command received from client`);
                 await this.missionService.createMission();
-                this.logger.logToClient(LogType.INFO,`${commands[command].log} for robots command received from client`);
                 await this.subscriptionService.robot1[commands[command].method]();
                 await this.subscriptionService.robot2[commands[command].method]();
                 await this.subscriptionService.subscribeToTopicRobots(this);
                 this.server.emit('missionStatus', `${commands[command].successMessage} for robots`);
             } else if (targets.includes(RobotId.gazebo)) {
-                this.logger.logToClient(LogType.INFO,`${commands[command].log} for simulation command received from client`);
+                this.logger.logToClient(LogType.INFO, `${commands[command].log} for simulation command received from client`);
+                await this.missionService.createMission();
                 await this.subscriptionService.gazebo[commands[command].method]();
                 await this.subscriptionService.subscribeToTopicGazebo(this);
                 this.server.emit('missionStatus', `${commands[command].successMessage} for the simulation`);
             } else {
-                this.logger.logToClient(LogType.ERROR,'Invalid mission command');
+                this.logger.logToClient(LogType.ERROR, 'Invalid mission command');
                 this.server.emit('commandError', `Invalid ${command} mission command`);
             }
         } catch (e) {
-            this.logger.logToClient(LogType.ERROR,`Error in ${command} MissionRobots: ${e.message}`);
+            this.logger.logToClient(LogType.ERROR, `Error in ${command} MissionRobots: ${e.message}`);
             this.server.emit('commandError', `${e.message} please try again`);
         }
     }
@@ -108,22 +111,22 @@ export class MissionCommandGateway {
         try {
             switch (payload.target) {
                 case RobotId.robot1:
-                    this.logger.logToClient(LogType.INFO,'Identify robot 1 command received from client');
+                    this.logger.logToClient(LogType.INFO, 'Identify robot 1 command received from client');
                     await this.subscriptionService.robot1.identify();
                     this.server.emit('robotIdentification', 'Robot 1 was identified');
                     break;
                 case RobotId.robot2:
-                    this.logger.logToClient(LogType.INFO,'Identify robot 2 command received from client');
+                    this.logger.logToClient(LogType.INFO, 'Identify robot 2 command received from client');
                     await this.subscriptionService.robot2.identify();
                     this.server.emit('robotIdentification', 'Robot 2 was identified');
                     break;
                 default:
-                    this.logger.logToClient(LogType.ERROR,'Invalid identify robot command');
+                    this.logger.logToClient(LogType.ERROR, 'Invalid identify robot command');
                     this.server.emit('commandError', 'Invalid identify robot command');
                     return;
             }
         } catch (e) {
-            this.logger.logToClient(LogType.ERROR,'Error in identifyRobot: ' + e.message);
+            this.logger.logToClient(LogType.ERROR, 'Error in identifyRobot: ' + e.message);
             this.server.emit('commandError', `${e.message} please try again`);
         }
     }

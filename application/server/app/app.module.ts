@@ -4,6 +4,7 @@ import { MissionCommandGateway } from '@app/gateways/mission-command/mission-com
 import { MongooseModule } from '@nestjs/mongoose';
 import { SubscriptionServiceService } from './services/subscription-service/subscription-service.service';
 import { Mission, MissionSchema } from './model/database/Mission';
+import { MissionService } from './services/mission/mission.service';
 
 @Module({
     imports: [
@@ -17,6 +18,6 @@ import { Mission, MissionSchema } from './model/database/Mission';
         }),
         MongooseModule.forFeature([{ name: Mission.name, schema: MissionSchema }]),
     ],
-    providers: [MissionCommandGateway, Logger, SubscriptionServiceService],
+    providers: [MissionCommandGateway, Logger, SubscriptionServiceService, MissionService],
 })
 export class AppModule {}

@@ -11,7 +11,7 @@ export class MissionService {
         private readonly logger: Logger,
     ) {}
     public missionId = '';
-    async createMission(mission: Mission = { id: new Date().toISOString(), logs: [] } as Mission): Promise<void> {
+    async createMission(mission: Mission = { id: new Date().toISOString().slice(0, -5), logs: [] } as Mission): Promise<void> {
         try {
             this.logger.log(`Creating mission ${mission.id}`);
             await this.missionModel.create(mission);
