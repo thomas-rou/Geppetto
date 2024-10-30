@@ -47,7 +47,6 @@ export class LogsDisplayComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     clearLogs() {
-        console.log('hey');
         while (this.logTerminal.nativeElement.firstChild) {
             this.logTerminal.nativeElement.removeChild(this.logTerminal.nativeElement.firstChild);
         }

@@ -6,6 +6,7 @@ import { Routes, provideRouter } from '@angular/router';
 import { AppComponent } from '@app/components/app/app.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { environment } from './environments/environment';
+import { LogsPageComponent } from '@app/pages/logs-page/logs-page.component';
 
 if (environment.production) {
     enableProdMode();
@@ -15,6 +16,7 @@ if (environment.production) {
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'home', component: MainPageComponent },
+    { path: 'logs', component: LogsPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 
