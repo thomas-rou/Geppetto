@@ -27,7 +27,6 @@ export class MissionService {
             this.socketService.on(ClientCommand.MissionLogs, (missions: Mission[]) => {
                 this.missions = missions;
                 resolve();
-                console.log(this.missions);
             });
         });
     }
