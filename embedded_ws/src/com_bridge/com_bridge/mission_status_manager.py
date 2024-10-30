@@ -17,7 +17,7 @@ class MissionStatusManager(Node):
         super().__init__('mission_manager')
         self.logger = LoggerNode()
         self.logger.log_message(LogType.INFO, f"Mission manager Launched waiting for messages in {os.getenv('ROBOT')}")
-        self.mission_status_publisher = self.create_publisher(MissionStatus,f"{os.getenv('ROBOT')}/mission_status", 10)
+        self.mission_status_publisher = self.create_publisher(MissionStatus,f"{os.getenv('ROBOT')}/mission_status", GlobalConst.QUEUE_SIZE)
 
         self.battery_subscription = self.create_subscription(
             LimoStatus,
