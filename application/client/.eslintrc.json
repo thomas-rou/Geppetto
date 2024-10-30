@@ -1,6 +1,10 @@
 {
     "root": true,
-    "extends": ["../.eslintrc.json"],
+    "extends": [
+        "../.eslintrc.json",
+        "airbnb-base",
+        "airbnb-typescript"
+    ],
     "parser": "@typescript-eslint/parser",
     "plugins": ["@typescript-eslint"],
     "overrides": [
