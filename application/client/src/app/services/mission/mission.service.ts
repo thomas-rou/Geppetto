@@ -2,32 +2,34 @@ import { Injectable } from '@angular/core';
 import { MissionType } from '@app/enums/ClientCommand';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { ClientCommand } from '@common/enums/ClientCommand';
-import { LogMessage } from '@common/interfaces/LogMessage';
+import { Mission } from '@common/interfaces/Mission';
 
 @Injectable({
     providedIn: 'root',
 })
 export class MissionService {
     private missionType: MissionType;
-
-    public missionLogs: LogMessage[] = [];
+    public missions: Mission[] = [];
 
     constructor(private socketService: SocketHandlerService) {
         this.connect();
     }
 
-    connect() {
+    async connect() {
         if (!this.socketService.isSocketAlive()) {
             this.socketService.connect();
-            this.handleMissionLogs();
+            await this.handleMissionLogs();
         }
     }
-
-    handleMissionLogs() {
-        this.socketService.on(ClientCommand.MissionLogs, (logs: LogMessage[]) => {
-            this.missionLogs = logs;
+    
+    async handleMissionLogs(): Promise<void> {
+        return new Promise((resolve) => {
+            this.socketService.on(ClientCommand.MissionLogs, (missions: Mission[]) => {
+                this.missions = missions;
+                resolve();
+                console.log(this.missions);
+            });
         });
-        console.log(this.missionLogs);
     }
 
     getMissionLogs() {
