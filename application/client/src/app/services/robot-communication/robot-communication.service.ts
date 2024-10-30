@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
+import { ClientCommand } from '@common/enums/ClientCommand';
 import { EndMission } from '@common/interfaces/EndMission';
 import { StartMission } from '@common/interfaces/StartMission';
 import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
@@ -77,6 +78,11 @@ export class RobotCommunicationService {
             this.logSubject.next(formattedLog);
         });
     }
+
+    handleMissionLogs() {
+        this.socketService.on(ClientCommand.MissionLogs, (logs: LogMessage[]) => {
+            console.log(logs);
+        });}
 
     handleRobotIdentification() {
         this.socketService.on('robotIdentification', (message: string) => {

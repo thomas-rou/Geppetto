@@ -9,6 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { SubscriptionServiceService } from '@app/services/subscription-service/subscription-service.service';
 import { LogService } from '@app/services/log/log.service';
 import { LogType } from '@common/enums/LogType';
+import { ClientCommand } from '@common/enums/ClientCommand';
 import { MissionService } from '@app/services/mission/mission.service';
 
 @Injectable()
@@ -130,4 +131,17 @@ export class MissionCommandGateway {
             this.server.emit('commandError', `${e.message} please try again`);
         }
     }
+
+    @SubscribeMessage(ClientCommand.MissionLogs)
+    async getMissionLogs(client: Socket) {
+
+        try {
+            await this.logger.logToClient(LogType.INFO, 'Get logs command received from client');
+            const logs = await this.missionService.getAllMissions();
+            client.emit(ClientCommand.MissionLogs, logs);
+        } catch (e) {
+            await this.logger.logToClient(LogType.ERROR, 'Error in getLogs: ' + e.message);
+        }
+    }
+
 }

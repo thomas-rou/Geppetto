@@ -20,7 +20,7 @@ export class MissionService {
     }
     async addLogToMission(missionId: string, log: LogMessage): Promise<void> {
         try {
-            this.logger.log(`Adding log to mission ${missionId}`);
+            // this.logger.log(`Adding log to mission ${missionId}`);
             await this.missionModel.updateOne({ id: missionId }, { $push: { logs: log } });
         } catch (err) {
             return Promise.reject(`Failed to add log to mission ${missionId}`);
@@ -40,6 +40,22 @@ export class MissionService {
             return this.missionModel.find();
         } catch (err) {
             return Promise.reject(`Failed to get all missions`);
+        }
+    }
+    async deleteMission(missionId: string): Promise<void> {
+        try {
+            this.logger.log(`Deleting mission ${missionId}`);
+            await this.missionModel.deleteOne({ id: missionId });
+        } catch (err) {
+            return Promise.reject(`Failed to delete mission ${missionId}`);
+        }
+    }
+    async deleteAllMissions(): Promise<void> {
+        try {
+            this.logger.log(`Deleting all missions`);
+            await this.missionModel.deleteMany({});
+        } catch (err) {
+            return Promise.reject(`Failed to delete all missions`);
         }
     }
 }
