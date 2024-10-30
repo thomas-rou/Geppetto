@@ -132,20 +132,6 @@ export class RobotCommunicationService {
         this.socketService.send(RobotCommand.StartMission, message);
     }
 
-    endMission(): void {
-        this.endMissionRobot();
-        this.endMissionGazebo();
-    }
-
-    endMissionRobot(): void {
-        const message: EndMission = {
-            command: RobotCommand.EndMission,
-            target: [RobotId.robot1, RobotId.robot2],
-            timestamp: new Date().toISOString(),
-        };
-        this.socketService.send(RobotCommand.EndMission, message);
-    }
-
     startMissionGazebo(): void {
         const message: StartMission = {
             command: RobotCommand.StartMission,
@@ -161,6 +147,16 @@ export class RobotCommunicationService {
         this.socketService.send(RobotCommand.StartMission, message);
     }
 
+    endMissionRobot(): void {
+        const message: EndMission = {
+            command: RobotCommand.EndMission,
+            target: [RobotId.robot1, RobotId.robot2],
+            timestamp: new Date().toISOString(),
+        };
+        this.socketService.send(RobotCommand.EndMission, message);
+    }
+
+    
     endMissionGazebo(): void {
         const message: EndMission = {
             command: RobotCommand.EndMission,
