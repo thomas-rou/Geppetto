@@ -6,8 +6,10 @@ import { MissionService } from '../mission/mission.service';
 @Injectable()
 export class LogService {
     server: any;
-    private missionService: MissionService;
-    constructor(server: any) {
+    constructor(
+        server: any,
+        private missionService: MissionService,
+    ) {
         this.server = server;
     }
     private readonly logger = new Logger(LogService.name);
@@ -52,12 +54,14 @@ export class LogService {
         }
     }
 
-    logToClient(logType: LogType, message: string) {
+    async logToClient(logType: LogType, message: string) {
         try {
             const logMessage = this.buildLogMessage(logType, message);
             this.nativeLog(logType, message);
             this.server.emit('log', logMessage);
-            this.missionService.addLogToMission(this.missionService.missionId, logMessage);
-        } catch (err) {}
+            if (this.missionService.missionId) await this.missionService.addLogToMission(this.missionService.missionId, logMessage);
+        } catch (err) {
+            console.log(err);
+        }
     }
 }

@@ -6,10 +6,8 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class MissionService {
-    constructor(
-        @InjectModel(Mission.name) public missionModel: Model<MissionDocument>,
-        private readonly logger: Logger,
-    ) {}
+    constructor(@InjectModel(Mission.name) public missionModel: Model<MissionDocument>) {}
+    private readonly logger = new Logger(MissionService.name);
     public missionId = '';
     async createMission(mission: Mission = { id: new Date().toISOString().slice(0, -5), logs: [] } as Mission): Promise<void> {
         try {
