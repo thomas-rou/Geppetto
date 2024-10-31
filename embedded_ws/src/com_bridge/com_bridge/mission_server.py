@@ -78,9 +78,7 @@ class MissionServer(Node):
         y_range = [0.0, 50.0]
         goal_msg.pose.position.x = uniform(x_range[0], x_range[1])
         goal_msg.pose.position.y = uniform(y_range[0], y_range[1])
-        angle_to_goal = math.atan2(goal_msg.pose.position.y, goal_msg.pose.position.x)
-        goal_msg.pose.orientation.z = math.sin(angle_to_goal / 2.0)
-        goal_msg.pose.orientation.w = math.cos(angle_to_goal / 2.0)
+        
         
 
         goal = NavigateToPose.Goal()
