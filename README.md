@@ -3,11 +3,11 @@
 This is the official readme for the Geppetto project
 
 ## Description
-The purpose of this project is to develop a proof of concept for planetary exploration using a multi-robot system, equipped with the minimum sensors required by the Canadian Space Agency (CSA). This project, focused on research and education in space exploration, aims to demonstrate the effectiveness and viability of a simple autonomous multi-robot system in a controlled indoor environment simulating planetary exploration conditions. The robots can autonomously explore an unknown area, roughly the size of a room, using only the sensors specified by the CSA: the IMU ("Inertial Measurement Unit"), the 3D camera, the RGB camera, and the LiDAR ("Light Detection and Ranging"). The operator is able to monitor the data in real-time via a web interface, with limited control over starting and stopping the operations. The system will generate an accurate map of the explored area.
+The purpose of this project is to develop a proof of concept for planetary exploration using a multi-robot system, equipped with the minimum sensors required by the Canadian Space Agency (CSA). This project, focused on research and education in space exploration, aims to demonstrate the effectiveness and viability of a simple autonomous multi-robot system in a controlled indoor environment simulating planetary exploration conditions. The robots can autonomously explore an unknown area, roughly the size of a room, using only the sensors specified by the CSA: an IMU ("Inertial Measurement Unit"), a 3D camera, an RGB camera, and a LiDAR ("Light Detection and Ranging"). The operator is able to monitor the data in real-time via a web interface, with limited control over starting and stopping the operations. The system will generate an accurate map of the explored area.
 
 ## Installation
-To start using the project execute command: 
-"docker compose up" to start the control station and the gazebo simulation.
+To start using the project, execute the following command:"docker compose up". 
+This will start the control station and the gazebo simulation.
 Then, to start the limo robots, connect to two using the SSH protocol and run the following command:
 "~/.launch.sh"
 
