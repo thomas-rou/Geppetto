@@ -1,4 +1,4 @@
-MAIN_BRANCH="develop"
+MAIN_BRANCH="feature/explore_on_robot"
 echo "EN ATTENTE" >/tmp/.mission_status
 AUDIO_DEVICE_ID=$(pactl list short sinks | grep "USB_PnP_Audio_Device" | awk '{print $1}')
 pactl set-default-sink $AUDIO_DEVICE_ID
