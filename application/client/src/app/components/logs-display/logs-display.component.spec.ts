@@ -15,19 +15,19 @@ describe('LogsDisplayComponent', () => {
         clearLogsEvent = new Subject<void>();
 
         const logsServiceMock = {
-            clearLogsEvent: clearLogsEvent.asObservable()
+            clearLogsEvent: clearLogsEvent.asObservable(),
         };
 
         const robotCommunicationServiceMock = {
-            onLog: jasmine.createSpy('onLog').and.returnValue(of('Test log'))
+            onLog: jasmine.createSpy('onLog').and.returnValue(of('Test log')),
         };
 
         await TestBed.configureTestingModule({
             imports: [BrowserAnimationsModule, LogsDisplayComponent],
             providers: [
                 { provide: LogsService, useValue: logsServiceMock },
-                { provide: RobotCommunicationService, useValue: robotCommunicationServiceMock }
-            ]
+                { provide: RobotCommunicationService, useValue: robotCommunicationServiceMock },
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(LogsDisplayComponent);

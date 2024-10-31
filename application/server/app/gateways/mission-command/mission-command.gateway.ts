@@ -132,7 +132,6 @@ export class MissionCommandGateway {
 
     @SubscribeMessage(ClientCommand.MissionLogs)
     async getMissionLogs(client: Socket) {
-
         try {
             await this.logger.logToClient(LogType.INFO, 'Get logs command received from client');
             const logs = await this.missionService.getAllMissions();
@@ -141,5 +140,4 @@ export class MissionCommandGateway {
             await this.logger.logToClient(LogType.ERROR, 'Error in getLogs: ' + e.message);
         }
     }
-
 }

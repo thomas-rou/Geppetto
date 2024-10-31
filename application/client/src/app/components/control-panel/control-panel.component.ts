@@ -15,7 +15,7 @@ import { MissionType } from '@app/enums/MissionType';
     templateUrl: './control-panel.component.html',
     styleUrls: ['./control-panel.component.scss'],
     imports: [CommonModule, StartMissionPopupComponent],
-    animations: [collapseExpandAnimation]
+    animations: [collapseExpandAnimation],
 })
 export class ControlPanelComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription[] = [];
@@ -27,7 +27,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     constructor(
         private robotService: RobotCommunicationService,
         private logsService: LogsService,
-        private missionService: MissionService
+        private missionService: MissionService,
     ) {}
 
     ngOnInit(): void {

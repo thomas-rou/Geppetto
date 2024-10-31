@@ -23,7 +23,7 @@ export class StartMissionPopupComponent {
     robot2Y: number = 0;
     robot2Orientation: number = 0.0;
 
-    selectedOption: string = "simulation";
+    selectedOption: string = 'simulation';
 
     constructor(private managementService: RobotManagementService) {}
 
@@ -42,10 +42,10 @@ export class StartMissionPopupComponent {
         this.robot2.orientation = this.robot2Orientation;
 
         switch (this.selectedOption) {
-            case "simulation":
+            case 'simulation':
                 this.startSimulationMission.emit();
                 break;
-            case "physical":
+            case 'physical':
                 this.startPhysicalMission.emit();
                 break;
         }

@@ -21,7 +21,7 @@ export class MissionService {
             await this.handleMissionLogs();
         }
     }
-    
+
     async handleMissionLogs(): Promise<void> {
         return new Promise((resolve) => {
             this.socketService.on(ClientCommand.MissionLogs, (missions: Mission[]) => {

@@ -10,7 +10,7 @@ import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
     imports: [],
     templateUrl: './status-display.component.html',
     styleUrl: './status-display.component.scss',
-    animations: [collapseExpandAnimation]
+    animations: [collapseExpandAnimation],
 })
 export class StatusDisplayComponent {
     isCollapsed = false;

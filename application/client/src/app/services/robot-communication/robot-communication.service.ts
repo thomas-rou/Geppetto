@@ -32,7 +32,6 @@ export class RobotCommunicationService {
         this.connect();
     }
 
-
     get robot1() {
         return this.robotManagementService.robot1;
     }
@@ -156,7 +155,6 @@ export class RobotCommunicationService {
         this.socketService.send(RobotCommand.EndMission, message);
     }
 
-    
     endMissionGazebo(): void {
         const message: EndMission = {
             command: RobotCommand.EndMission,

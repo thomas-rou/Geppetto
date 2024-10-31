@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs';
     imports: [],
     templateUrl: './logs-display.component.html',
     styleUrl: './logs-display.component.scss',
-    animations: [collapseExpandAnimation]
+    animations: [collapseExpandAnimation],
 })
 export class LogsDisplayComponent implements OnInit, OnDestroy, AfterViewInit {
     private clearLogsSubscription: Subscription;
@@ -25,12 +25,12 @@ export class LogsDisplayComponent implements OnInit, OnDestroy, AfterViewInit {
 
     ngOnInit() {
         this.clearLogsSubscription = this.logsService.clearLogsEvent.subscribe(() => {
-          this.clearLogs();
+            this.clearLogs();
         });
     }
 
     ngAfterViewInit() {
-        this.robotCommunicationService.onLog().subscribe(log => {
+        this.robotCommunicationService.onLog().subscribe((log) => {
             this.addLogToTerminal(log);
         });
     }
@@ -54,7 +54,7 @@ export class LogsDisplayComponent implements OnInit, OnDestroy, AfterViewInit {
 
     ngOnDestroy() {
         if (this.clearLogsSubscription) {
-          this.clearLogsSubscription.unsubscribe();
+            this.clearLogsSubscription.unsubscribe();
         }
     }
 }

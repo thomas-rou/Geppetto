@@ -17,7 +17,15 @@ describe('MainPageComponent', () => {
         const themeServiceSpy = jasmine.createSpyObj('ThemeService', ['toggleTheme']);
 
         await TestBed.configureTestingModule({
-            imports: [HttpClientModule, BrowserAnimationsModule, MainPageComponent, ControlPanelComponent, StatusDisplayComponent, MapDisplayComponent, LogsDisplayComponent],
+            imports: [
+                HttpClientModule,
+                BrowserAnimationsModule,
+                MainPageComponent,
+                ControlPanelComponent,
+                StatusDisplayComponent,
+                MapDisplayComponent,
+                LogsDisplayComponent,
+            ],
             providers: [{ provide: ThemeService, useValue: themeServiceSpy }],
         }).compileComponents();
 

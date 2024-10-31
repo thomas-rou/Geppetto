@@ -20,7 +20,6 @@ describe('MapDisplayComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    
     it('should toggle collapse state', () => {
         component.isCollapsed = false;
         component.toggleCollapse();

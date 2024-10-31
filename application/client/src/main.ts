@@ -12,7 +12,6 @@ if (environment.production) {
     enableProdMode();
 }
 
-
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'home', component: MainPageComponent },
@@ -22,4 +21,4 @@ const routes: Routes = [
 
 bootstrapApplication(AppComponent, {
     providers: [provideHttpClient(), provideRouter(routes), provideAnimations()],
-})
+});
