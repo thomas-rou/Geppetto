@@ -9,6 +9,7 @@ import { Mission } from '@common/interfaces/Mission';
 })
 export class MissionService {
     private missionType: MissionType;
+
     public missions: Mission[] = [];
 
     constructor(private socketService: SocketHandlerService) {

@@ -16,6 +16,7 @@ export class LogsDisplayComponent implements OnInit, OnDestroy, AfterViewInit {
     private clearLogsSubscription: Subscription;
 
     @ViewChild('logTerminal') logTerminal!: ElementRef;
+
     isCollapsed = true;
 
     constructor(

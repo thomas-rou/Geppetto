@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { LogsDisplayComponent } from './logs-display.component';
 import { LogsService } from '@app/services/logs/logs.service';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { of, Subject } from 'rxjs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { LogsDisplayComponent } from './logs-display.component';
 
 describe('LogsDisplayComponent', () => {
     let component: LogsDisplayComponent;

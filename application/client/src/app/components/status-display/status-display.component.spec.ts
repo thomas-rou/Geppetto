@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import { StatusDisplayComponent } from './status-display.component';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { Robot } from '@app/classes/robot/robot';
 import { RobotId } from '@common/enums/RobotId';
 import { RobotState } from '@common/enums/RobotState';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { StatusDisplayComponent } from './status-display.component';
 
 describe('StatusDisplayComponent', () => {
     let component: StatusDisplayComponent;

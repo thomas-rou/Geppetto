@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MapDisplayComponent } from './map-display.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MapDisplayComponent } from './map-display.component';
 
 describe('MapDisplayComponent', () => {
     let component: MapDisplayComponent;

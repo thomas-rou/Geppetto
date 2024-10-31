@@ -20,9 +20,13 @@ import { LogMessage } from '@common/interfaces/LogMessage';
 })
 export class RobotCommunicationService {
     private missionStatusSubject = new Subject<string>();
+
     private robotIdentificationSubject = new Subject<string>();
+
     private commandErrorSubject = new Subject<string>();
+
     private connectionStatusSubject = new Subject<boolean>();
+
     private logSubject = new Subject<string>();
 
     constructor(
@@ -35,6 +39,7 @@ export class RobotCommunicationService {
     get robot1() {
         return this.robotManagementService.robot1;
     }
+
     get robot2() {
         return this.robotManagementService.robot2;
     }

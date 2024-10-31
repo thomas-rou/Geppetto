@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ElementRef } from '@angular/core';
-import { LogsPageComponent } from './logs-page.component';
 import { MissionService } from '@app/services/mission/mission.service';
 import { ThemeService } from '@app/services/theme/theme.service';
+import { LogsPageComponent } from './logs-page.component';
 
 describe('LogsPageComponent', () => {
     let component: LogsPageComponent;

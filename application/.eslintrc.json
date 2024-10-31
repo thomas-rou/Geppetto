@@ -26,9 +26,6 @@
         }
     ],
     "settings": {
-        "import/resolver": {
-            "typescript": {}
-        },
         "import/parser": {
             "@typescript-eslint/parser": [".ts", ".tsx"]
         }

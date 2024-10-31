@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MissionService } from '@app/services/mission/mission.service';
 import { ThemeService } from '@app/services/theme/theme.service';
 import { Mission } from '@common/interfaces/Mission';
+
 @Component({
     selector: 'app-logs-page',
     standalone: true,
@@ -11,6 +12,7 @@ import { Mission } from '@common/interfaces/Mission';
 })
 export class LogsPageComponent implements OnInit {
     @ViewChild('logTerminal') logTerminal!: ElementRef;
+
     missions: Mission[] = [];
 
     constructor(

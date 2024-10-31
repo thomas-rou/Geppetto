@@ -19,9 +19,11 @@ import { MissionType } from '@app/enums/MissionType';
 })
 export class ControlPanelComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription[] = [];
+
     private socketConnected: boolean = false;
 
     showPopup: boolean = false;
+
     isCollapsed = false;
 
     constructor(
@@ -51,7 +53,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
 
     verifySocketConnection() {
         if (this.socketConnected) return true;
-        else return false;
+        return false;
     }
 
     startMission() {

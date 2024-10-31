@@ -5,8 +5,8 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { Routes, provideRouter } from '@angular/router';
 import { AppComponent } from '@app/components/app/app.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { environment } from './environments/environment';
 import { LogsPageComponent } from '@app/pages/logs-page/logs-page.component';
+import { environment } from './environments/environment';
 
 if (environment.production) {
     enableProdMode();

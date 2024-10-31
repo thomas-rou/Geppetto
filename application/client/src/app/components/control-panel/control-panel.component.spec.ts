@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ControlPanelComponent } from './control-panel.component';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { LogsService } from '@app/services/logs/logs.service';
 import { MissionService } from '@app/services/mission/mission.service';
@@ -7,6 +6,7 @@ import { of } from 'rxjs';
 import { MissionType } from '@app/enums/MissionType';
 import { RobotId } from '@common/enums/RobotId';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ControlPanelComponent } from './control-panel.component';
 
 describe('ControlPanelComponent', () => {
     let component: ControlPanelComponent;
@@ -75,12 +75,12 @@ describe('ControlPanelComponent', () => {
     });
 
     it('should verify socket connection', () => {
-        component['socketConnected'] = true;
+        component.socketConnected = true;
         expect(component.verifySocketConnection()).toBeTrue();
     });
 
     it('should start mission and show popup if socket is connected', () => {
-        component['socketConnected'] = true;
+        component.socketConnected = true;
         component.startMission();
         expect(component.showPopup).toBeTrue();
     });
@@ -111,32 +111,32 @@ describe('ControlPanelComponent', () => {
     });
 
     it('should identify robot if socket is connected', () => {
-        component['socketConnected'] = true;
+        component.socketConnected = true;
         component.identifyRobot(RobotId.robot1);
         expect(robotServiceMock.identifyRobot).toHaveBeenCalledWith(RobotId.robot1);
     });
 
     it('should return home if socket is connected', () => {
-        component['socketConnected'] = true;
+        component.socketConnected = true;
         component.returnHome();
         expect(robotServiceMock.returnToBase).toHaveBeenCalled();
     });
 
     it('should update software if socket is connected', () => {
-        component['socketConnected'] = true;
+        component.socketConnected = true;
         component.updateSoftware();
         expect(robotServiceMock.updateControllerCode).toHaveBeenCalledWith('new code here');
     });
 
     it('should unsubscribe from all subscriptions on destroy', () => {
         const subscription = jasmine.createSpyObj('Subscription', ['unsubscribe']);
-        component['subscriptions'] = [subscription];
+        component.subscriptions = [subscription];
         component.ngOnDestroy();
         expect(subscription.unsubscribe).toHaveBeenCalled();
     });
 
     it('should return false when socket is not connected', () => {
-        component['socketConnected'] = false;
+        component.socketConnected = false;
         expect(component.verifySocketConnection()).toBeFalse();
     });
 
@@ -147,7 +147,7 @@ describe('ControlPanelComponent', () => {
     });
 
     it('should handle error when identifying robot', () => {
-        component['socketConnected'] = true;
+        component.socketConnected = true;
         robotServiceMock.identifyRobot.and.throwError('Error identifying robot');
         spyOn(console, 'error');
         component.identifyRobot(RobotId.robot1);
@@ -155,7 +155,7 @@ describe('ControlPanelComponent', () => {
     });
 
     it('should handle error when returning home', () => {
-        component['socketConnected'] = true;
+        component.socketConnected = true;
         robotServiceMock.returnToBase.and.throwError('Error identifying robot');
         spyOn(console, 'error');
         component.returnHome();
@@ -163,7 +163,7 @@ describe('ControlPanelComponent', () => {
     });
 
     it('should handle error when updating software', () => {
-        component['socketConnected'] = true;
+        component.socketConnected = true;
         robotServiceMock.updateControllerCode.and.throwError('Error identifying robot');
         spyOn(console, 'error');
         component.updateSoftware();

@@ -23,6 +23,7 @@ export class StatusDisplayComponent {
     get robot1() {
         return this.robotManagementService.robot1;
     }
+
     get robot2() {
         return this.robotManagementService.robot2;
     }
