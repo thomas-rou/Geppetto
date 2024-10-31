@@ -1,6 +1,8 @@
-import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
+import { LogsService } from '@app/services/logs/logs.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-logs-display',
@@ -10,15 +12,26 @@ import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
     styleUrl: './logs-display.component.scss',
     animations: [collapseExpandAnimation]
 })
-export class LogsDisplayComponent implements AfterViewInit {
+export class LogsDisplayComponent implements OnInit, OnDestroy, AfterViewInit {
+    private clearLogsSubscription: Subscription;
+
     @ViewChild('logTerminal') logTerminal!: ElementRef;
     isCollapsed = true;
 
-    constructor(private robotCommunicationService: RobotCommunicationService) {}
+    constructor(
+        private robotCommunicationService: RobotCommunicationService,
+        private logsService: LogsService,
+    ) {}
+
+    ngOnInit() {
+        this.clearLogsSubscription = this.logsService.clearLogsEvent.subscribe(() => {
+          this.clearLogs();
+        });
+    }
 
     ngAfterViewInit() {
         this.robotCommunicationService.onLog().subscribe(log => {
-            this.addLogToTerminal(this.logTerminal.nativeElement, log);
+            this.addLogToTerminal(log);
         });
     }
 
@@ -26,10 +39,22 @@ export class LogsDisplayComponent implements AfterViewInit {
         this.isCollapsed = !this.isCollapsed;
     }
 
-    addLogToTerminal(terminal: HTMLElement, log: string) {
+    addLogToTerminal(log: string) {
         const logElement = document.createElement('p');
         logElement.textContent = log;
-        terminal.appendChild(logElement);
-        terminal.scrollTop = terminal.scrollHeight;
+        this.logTerminal.nativeElement.appendChild(logElement);
+        this.logTerminal.nativeElement.scrollTop = this.logTerminal.nativeElement.scrollHeight;
+    }
+
+    clearLogs() {
+        while (this.logTerminal.nativeElement.firstChild) {
+            this.logTerminal.nativeElement.removeChild(this.logTerminal.nativeElement.firstChild);
+        }
+    }
+
+    ngOnDestroy() {
+        if (this.clearLogsSubscription) {
+          this.clearLogsSubscription.unsubscribe();
+        }
     }
 }
