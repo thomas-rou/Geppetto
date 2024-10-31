@@ -125,7 +125,7 @@ class MissionServer(Node):
             twist_msg.angular.x = 0.0
             twist_msg.angular.y = 0.0
             twist_msg.angular.z = 0.0
-            self.mission_mouvements(twist_msg)
+            self.mission_mouvements.publish(twist_msg)
 
 
 def main(args=None):
