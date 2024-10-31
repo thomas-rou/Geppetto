@@ -78,8 +78,6 @@ class MissionServer(Node):
         y_range = [0.0, 2.0]
         goal_msg.pose.position.x = uniform(x_range[0], x_range[1])
         goal_msg.pose.position.y = uniform(y_range[0], y_range[1])
-        
-        
 
         goal = NavigateToPose.Goal()
         goal.pose = goal_msg
@@ -100,7 +98,9 @@ class MissionServer(Node):
             clear_logs()
             self._mission_status = RobotStatus.MISSION_ON_GOING
             robot_id = self.robot_id[-1] if self.robot_id else get_robot_id()
-            self.logger.log_message(LogType.INFO, f"Received new mission for robot {robot_id}")
+            self.logger.log_message(
+                LogType.INFO, f"Received new mission for robot {robot_id}"
+            )
             self.timer = self.create_timer(2.0, self.send_goal)
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")
