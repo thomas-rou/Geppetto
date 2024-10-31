@@ -46,6 +46,28 @@ class MissionServer(Node):
     @_mission_status.setter
     def _mission_status(self, status):
         set_mission_status(status)
+        
+    def send_goal(self):
+            if not self.action_client.server_is_ready():
+                self.get_logger().info('Action server not ready yet...')
+                return
+
+            goal_msg = PoseStamped()
+            goal_msg.header.frame_id = 'map'
+            goal_msg.header.stamp = self.get_clock().now().to_msg()
+
+            
+            x_range = 20.0
+            y_range = 20.0
+            goal_msg.pose.position.x = uniform(x_range[0], x_range[1])
+            goal_msg.pose.position.y = uniform(y_range[0], y_range[1])
+            goal_msg.pose.orientation.w = 1.0  
+
+            goal = NavigateToPose.Goal()
+            goal.pose = goal_msg
+
+            self.get_logger().info(f'Sending goal: x={goal_msg.pose.position.x}, y={goal_msg.pose.position.y}')
+            self.action_client.send_goal_async(goal)
 
     def new_missions_callback(self, msg: StartMission):
         try:
@@ -81,27 +103,6 @@ class MissionServer(Node):
             twist_msg.angular.z = 0.0
             self.mission_mouvements(twist_msg)
             
-        def send_goal(self):
-            if not self.action_client.server_is_ready():
-                self.get_logger().info('Action server not ready yet...')
-                return
-
-            goal_msg = PoseStamped()
-            goal_msg.header.frame_id = 'map'
-            goal_msg.header.stamp = self.get_clock().now().to_msg()
-
-            
-            x_range = 20.0
-            y_range = 20.0
-            goal_msg.pose.position.x = uniform(x_range[0], x_range[1])
-            goal_msg.pose.position.y = uniform(y_range[0], y_range[1])
-            goal_msg.pose.orientation.w = 1.0  
-
-            goal = NavigateToPose.Goal()
-            goal.pose = goal_msg
-
-            self.get_logger().info(f'Sending goal: x={goal_msg.pose.position.x}, y={goal_msg.pose.position.y}')
-            self.action_client.send_goal_async(goal)
 
 def main(args=None):
     rclpy.init(args=args)
