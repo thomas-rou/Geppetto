@@ -74,8 +74,8 @@ class MissionServer(Node):
         goal_msg.header.frame_id = "map"
         goal_msg.header.stamp = self.get_clock().now().to_msg()
 
-        x_range = [0.0, 50.0]
-        y_range = [0.0, 50.0]
+        x_range = [0.0, 2.0]
+        y_range = [0.0, 2.0]
         goal_msg.pose.position.x = uniform(x_range[0], x_range[1])
         goal_msg.pose.position.y = uniform(y_range[0], y_range[1])
         
