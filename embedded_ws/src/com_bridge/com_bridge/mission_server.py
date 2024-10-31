@@ -110,6 +110,7 @@ class MissionServer(Node):
             if self.mission_active:
                 self.destroy_timer(self.timer)
                 self.stop_robot()
+                self._mission_status = RobotStatus.WAITING
             else:
                 self.logger.log_message(LogType.INFO, "No active mission to cancel.")
             self._mission_status = RobotStatus.WAITING
