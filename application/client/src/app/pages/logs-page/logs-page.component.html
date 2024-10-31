@@ -12,10 +12,13 @@
     </header>
     
     <main>
-        <app-control-panel></app-control-panel>
-        <app-status-display></app-status-display>
-        <app-map-display></app-map-display>
-        <app-logs-display></app-logs-display>
+        <section class="logs">
+            <h2>
+                <span>Historique des Logs</span>
+            </h2>
+            <div id="log-terminal" class="terminal" #logTerminal>
+            </div>
+        </section>
     </main>
 
     <footer>

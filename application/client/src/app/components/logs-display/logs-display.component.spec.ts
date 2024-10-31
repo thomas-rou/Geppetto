@@ -1,18 +1,38 @@
-import { ComponentFixture, discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LogsDisplayComponent } from './logs-display.component';
+import { LogsService } from '@app/services/logs/logs.service';
+import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
+import { of, Subject } from 'rxjs';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('LogsDisplayComponent', () => {
     let component: LogsDisplayComponent;
     let fixture: ComponentFixture<LogsDisplayComponent>;
+    let robotCommunicationService: RobotCommunicationService;
+    let clearLogsEvent: Subject<void>;
 
     beforeEach(async () => {
+        clearLogsEvent = new Subject<void>();
+
+        const logsServiceMock = {
+            clearLogsEvent: clearLogsEvent.asObservable()
+        };
+
+        const robotCommunicationServiceMock = {
+            onLog: jasmine.createSpy('onLog').and.returnValue(of('Test log'))
+        };
+
         await TestBed.configureTestingModule({
-            imports: [LogsDisplayComponent],
+            imports: [BrowserAnimationsModule, LogsDisplayComponent],
+            providers: [
+                { provide: LogsService, useValue: logsServiceMock },
+                { provide: RobotCommunicationService, useValue: robotCommunicationServiceMock }
+            ]
         }).compileComponents();
 
         fixture = TestBed.createComponent(LogsDisplayComponent);
         component = fixture.componentInstance;
+        robotCommunicationService = TestBed.inject(RobotCommunicationService);
         fixture.detectChanges();
     });
 
@@ -20,25 +40,52 @@ describe('LogsDisplayComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should call addLogToTerminal every 3 seconds', fakeAsync(() => {
-        const addLogSpy = spyOn(component, 'addLogToTerminal');
+    it('should subscribe to clearLogsEvent on init', () => {
+        spyOn(component, 'clearLogs');
+        component.ngOnInit();
+        clearLogsEvent.next(); // Emit the event
+        expect(component.clearLogs).toHaveBeenCalled();
+    });
 
-        component.startLogSimulation();
-        tick(3000);
-
-        expect(addLogSpy).toHaveBeenCalled();
-
-        discardPeriodicTasks();
-    }));
+    it('should subscribe to onLog on AfterViewInit', () => {
+        component.ngAfterViewInit();
+        expect(robotCommunicationService.onLog).toHaveBeenCalled();
+    });
 
     it('should add a log to the terminal', () => {
         const terminalElement = fixture.nativeElement.querySelector('div');
 
         const testLog = 'Test log entry';
-        component.addLogToTerminal(terminalElement, testLog);
+        component.addLogToTerminal(testLog);
 
         const logElements = terminalElement.getElementsByTagName('p');
-        expect(logElements.length).toBe(1);
-        expect(logElements[0].textContent).toBe(testLog);
+        expect(logElements.length).toBe(2);
+        expect(logElements[1].textContent).toBe(testLog);
+    });
+
+    it('should clear logs', () => {
+        const terminalElement = fixture.nativeElement.querySelector('div');
+        component.addLogToTerminal('Test log 1');
+        component.addLogToTerminal('Test log 2');
+
+        component.clearLogs();
+
+        const logElements = terminalElement.getElementsByTagName('p');
+        expect(logElements.length).toBe(0);
+    });
+
+    it('should toggle collapse state', () => {
+        expect(component.isCollapsed).toBeTrue();
+        component.toggleCollapse();
+        expect(component.isCollapsed).toBeFalse();
+        component.toggleCollapse();
+        expect(component.isCollapsed).toBeTrue();
+    });
+
+    it('should initialize and subscribe to connection status', () => {
+        spyOn(component, 'clearLogs');
+        component.ngOnInit();
+        clearLogsEvent.next(); // Emit the event
+        expect(component.clearLogs).toHaveBeenCalled();
     });
 });
