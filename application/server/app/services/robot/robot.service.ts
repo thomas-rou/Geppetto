@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
 import { MessageOperation } from '@common/interfaces/MessageOperation';
 import { StartMission } from '@common/interfaces/StartMission';
@@ -17,7 +17,10 @@ export class RobotService {
     private _robotNumber: RobotId;
     private ws: WebSocket;
 
-    constructor(robotIp: string, robotNb: RobotId) {
+    constructor(
+        @Inject('robotIp') robotIp: string,
+        @Inject('robotNb') robotNb: RobotId
+    ) {
         this._robotIp = robotIp;
         this._robotNumber = robotNb;
     }

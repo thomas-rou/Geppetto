@@ -3,7 +3,7 @@ import { EndMission } from '@common/interfaces/EndMission';
 import { StartMission } from '@common/interfaces/StartMission';
 import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
 import { RobotId } from '@common/enums/RobotId';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { SubscriptionServiceService } from '@app/services/subscription-service/subscription-service.service';
@@ -24,7 +24,7 @@ export class MissionCommandGateway {
         private subscriptionService: SubscriptionServiceService,
         private missionService: MissionService,
     ) {
-        this.logger = new LogService(this.server, this.missionService);
+        this.logger = new LogService(this.server, this.missionService, new Logger('MissionCommandGateway'));
     }
 
     async handleDisconnect(client: Socket) {

@@ -20,7 +20,6 @@ export class MissionService {
     }
     async addLogToMission(missionId: string, log: LogMessage): Promise<void> {
         try {
-            // this.logger.log(`Adding log to mission ${missionId}`);
             await this.missionModel.updateOne({ id: missionId }, { $push: { logs: log } });
         } catch (err) {
             return Promise.reject(`Failed to add log to mission ${missionId}`);
