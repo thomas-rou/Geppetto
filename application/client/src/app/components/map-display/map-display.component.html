@@ -5,9 +5,7 @@
     </h2>
     <div class="map-container">
         <div id="map-display">
-        @if (!isCollapsed) {
-            <canvas #mapCanvas></canvas>
-        }
+            <canvas *ngIf="!isCollapsed" #mapCanvas></canvas>
         </div>
     </div>
 </section>
