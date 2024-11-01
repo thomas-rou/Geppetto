@@ -9,3 +9,10 @@
         border-radius: 8px;
     }
 }
+
+canvas {
+    image-rendering: pixelated;
+    width: 100%;
+    height: auto;
+    margin-top: 10px;
+}
