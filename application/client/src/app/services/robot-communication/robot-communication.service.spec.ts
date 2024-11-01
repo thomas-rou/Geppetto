@@ -1,12 +1,11 @@
 import { TestBed } from '@angular/core/testing';
+import { RobotCommunicationService } from './robot-communication.service';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
 import { SocketTestHelper } from '@app/classes/socket-test-helper/socket-test-helper';
 import { Socket } from 'socket.io-client';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { RobotId } from '@common/enums/RobotId';
 import { RobotCommand } from '@common/enums/RobotCommand';
-import { RobotCommunicationService } from './robot-communication.service';
-
 class SocketHandlerServiceMock extends SocketHandlerService {
     // Override connect() is required to not actually connect the socket
     // eslint-disable-next-line  @typescript-eslint/no-empty-function
@@ -177,7 +176,7 @@ describe('RobotCommunicationService', () => {
             expect(message).toBe('mission-status');
             done();
         });
-        service.missionStatusSubject.next('mission-status');
+        service['missionStatusSubject'].next('mission-status');
     });
 
     it('should handle onRobotIdentification observable', (done) => {
@@ -185,7 +184,7 @@ describe('RobotCommunicationService', () => {
             expect(message).toBe('robot-identification');
             done();
         });
-        service.robotIdentificationSubject.next('robot-identification');
+        service['robotIdentificationSubject'].next('robot-identification');
     });
 
     it('should handle onCommandError observable', (done) => {
@@ -193,7 +192,7 @@ describe('RobotCommunicationService', () => {
             expect(message).toBe('command-error');
             done();
         });
-        service.commandErrorSubject.next('command-error');
+        service['commandErrorSubject'].next('command-error');
     });
 
     it('should handle onConnectionStatus observable', (done) => {
@@ -201,7 +200,7 @@ describe('RobotCommunicationService', () => {
             expect(status).toBe(true);
             done();
         });
-        service.connectionStatusSubject.next(true);
+        service['connectionStatusSubject'].next(true);
     });
 
     it('handleMissionStatus() should receive connection status', () => {
@@ -210,7 +209,7 @@ describe('RobotCommunicationService', () => {
 
         expect(onSpy).toHaveBeenCalled();
 
-        service.connectionStatusSubject.subscribe((value: boolean) => {
+        service['connectionStatusSubject'].subscribe((value: boolean) => {
             expect(value).toBe(true);
         });
     });
@@ -223,7 +222,7 @@ describe('RobotCommunicationService', () => {
 
         expect(onSpy).toHaveBeenCalled();
 
-        service.missionStatusSubject.subscribe((value: string) => {
+        service['missionStatusSubject'].subscribe((value: string) => {
             expect(value).toBe(message);
         });
     });
@@ -236,7 +235,7 @@ describe('RobotCommunicationService', () => {
 
         expect(onSpy).toHaveBeenCalled();
 
-        service.robotIdentificationSubject.subscribe((value: string) => {
+        service['robotIdentificationSubject'].subscribe((value: string) => {
             expect(value).toBe(message);
         });
     });
@@ -249,7 +248,7 @@ describe('RobotCommunicationService', () => {
 
         expect(onSpy).toHaveBeenCalled();
 
-        service.commandErrorSubject.subscribe((value: string) => {
+        service['commandErrorSubject'].subscribe((value: string) => {
             expect(value).toBe(message);
         });
     });
@@ -260,8 +259,9 @@ describe('RobotCommunicationService', () => {
 
         expect(onSpy).toHaveBeenCalled();
 
-        service.connectionStatusSubject.subscribe((value: boolean) => {
+        service['connectionStatusSubject'].subscribe((value: boolean) => {
             expect(value).toBe(false);
         });
     });
 });
+
