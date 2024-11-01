@@ -7,7 +7,7 @@ import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
     imports: [],
     templateUrl: './map-display.component.html',
     styleUrl: './map-display.component.scss',
-    animations: [collapseExpandAnimation]
+    animations: [collapseExpandAnimation],
 })
 export class MapDisplayComponent {
     isCollapsed = false;

@@ -11,7 +11,7 @@ const bootstrap = async () => {
 
     const config = new DocumentBuilder()
         .setTitle('Cadriciel Serveur : geppetto')
-        .setDescription('Serveur du Système d\'Exploration Multi-Robot: geppetto')
+        .setDescription("Serveur du Système d'Exploration Multi-Robot: geppetto")
         .setVersion('1.0.0')
         .build();
     const document = SwaggerModule.createDocument(app, config);
