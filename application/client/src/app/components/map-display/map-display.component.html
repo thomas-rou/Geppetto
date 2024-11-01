@@ -3,9 +3,11 @@
         <span>Carte d'Exploration</span>
         <span>{{ isCollapsed ? '&#x2b;' : '&#x2212;' }}</span>
     </h2>
-    <div id="map-display">
-    @if (!isCollapsed) {
-        <canvas #mapCanvas></canvas>    
-    }
+    <div class="map-container">
+        <div id="map-display">
+        @if (!isCollapsed) {
+            <canvas #mapCanvas></canvas>
+        }
+        </div>
     </div>
 </section>
