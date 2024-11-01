@@ -47,8 +47,8 @@ robots = [
 boundary_walls = [
     Wall(pose=Pose(x=-WALL_THICKNESS/2,                     z=WALL_HEIGHT),                      size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # west wall
     Wall(pose=Pose(x=-WALL_THICKNESS/2,                   z=WALL_HEIGHT),                      size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # east wall
-    # Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2,                    z=WALL_HEIGHT, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # north wall
-    # Wall(pose=Pose(x=-MAP_WIDTH/2 - WALL_THICKNESS/2, z=WALL_HEIGHT, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # south wall
+    Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2,                    z=WALL_HEIGHT, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # north wall
+    Wall(pose=Pose(x=-MAP_WIDTH/2 - WALL_THICKNESS/2, z=WALL_HEIGHT, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # south wall
 ]
 # fmt: on
 
