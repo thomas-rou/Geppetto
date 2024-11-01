@@ -13,23 +13,31 @@ import { RobotManagementService } from '@app/services/robot-management/robot-man
 })
 export class StartMissionPopupComponent {
     @Output() startSimulationMission = new EventEmitter<{ robot1: Robot; robot2: Robot }>();
+
     @Output() startPhysicalMission = new EventEmitter<{ robot1: Robot; robot2: Robot }>();
+
     @Output() cancelMission = new EventEmitter<void>();
 
     robot1X: number = 0;
+
     robot1Y: number = 0;
+
     robot1Orientation: number = 0.0;
+
     robot2X: number = 0;
+
     robot2Y: number = 0;
+
     robot2Orientation: number = 0.0;
 
-    selectedOption: string = "simulation";
+    selectedOption: string = 'simulation';
 
     constructor(private managementService: RobotManagementService) {}
 
     get robot1() {
         return this.managementService.robot1;
     }
+
     get robot2() {
         return this.managementService.robot2;
     }
@@ -42,10 +50,10 @@ export class StartMissionPopupComponent {
         this.robot2.orientation = this.robot2Orientation;
 
         switch (this.selectedOption) {
-            case "simulation":
+            case 'simulation':
                 this.startSimulationMission.emit();
                 break;
-            case "physical":
+            case 'physical':
                 this.startPhysicalMission.emit();
                 break;
         }

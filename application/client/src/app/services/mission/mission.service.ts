@@ -9,6 +9,7 @@ import { Mission } from '@common/interfaces/Mission';
 })
 export class MissionService {
     private missionType: MissionType;
+
     public missions: Mission[] = [];
 
     constructor(private socketService: SocketHandlerService) {
@@ -21,7 +22,7 @@ export class MissionService {
             await this.handleMissionLogs();
         }
     }
-    
+
     async handleMissionLogs(): Promise<void> {
         return new Promise((resolve) => {
             this.socketService.on(ClientCommand.MissionLogs, (missions: Mission[]) => {

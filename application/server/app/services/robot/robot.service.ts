@@ -58,15 +58,15 @@ export class RobotService {
             this.ws.send(JSON.stringify(subscribeMessage));
             this.logger.log(`Subscription to topic ${topicName} of robot ${this._robotIp}`);
             this.ws.addEventListener('message', (event) => {
-            try {
-                const messageData = JSON.parse(event.data);
-                if (messageData.topic === topicName) {
-                    handleIncomingMessage(messageData);
+                try {
+                    const messageData = JSON.parse(event.data);
+                    if (messageData.topic === topicName) {
+                        handleIncomingMessage(messageData);
+                    }
+                } catch (error) {
+                    this.logger.error(`Error processing message from topic ${topicName}: ${error}`);
                 }
-            } catch (error) {
-                this.logger.error(`Error processing message from topic ${topicName}: ${error}`);
-            }
-        });
+            });
         } catch (error) {
             this.logger.error(`Subscription to ${this._robotIp} failed with error: ${error.message}`);
         }

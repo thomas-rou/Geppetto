@@ -3,10 +3,15 @@ import { RobotId } from '@common/enums/RobotId';
 
 export class Robot {
     private _id: RobotId;
+
     private _name: string;
+
     private _status: string;
+
     private _battery: number;
+
     private _position: Position;
+
     private _orientation: number;
 
     constructor(id: RobotId, name: string, status: string, battery: number, position: Position, orientation: number) {

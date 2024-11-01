@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MapDisplayComponent } from './map-display.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MapDisplayComponent } from './map-display.component';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { of } from 'rxjs';
 import { OccupancyGrid } from '@common/interfaces/LiveMap';
