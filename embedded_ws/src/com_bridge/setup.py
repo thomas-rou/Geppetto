@@ -26,6 +26,7 @@ setup(
             'mission_status_manager = com_bridge.mission_status_manager:main',
             'mission_status_manager_gazebo = com_bridge.mission_status_manager_gazebo:main',
             'map_saver = com_bridge.map_saver:main',
+            'mission_server_gazebo = com_bridge.mission_server_gazebo:main',
         ],
     },
 )
