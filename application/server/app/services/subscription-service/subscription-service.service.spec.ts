@@ -36,7 +36,6 @@ describe('SubscriptionServiceService', () => {
     missionService = module.get<MissionService>(MissionService);
     gateway = new MissionCommandGateway(service, missionService);
 
-    // Mock the RobotService instances
     service.robot1 = {
       subscribeToTopic: jest.fn(),
     } as any;
