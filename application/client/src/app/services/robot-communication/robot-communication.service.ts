@@ -14,6 +14,7 @@ import { RobotCommand } from '@common/enums/RobotCommand';
 import { RobotId } from '@common/enums/RobotId';
 import { RobotStatus } from '@common/interfaces/RobotStatus';
 import { LogMessage } from '@common/interfaces/LogMessage';
+import { OccupancyGrid } from '@common/interfaces/LiveMap';
 
 @Injectable({
     providedIn: 'root',
@@ -24,6 +25,7 @@ export class RobotCommunicationService {
     private commandErrorSubject = new Subject<string>();
     private connectionStatusSubject = new Subject<boolean>();
     private logSubject = new Subject<string>();
+    private liveMapSubject = new Subject<OccupancyGrid>();
 
     constructor(
         public socketService: SocketHandlerService,
@@ -49,6 +51,7 @@ export class RobotCommunicationService {
             this.handleCommandError();
             this.handleRobotStatus();
             this.handleLog();
+            this.handleLiveMap();
         }
     }
 
@@ -75,6 +78,12 @@ export class RobotCommunicationService {
         this.socketService.on('log', (message: LogMessage) => {
             const formattedLog = `[${message.date}] ${message.source} - ${message.log_type}: ${message.message}`;
             this.logSubject.next(formattedLog);
+        });
+    }
+
+    handleLiveMap() {
+        this.socketService.on('liveMap', (message: OccupancyGrid) => {
+            this.liveMapSubject.next(message);
         });
     }
 
@@ -115,6 +124,10 @@ export class RobotCommunicationService {
 
     onLog(): Observable<string> {
         return this.logSubject.asObservable();
+    }
+
+    onLiveMap(): Observable<OccupancyGrid> {
+        return this.liveMapSubject.asObservable();
     }
 
     startMissionRobot(): void {

@@ -7,6 +7,7 @@ import { TopicType } from '@common/enums/TopicType';
 import { RobotId } from '@common/enums/RobotId';
 import { MissionCommandGateway } from '@app/gateways/mission-command/mission-command.gateway';
 import { MissionService } from '../mission/mission.service';
+import { OccupancyGrid } from '@common/interfaces/LiveMap';
 @Injectable()
 export class SubscriptionServiceService {
     public robot1: RobotService;
@@ -22,6 +23,7 @@ export class SubscriptionServiceService {
     async subscribeToTopicRobot1(gateway: MissionCommandGateway) {
         await this.robot1.subscribeToTopic(Topic.mission_status1, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
         await this.robot1.subscribeToTopic(Topic.log_robot1, TopicType.log_message, this.logCallback.bind(gateway));
+        await this.robot1.subscribeToTopic(Topic.map, TopicType.map, this.mapCallback.bind(gateway));
     }
     async subscribeToTopicRobot2(gateway: MissionCommandGateway) {
         await this.robot2.subscribeToTopic(Topic.mission_status2, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
@@ -31,6 +33,7 @@ export class SubscriptionServiceService {
         await this.gazebo.subscribeToTopic(Topic.mission_status1, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
         await this.gazebo.subscribeToTopic(Topic.mission_status2, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
         await this.gazebo.subscribeToTopic(Topic.log_gazebo, TopicType.log_message, this.logCallback.bind(gateway));
+        await this.gazebo.subscribeToTopic(Topic.map, TopicType.map, this.mapCallback.bind(gateway));
     }
 
     async subscribeToTopicRobots(gateway: MissionCommandGateway) {
@@ -47,5 +50,9 @@ export class SubscriptionServiceService {
         const logMessage: LogMessage = message.msg;
         this.server.emit('log', logMessage);
         await this.missionService.addLogToMission(this.missionService.missionId, logMessage);
+    }
+    async mapCallback(message) {
+        const liveMap: OccupancyGrid = message.msg;
+        this.server.emit('liveMap', liveMap);
     }
 }

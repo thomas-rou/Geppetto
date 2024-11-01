@@ -1,5 +1,5 @@
-MAIN_BRANCH="develop"
-echo "EN ATTENTE" > /tmp/.mission_status
+MAIN_BRANCH="feature/explore_on_robot"
+echo "EN ATTENTE" >/tmp/.mission_status
 AUDIO_DEVICE_ID=$(pactl list short sinks | grep "USB_PnP_Audio_Device" | awk '{print $1}')
 pactl set-default-sink $AUDIO_DEVICE_ID
 sudo chown nvidia:nvidia /dev/ttyTHS1 &&
@@ -19,6 +19,8 @@ colcon build
 source install/setup.bash
 cd ~/limo_ws/src/limo_ros2
 ros2 launch limo_bringup limo_start.launch.py &
+cd ~/geppetto/embedded_ws/ && ros2 launch slam_toolbox online_async_launch.py slam_params_file:=mapper_params_online_async.yaml &
+ros2 launch limo_bringup navigation2.launch.py &
 cd ~/geppetto/embedded_ws/
 colcon build
 source install/setup.bash
