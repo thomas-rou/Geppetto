@@ -1,19 +1,12 @@
 .map {
-
-    .map-container {
+    #map-display {
+        color: var(--color-text);
+        height: 100%;
+        background-color: var(--color-background);
         display: flex;
         justify-content: center;
-        background-color: var(--color-background);
+        align-items: center;
         border-radius: 8px;
-        color: var(--color-text);
-
-        #map-display {
-            height: 300px;
-            width: 300px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
     }
 }
 
