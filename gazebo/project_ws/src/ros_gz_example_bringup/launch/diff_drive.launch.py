@@ -41,8 +41,8 @@ from helpers import *
 
 # fmt: off
 boundary_walls = [
-    Wall(pose=Pose(y= MAP_WIDTH/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # west wall
-    Wall(pose=Pose(y=-MAP_WIDTH/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # east wall
+    Wall(pose=Pose(y= MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # west wall
+    Wall(pose=Pose(y=-MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # east wall
     Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # north wall
     Wall(pose=Pose(x=-MAP_WIDTH/2 + WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # south wall
 ]
@@ -89,11 +89,19 @@ def generate_launch_description():
         output="screen",
     )
 
+    map_server = Node(
+        package="com_bridge",
+        executable="map_saver",
+        name="map_saver",
+        output="screen",
+    )
+
     return LaunchDescription(
         [
             gz_sim,
             bridge,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
+            map_server,
         ]
     )

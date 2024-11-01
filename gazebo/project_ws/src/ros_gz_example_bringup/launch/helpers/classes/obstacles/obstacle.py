@@ -53,5 +53,6 @@ class Obstacle(Entity):
         return obstacle_node
 
     @classmethod
-    def check_spawn_kill(cls, obstacle: "Obstacle") -> bool:
+    def check_spawn_kill(cls, obstacle: "Obstacle", skip: bool = False) -> bool:
+        if skip: return
         return super().check_spawn_kill(obstacle)

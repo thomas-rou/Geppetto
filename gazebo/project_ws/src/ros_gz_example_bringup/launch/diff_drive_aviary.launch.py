@@ -36,7 +36,7 @@ from helpers import *
 # Starter entities
 
 # set default sizes to aviary size
-MAP_HEIGHT = MAP_WIDTH = AVIARY_MAP_SIZE
+# MAP_HEIGHT = MAP_WIDTH = AVIARY_MAP_SIZE
 WALL_HEIGHT = AVIARY_WALL_SIZE
 
 robots = [
@@ -45,10 +45,10 @@ robots = [
 
 # fmt: off
 boundary_walls = [
-    Wall(pose=Pose(x=-WALL_THICKNESS/2, y= MAP_WIDTH/2,                    z=WALL_HEIGHT),                      size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # west wall
-    Wall(pose=Pose(x=-WALL_THICKNESS/2, y=-MAP_WIDTH/2,                    z=WALL_HEIGHT),                      size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # east wall
-    Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2,                    z=WALL_HEIGHT, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # north wall
-    Wall(pose=Pose(x=-MAP_WIDTH/2 - WALL_THICKNESS/2, z=WALL_HEIGHT, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # south wall
+    Wall(pose=Pose(x=-WALL_THICKNESS/2,                     z=WALL_HEIGHT),                      size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # west wall
+    Wall(pose=Pose(x=-WALL_THICKNESS/2,                   z=WALL_HEIGHT),                      size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # east wall
+    # Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2,                    z=WALL_HEIGHT, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # north wall
+    # Wall(pose=Pose(x=-MAP_WIDTH/2 - WALL_THICKNESS/2, z=WALL_HEIGHT, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # south wall
 ]
 # fmt: on
 
