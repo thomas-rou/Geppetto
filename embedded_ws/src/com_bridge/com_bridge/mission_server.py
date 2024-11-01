@@ -17,6 +17,8 @@ from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
 from com_bridge.log import LoggerNode
 import os
 
+CALLBACK_PERIOD = 2.0
+
 
 class MissionServer(Node):
     def __init__(self):
@@ -82,9 +84,11 @@ class MissionServer(Node):
         goal = NavigateToPose.Goal()
         goal.pose = goal_msg
 
-        self.get_logger().info(
-            f"Sending goal: x={goal_msg.pose.position.x}, y={goal_msg.pose.position.y}"
+        self.logger.log_message(
+            LogType.INFO,
+            f"Sending goal: x={goal_msg.pose.position.x}, y={goal_msg.pose.position.y}",
         )
+        
         self.action_client.send_goal_async(goal)
 
     def new_missions_callback(self, msg: StartMission):
@@ -101,7 +105,7 @@ class MissionServer(Node):
             self.logger.log_message(
                 LogType.INFO, f"Received new mission for robot {robot_id}"
             )
-            self.timer = self.create_timer(2.0, self.send_goal)
+            self.timer = self.create_timer(CALLBACK_PERIOD, self.send_goal)
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")
 
@@ -119,6 +123,7 @@ class MissionServer(Node):
 
     def stop_robot(self):
         if self.mission_active:
+            self.action_client.cancel_all_goals()
             twist_msg = Twist()
             twist_msg.linear.x = 0.0
             twist_msg.linear.y = 0.0
