@@ -55,7 +55,15 @@ export class MapDisplayComponent implements OnInit {
             for (let x = 0; x < width; x++) {
                 const index = y * width + x;
                 const cellValue = occupancyGrid.data[index];
-                ctx.fillStyle = cellValue === 0 ? 'white' : cellValue === 1 ? 'black' : 'gray';
+                if (cellValue === -1) {
+                    ctx.fillStyle = 'gray';
+                }
+                else if (cellValue === 0) {
+                    ctx.fillStyle = 'white';
+                }
+                else {
+                    ctx.fillStyle = 'black';
+                }
                 ctx.fillRect(x, y, 1, 1);
             }
         }
