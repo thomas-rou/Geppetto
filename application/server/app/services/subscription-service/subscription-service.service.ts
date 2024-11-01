@@ -7,6 +7,7 @@ import { TopicType } from '@common/enums/TopicType';
 import { RobotId } from '@common/enums/RobotId';
 import { MissionCommandGateway } from '@app/gateways/mission-command/mission-command.gateway';
 import { MissionService } from '../mission/mission.service';
+import { OccupancyGrid } from '@common/interfaces/LiveMap';
 @Injectable()
 export class SubscriptionServiceService {
     public robot1: RobotService;
@@ -51,6 +52,7 @@ export class SubscriptionServiceService {
         await this.missionService.addLogToMission(this.missionService.missionId, logMessage);
     }
     async mapCallback(message) {
-        // console.log('mapCallback', message);
+        const liveMap: OccupancyGrid = message.msg;
+        this.server.emit('liveMap', liveMap);
     }
 }
