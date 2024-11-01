@@ -123,7 +123,6 @@ class MissionServer(Node):
 
     def stop_robot(self):
         if self.mission_active:
-            self.action_client.cancel_all_goals()
             twist_msg = Twist()
             twist_msg.linear.x = 0.0
             twist_msg.linear.y = 0.0
