@@ -4,6 +4,8 @@
         <span>{{ isCollapsed ? '&#x2b;' : '&#x2212;' }}</span>
     </h2>
     <div id="map-display">
-        <p>La carte sera ici.</p>
+    @if (!isCollapsed) {
+        <canvas #mapCanvas></canvas>    
+    }
     </div>
 </section>
