@@ -83,7 +83,6 @@ export class RobotCommunicationService {
 
     handleLiveMap() {
         this.socketService.on('liveMap', (message: OccupancyGrid) => {
-            console.log(message);
             this.liveMapSubject.next(message);
         });
     }
