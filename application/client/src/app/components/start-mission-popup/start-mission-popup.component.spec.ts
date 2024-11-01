@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { StartMissionPopupComponent } from './start-mission-popup.component';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
 import { Robot } from '@app/classes/robot/robot';
 import { RobotId } from '@common/enums/RobotId';
 import { RobotState } from '@common/enums/RobotState';
+import { StartMissionPopupComponent } from './start-mission-popup.component';
 
 describe('StartMissionPopupComponent', () => {
     let component: StartMissionPopupComponent;

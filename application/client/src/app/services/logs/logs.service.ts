@@ -1,14 +1,14 @@
 import { Injectable, EventEmitter } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class LogsService {
-  clearLogsEvent: EventEmitter<void> = new EventEmitter();
+    clearLogsEvent: EventEmitter<void> = new EventEmitter();
 
-  constructor() { }
+    constructor() {}
 
-  triggerClearLogs() {
-    this.clearLogsEvent.emit();
-  }
+    triggerClearLogs() {
+        this.clearLogsEvent.emit();
+    }
 }

@@ -15,19 +15,21 @@ import { MissionType } from '@app/enums/MissionType';
     templateUrl: './control-panel.component.html',
     styleUrls: ['./control-panel.component.scss'],
     imports: [CommonModule, StartMissionPopupComponent],
-    animations: [collapseExpandAnimation]
+    animations: [collapseExpandAnimation],
 })
 export class ControlPanelComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription[] = [];
+
     private socketConnected: boolean = false;
 
     showPopup: boolean = false;
+
     isCollapsed = false;
 
     constructor(
         private robotService: RobotCommunicationService,
         private logsService: LogsService,
-        private missionService: MissionService
+        private missionService: MissionService,
     ) {}
 
     ngOnInit(): void {
@@ -51,7 +53,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
 
     verifySocketConnection() {
         if (this.socketConnected) return true;
-        else return false;
+        return false;
     }
 
     startMission() {

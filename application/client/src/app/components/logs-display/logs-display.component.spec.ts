@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { LogsDisplayComponent } from './logs-display.component';
 import { LogsService } from '@app/services/logs/logs.service';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { of, Subject } from 'rxjs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { LogsDisplayComponent } from './logs-display.component';
 
 describe('LogsDisplayComponent', () => {
     let component: LogsDisplayComponent;
@@ -15,19 +15,19 @@ describe('LogsDisplayComponent', () => {
         clearLogsEvent = new Subject<void>();
 
         const logsServiceMock = {
-            clearLogsEvent: clearLogsEvent.asObservable()
+            clearLogsEvent: clearLogsEvent.asObservable(),
         };
 
         const robotCommunicationServiceMock = {
-            onLog: jasmine.createSpy('onLog').and.returnValue(of('Test log'))
+            onLog: jasmine.createSpy('onLog').and.returnValue(of('Test log')),
         };
 
         await TestBed.configureTestingModule({
             imports: [BrowserAnimationsModule, LogsDisplayComponent],
             providers: [
                 { provide: LogsService, useValue: logsServiceMock },
-                { provide: RobotCommunicationService, useValue: robotCommunicationServiceMock }
-            ]
+                { provide: RobotCommunicationService, useValue: robotCommunicationServiceMock },
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(LogsDisplayComponent);

@@ -36,8 +36,8 @@ describe('LogService', () => {
       ],
     }).compile();
 
-    service = module.get<LogService>(LogService);
-  });
+        service = module.get<LogService>(LogService);
+    });
 
   it('should be defined', () => {
     expect(service).toBeDefined();

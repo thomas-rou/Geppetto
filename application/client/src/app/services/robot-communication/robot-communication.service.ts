@@ -21,9 +21,13 @@ import { OccupancyGrid } from '@common/interfaces/LiveMap';
 })
 export class RobotCommunicationService {
     private missionStatusSubject = new Subject<string>();
+
     private robotIdentificationSubject = new Subject<string>();
+
     private commandErrorSubject = new Subject<string>();
+
     private connectionStatusSubject = new Subject<boolean>();
+
     private logSubject = new Subject<string>();
     private liveMapSubject = new Subject<OccupancyGrid>();
 
@@ -34,10 +38,10 @@ export class RobotCommunicationService {
         this.connect();
     }
 
-
     get robot1() {
         return this.robotManagementService.robot1;
     }
+
     get robot2() {
         return this.robotManagementService.robot2;
     }
@@ -169,7 +173,6 @@ export class RobotCommunicationService {
         this.socketService.send(RobotCommand.EndMission, message);
     }
 
-    
     endMissionGazebo(): void {
         const message: EndMission = {
             command: RobotCommand.EndMission,
