@@ -88,11 +88,26 @@ def generate_launch_description():
         ],
         output="screen",
     )
+    
+    battery_node = Node(
+            package="com_bridge",
+            executable="mission_status_manager_gazebo",
+            name="status",
+            output="screen",
+        )
+    mission_node = Node(
+        package="com_bridge",
+        executable="mission_controller",
+        name="mission_controller",
+        output="screen",
+    )
 
     return LaunchDescription(
         [
             gz_sim,
             bridge,
+            mission_node,
+            battery_node,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
         ]
