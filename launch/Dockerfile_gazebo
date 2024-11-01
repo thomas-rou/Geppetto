@@ -35,6 +35,11 @@ RUN pip3 install rosdep
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
 RUN echo "export GZ_VERSION=fortress" >> /root/.bashrc
 
+# INSTALL NAV2 & SLAM 
+RUN apt install ros-humble-navigation2
+RUN apt install ros-humble-nav2-bringup
+RUN apt install ros-humble-slam-toolbox
+
 # Workdir to /lib
 WORKDIR /lib
 
