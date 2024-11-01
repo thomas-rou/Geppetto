@@ -16,15 +16,15 @@ export class SocketTestHelper {
         this.callbacks.get(event)!.push(callback);
     }
 
-    emit(event: string, ...params: any): void {}
+    emit(event: string, ...params: any): void {
+        return;
+    }
 
-  }
+    disconnect(): void {
+        return;
+    }
 
-  disconnect(): void {
-
-  }
-
-  peerSideEmit(event: string, params?: unknown) {
+    peerSideEmit(event: string, params?: unknown) {
         for (const callback of this.callbacks.get(event)!) {
             callback(params);
         }
