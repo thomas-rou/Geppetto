@@ -1,7 +1,6 @@
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
-import { CommonModule } from '@angular/common';
 
 interface MapMetaData {
     width: number;
@@ -22,7 +21,6 @@ interface OccupancyGrid {
 @Component({
     selector: 'app-map-display',
     standalone: true,
-    imports: [CommonModule],
     templateUrl: './map-display.component.html',
     styleUrls: ['./map-display.component.scss'],
     animations: [collapseExpandAnimation]
