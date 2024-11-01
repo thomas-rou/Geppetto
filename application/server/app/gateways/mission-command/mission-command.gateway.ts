@@ -74,13 +74,13 @@ export class MissionCommandGateway {
                 if (command === 'start') await this.missionService.createMission();
                 await this.subscriptionService.robot1[commands[command].method]();
                 await this.subscriptionService.robot2[commands[command].method]();
-                await this.subscriptionService.subscribeToTopicRobots(this);
+                if (command === 'start') await this.subscriptionService.subscribeToTopicRobots(this);
                 this.server.emit('missionStatus', `${commands[command].successMessage} for robots`);
             } else if (targets.includes(RobotId.gazebo)) {
                 await this.logger.logToClient(LogType.INFO, `${commands[command].log} for simulation command received from client`);
                 if (command === 'start') await this.missionService.createMission();
                 await this.subscriptionService.gazebo[commands[command].method]();
-                await this.subscriptionService.subscribeToTopicGazebo(this);
+                if (command === 'start') await this.subscriptionService.subscribeToTopicGazebo(this);
                 this.server.emit('missionStatus', `${commands[command].successMessage} for the simulation`);
             } else {
                 await this.logger.logToClient(LogType.ERROR, 'Invalid mission command');
@@ -133,7 +133,6 @@ export class MissionCommandGateway {
 
     @SubscribeMessage(ClientCommand.MissionLogs)
     async getMissionLogs(client: Socket) {
-
         try {
             await this.logger.logToClient(LogType.INFO, 'Get logs command received from client');
             const logs = await this.missionService.getAllMissions();
@@ -142,5 +141,4 @@ export class MissionCommandGateway {
             await this.logger.logToClient(LogType.ERROR, 'Error in getLogs: ' + e.message);
         }
     }
-
 }

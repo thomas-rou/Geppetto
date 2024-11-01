@@ -93,6 +93,7 @@ def generate_launch_description():
             package="com_bridge",
             executable="mission_status_manager_gazebo",
             name="status",
+            parameters=[{"robot_id": "robot_1"}],
             output="screen",
         )
     mission_node = Node(
