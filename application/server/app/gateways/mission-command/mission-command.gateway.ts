@@ -3,7 +3,7 @@ import { EndMission } from '@common/interfaces/EndMission';
 import { StartMission } from '@common/interfaces/StartMission';
 import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
 import { RobotId } from '@common/enums/RobotId';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { SubscriptionServiceService } from '@app/services/subscription-service/subscription-service.service';
@@ -24,7 +24,7 @@ export class MissionCommandGateway {
         private subscriptionService: SubscriptionServiceService,
         private missionService: MissionService,
     ) {
-        this.logger = new LogService(this.server, this.missionService);
+        this.logger = new LogService(this.server, this.missionService, new Logger('MissionCommandGateway'));
     }
 
     async handleDisconnect(client: Socket) {
@@ -74,13 +74,13 @@ export class MissionCommandGateway {
                 if (command === 'start') await this.missionService.createMission();
                 await this.subscriptionService.robot1[commands[command].method]();
                 await this.subscriptionService.robot2[commands[command].method]();
-                await this.subscriptionService.subscribeToTopicRobots(this);
+                if (command === 'start') await this.subscriptionService.subscribeToTopicRobots(this);
                 this.server.emit('missionStatus', `${commands[command].successMessage} for robots`);
             } else if (targets.includes(RobotId.gazebo)) {
                 await this.logger.logToClient(LogType.INFO, `${commands[command].log} for simulation command received from client`);
                 if (command === 'start') await this.missionService.createMission();
                 await this.subscriptionService.gazebo[commands[command].method]();
-                await this.subscriptionService.subscribeToTopicGazebo(this);
+                if (command === 'start') await this.subscriptionService.subscribeToTopicGazebo(this);
                 this.server.emit('missionStatus', `${commands[command].successMessage} for the simulation`);
             } else {
                 await this.logger.logToClient(LogType.ERROR, 'Invalid mission command');
@@ -113,6 +113,7 @@ export class MissionCommandGateway {
             switch (payload.target) {
                 case RobotId.robot1:
                     await this.logger.logToClient(LogType.INFO, 'Identify robot 1 command received from client');
+                    await this.subscriptionService.robot1.identify();
                     break;
                 case RobotId.robot2:
                     await this.logger.logToClient(LogType.INFO, 'Identify robot 2 command received from client');

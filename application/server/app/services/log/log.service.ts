@@ -1,18 +1,16 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { LogMessage } from '@common/interfaces/LogMessage';
 import { LogType } from '@common/enums/LogType';
 import { MissionService } from '../mission/mission.service';
 
 @Injectable()
 export class LogService {
-    server: any;
     constructor(
-        server: any,
+        @Inject('server') public server: any,
         private missionService: MissionService,
-    ) {
-        this.server = server;
-    }
-    private readonly logger = new Logger(LogService.name);
+        @Inject('Logger') public readonly logger: Logger,
+    ) {}
+
     private buildLogMessage(logType: string, message: string): LogMessage {
         const logMessage: LogMessage = {} as LogMessage;
         logMessage.source = 'Client';

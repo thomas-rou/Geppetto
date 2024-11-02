@@ -4,4 +4,5 @@ export enum TopicType {
     identify_robot = 'common_msgs/msg/IdentifyRobot',
     mission_status = 'common_msgs/msg/MissionStatus',
     log_message = 'common_msgs/msg/LogMessage',
+    map = 'nav_msgs/msg/OccupancyGrid',
 }
