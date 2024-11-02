@@ -23,7 +23,7 @@ CALLBACK_PERIOD = 2.0
 
 class MissionServerGazebo(Node):
     def __init__(self):
-        super().__init__("mission_server_gazebo")
+        super().__init__("mission_server")
         self.declare_parameter("robot_id", "")
         self.robot_id = (
             self.get_parameter("robot_id").get_parameter_value().string_value
@@ -119,6 +119,7 @@ class MissionServerGazebo(Node):
             if self.mission_active:
                 self.stop_robot()
                 self._mission_status = RobotStatus.WAITING
+                self.logger.log_message(LogType.INFO, "Current mission canceled.")
             else:
                 self.logger.log_message(LogType.INFO, "No active mission to cancel.")
             self._mission_status = RobotStatus.WAITING
@@ -142,14 +143,14 @@ class MissionServerGazebo(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    mission_server_gazebo = MissionServerGazebo()
+    mission_server = MissionServerGazebo()
     executor = MultiThreadedExecutor()
-    executor.add_node(mission_server_gazebo)
+    executor.add_node(mission_server)
     try:
         executor.spin()
     finally:
         executor.shutdown()
-        mission_server_gazebo.destroy_node()
+        mission_server.destroy_node()
         rclpy.shutdown()
 
 
