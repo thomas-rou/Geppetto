@@ -1,111 +1,172 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ControlPanelComponent } from './control-panel.component';
-import { RobotCommunicationService } from '@app/services/robot-communication.service';
-import { of, throwError } from 'rxjs';
+import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
+import { LogsService } from '@app/services/logs/logs.service';
+import { MissionService } from '@app/services/mission/mission.service';
+import { of } from 'rxjs';
+import { MissionType } from '@app/enums/MissionType';
+import { RobotId } from '@common/enums/RobotId';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('ControlPanelComponent', () => {
-    let component: ControlPanelComponent;
-    let robotService: jasmine.SpyObj<RobotCommunicationService>;
+  let component: ControlPanelComponent;
+  let fixture: ComponentFixture<ControlPanelComponent>;
+  let robotServiceMock: any;
+  let logsServiceMock: any;
+  let missionServiceMock: any;
+
+beforeEach(async () => {
+    robotServiceMock = {
+        onConnectionStatus: jasmine.createSpy('onConnectionStatus').and.returnValue(of(true)),
+        startMissionRobot: jasmine.createSpy('startMissionRobot'),
+        startMissionGazebo: jasmine.createSpy('startMissionGazebo'),
+        endMissionRobot: jasmine.createSpy('endMissionRobot'),
+        endMissionGazebo: jasmine.createSpy('endMissionGazebo'),
+        identifyRobot: jasmine.createSpy('identifyRobot'),
+        returnToBase: jasmine.createSpy('returnToBase'),
+        updateControllerCode: jasmine.createSpy('updateControllerCode')
+    };
+
+    logsServiceMock = {
+        triggerClearLogs: jasmine.createSpy('triggerClearLogs')
+    };
+
+    missionServiceMock = {
+        setMissionType: jasmine.createSpy('setMissionType'),
+        getMissionType: jasmine.createSpy('getMissionType').and.returnValue(MissionType.Physical)
+    };
+
+    await TestBed.configureTestingModule({
+        imports: [BrowserAnimationsModule],
+        providers: [
+        { provide: RobotCommunicationService, useValue: robotServiceMock },
+        { provide: LogsService, useValue: logsServiceMock },
+        { provide: MissionService, useValue: missionServiceMock }
+        ]
+    }).compileComponents();
+    });
 
     beforeEach(() => {
-        const robotServiceSpy = jasmine.createSpyObj('RobotCommunicationService', [
-            'startMission',
-            'endMission',
-            'returnToBase',
-            'updateControllerCode',
-        ]);
-
-        TestBed.configureTestingModule({
-            imports: [ControlPanelComponent],
-            providers: [{ provide: RobotCommunicationService, useValue: robotServiceSpy }],
-        }).compileComponents();
-
-        const fixture = TestBed.createComponent(ControlPanelComponent);
+        fixture = TestBed.createComponent(ControlPanelComponent);
         component = fixture.componentInstance;
-        robotService = TestBed.inject(RobotCommunicationService) as jasmine.SpyObj<RobotCommunicationService>;
+        fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should start mission successfully', () => {
-        robotService.startMission.and.returnValue(of({}));
-        spyOn(window, 'alert');
+    it('should initialize and subscribe to connection status', () => {
+        component.ngOnInit();
+        expect(robotServiceMock.onConnectionStatus).toHaveBeenCalled();
+    });
 
+    it('should handle key down event and close popup on Escape key', () => {
+        component.showPopup = true;
+        const event = new KeyboardEvent('keydown', { key: 'Escape' });
+        component.handleKeyDown(event);
+        expect(component.showPopup).toBeFalse();
+    });
+
+    it('should toggle collapse state', () => {
+        component.isCollapsed = false;
+        component.toggleCollapse();
+        expect(component.isCollapsed).toBeTrue();
+    });
+
+    it('should verify socket connection', () => {
+        component['socketConnected'] = true;
+        expect(component.verifySocketConnection()).toBeTrue();
+    });
+
+    it('should start mission and show popup if socket is connected', () => {
+        component['socketConnected'] = true;
         component.startMission();
-
-        expect(robotService.startMission).toHaveBeenCalledWith('north', { x: 0, y: 0 });
-        expect(window.alert).toHaveBeenCalledWith('Mission started!');
+        expect(component.showPopup).toBeTrue();
     });
 
-    it('should handle error when starting mission', () => {
-        robotService.startMission.and.returnValue(throwError('error'));
-        spyOn(console, 'error');
-
-        component.startMission();
-
-        expect(robotService.startMission).toHaveBeenCalledWith('north', { x: 0, y: 0 });
-        expect(console.error).toHaveBeenCalledWith('Error starting mission', 'error');
+    it('should start physical mission', () => {
+        component.onPhysicalMissionStart();
+        expect(robotServiceMock.startMissionRobot).toHaveBeenCalled();
+        expect(missionServiceMock.setMissionType).toHaveBeenCalledWith(MissionType.Physical);
+        expect(logsServiceMock.triggerClearLogs).toHaveBeenCalled();
     });
 
-    it('should stop mission successfully', () => {
-        robotService.endMission.and.returnValue(of({}));
-        spyOn(window, 'alert');
+    it('should start simulation mission', () => {
+        component.onSimulationMissionStart();
+        expect(robotServiceMock.startMissionGazebo).toHaveBeenCalled();
+        expect(missionServiceMock.setMissionType).toHaveBeenCalledWith(MissionType.Simulation);
+        expect(logsServiceMock.triggerClearLogs).toHaveBeenCalled();
+    });
 
+    it('should cancel mission and hide popup', () => {
+        component.showPopup = true;
+        component.onCancel();
+        expect(component.showPopup).toBeFalse();
+    });
+
+    it('should stop mission based on mission type', () => {
         component.stopMission();
-
-        expect(robotService.endMission).toHaveBeenCalled();
-        expect(window.alert).toHaveBeenCalledWith('Mission stopped!');
+        expect(robotServiceMock.endMissionRobot).toHaveBeenCalled();
     });
 
-    it('should handle error when stopping mission', () => {
-        robotService.endMission.and.returnValue(throwError('error'));
-        spyOn(console, 'error');
-
-        component.stopMission();
-
-        expect(robotService.endMission).toHaveBeenCalled();
-        expect(console.error).toHaveBeenCalledWith('Error stopping mission', 'error');
+    it('should identify robot if socket is connected', () => {
+        component['socketConnected'] = true;
+        component.identifyRobot(RobotId.robot1);
+        expect(robotServiceMock.identifyRobot).toHaveBeenCalledWith(RobotId.robot1);
     });
 
-    it('should return home successfully', () => {
-        robotService.returnToBase.and.returnValue(of({}));
-        spyOn(window, 'alert');
-
+    it('should return home if socket is connected', () => {
+        component['socketConnected'] = true;
         component.returnHome();
-
-        expect(robotService.returnToBase).toHaveBeenCalled();
-        expect(window.alert).toHaveBeenCalledWith('Returning home!');
+        expect(robotServiceMock.returnToBase).toHaveBeenCalled();
     });
 
+    it('should update software if socket is connected', () => {
+        component['socketConnected'] = true;
+        component.updateSoftware();
+        expect(robotServiceMock.updateControllerCode).toHaveBeenCalledWith('new code here');
+    });
+
+    it('should unsubscribe from all subscriptions on destroy', () => {
+        const subscription = jasmine.createSpyObj('Subscription', ['unsubscribe']);
+        component['subscriptions'] = [subscription];
+        component.ngOnDestroy();
+        expect(subscription.unsubscribe).toHaveBeenCalled();
+    });
+
+    it('should return false when socket is not connected', () => {
+        component['socketConnected'] = false;
+        expect(component.verifySocketConnection()).toBeFalse();
+    });
+    
+    it('should stop simulation mission', () => {
+        missionServiceMock.getMissionType.and.returnValue(MissionType.Simulation);
+        component.stopMission();
+        expect(robotServiceMock.endMissionGazebo).toHaveBeenCalled();
+    });
+    
+    it('should handle error when identifying robot', () => {
+        component['socketConnected'] = true;
+        robotServiceMock.identifyRobot.and.throwError('Error identifying robot');
+        spyOn(console, 'error');
+        component.identifyRobot(RobotId.robot1);
+        expect(console.error).toHaveBeenCalledWith('Error identifying robot', jasmine.any(Error));
+    });
+    
     it('should handle error when returning home', () => {
-        robotService.returnToBase.and.returnValue(throwError('error'));
+        component['socketConnected'] = true;
+        robotServiceMock.returnToBase.and.throwError('Error identifying robot');
         spyOn(console, 'error');
-
         component.returnHome();
-
-        expect(robotService.returnToBase).toHaveBeenCalled();
-        expect(console.error).toHaveBeenCalledWith('Error returning home', 'error');
+        expect(console.error).toHaveBeenCalledWith('Error identifying robot', jasmine.any(Error));
     });
-
-    it('should update software successfully', () => {
-        robotService.updateControllerCode.and.returnValue(of({}));
-        spyOn(window, 'alert');
-
-        component.updateSoftware();
-
-        expect(robotService.updateControllerCode).toHaveBeenCalledWith('new code here');
-        expect(window.alert).toHaveBeenCalledWith('Software updated!');
-    });
-
+    
     it('should handle error when updating software', () => {
-        robotService.updateControllerCode.and.returnValue(throwError('error'));
+        component['socketConnected'] = true;
+        robotServiceMock.updateControllerCode.and.throwError('Error identifying robot');
         spyOn(console, 'error');
-
         component.updateSoftware();
-
-        expect(robotService.updateControllerCode).toHaveBeenCalledWith('new code here');
-        expect(console.error).toHaveBeenCalledWith('Error updating software', 'error');
+        expect(console.error).toHaveBeenCalledWith('Error identifying robot', jasmine.any(Error));
     });
 });

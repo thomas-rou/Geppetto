@@ -1,29 +1,42 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
-import { EndMissionRequest, RobotRequest, StartMissionRequest, MessageOperation } from '@common/interfaces/request.interface';
-import { Command, Operation, Topic, TopicType } from '@common/enums/SocketsEvents';
+import { MessageOperation } from '@common/interfaces/MessageOperation';
+import { StartMission } from '@common/interfaces/StartMission';
+import { EndMission } from '@common/interfaces/EndMission';
+import { RobotCommand } from '@common/enums/RobotCommand';
+import { Operation } from '@common/enums/Operation';
+import { Topic } from '@common/enums/Topic';
+import { TopicType } from '@common/enums/TopicType';
+import { RobotId } from '@common/enums/RobotId';
+import { BasicCommand } from '@common/interfaces/BasicCommand';
 
 @Injectable()
 export class RobotService {
     private readonly logger: Logger = new Logger(RobotService.name);
-    private robotIp: string;
+    private _robotIp: string;
+    private _robotNumber: RobotId;
     private ws: WebSocket;
-    constructor(robotIp: string) {
-        this.robotIp = robotIp;
-        this.connect();
+
+    constructor(
+        @Inject('robotIp') robotIp: string,
+        @Inject('robotNb') robotNb: RobotId
+    ) {
+        this._robotIp = robotIp;
+        this._robotNumber = robotNb;
     }
 
     async connect() {
         return new Promise<void>((resolve, reject) => {
-            this.ws = new WebSocket(`ws://${this.robotIp}:${process.env.ROS_BRIDGING_PORT}`);
+            this.ws = new WebSocket(`ws://${this._robotIp}:${process.env.ROS_BRIDGING_PORT}`);
 
             this.ws.onopen = () => {
-                this.logger.log(`Connection established to robot ${this.robotIp}`);
+                this.logger.log(`Connection established to robot ${this._robotIp}`);
                 resolve();
             };
 
             this.ws.onerror = (error) => {
                 this.logger.error(`WebSocket error: ${error.message}`);
+                reject(error);
             };
 
             this.ws.onclose = () => {
@@ -32,76 +45,87 @@ export class RobotService {
         });
     }
 
-    async subscribeToTopic(topicName: Topic, topicType: TopicType) {
-        if (this.ws.readyState === WebSocket.CLOSED) {
-            try {
+    async subscribeToTopic(topicName: Topic, topicType: TopicType, handleIncomingMessage: (message) => void) {
+        try {
+            if (this.ws.readyState !== WebSocket.OPEN) {
                 await this.connect();
-            } catch (error) {
-                this.logger.error(`Error connecting to robot ${this.robotIp}`);
-                return;
             }
+            const subscribeMessage: MessageOperation = {
+                op: Operation.subscribe,
+                topic: topicName,
+                type: topicType,
+            };
+            this.ws.send(JSON.stringify(subscribeMessage));
+            this.logger.log(`Subscription to topic ${topicName} of robot ${this._robotIp}`);
+            this.ws.addEventListener('message', (event) => {
+                try {
+                    const messageData = JSON.parse(event.data);
+                    if (messageData.topic === topicName) {
+                        handleIncomingMessage(messageData);
+                    }
+                } catch (error) {
+                    this.logger.error(`Error processing message from topic ${topicName}: ${error}`);
+                }
+            });
+        } catch (error) {
+            this.logger.error(`Subscription to ${this._robotIp} failed with error: ${error.message}`);
         }
-
-        const subscribeMessage: MessageOperation = {
-            op: Operation.subscribe,
-            topic: topicName,
-            type: topicType,
-        };
-        this.ws.send(JSON.stringify(subscribeMessage));
-        this.logger.log(`Subscription to topic ${topicName} of robot ${this.robotIp}`);
     }
 
-    async publishToTopic(topicName: Topic, topicType: TopicType, message: RobotRequest) {
-        if (this.ws.readyState === WebSocket.CLOSED) {
-            try {
+    async publishToTopic(topicName: Topic, topicType: TopicType, message: BasicCommand) {
+        try {
+            if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
                 await this.connect();
-            } catch (error) {
-                this.logger.error(`Error connecting to robot ${this.robotIp}`);
-                return;
             }
+            const publishMessage: MessageOperation = {
+                op: Operation.publish,
+                topic: topicName,
+                type: topicType,
+                msg: message,
+            };
+            this.ws.send(JSON.stringify(publishMessage));
+            this.logger.log(`Publish message to topic ${topicName} of robot ${this._robotIp}:`);
+        } catch (error) {
+            this.logger.error(`Publish to ${this._robotIp} failed with error: ${error.message}`);
         }
-        const publishMessage: MessageOperation = {
-            op: Operation.publish,
-            topic: topicName,
-            type: topicType,
-            msg: message,
-        };
-        this.ws.send(JSON.stringify(publishMessage));
-        this.logger.log(`Publish message to topic ${topicName} of robot ${this.robotIp}:`);
     }
 
-    // TODO: send real info comming from Frontend, to do so, needs parameters for this function and the one under
-    startMission() {
-        this.publishToTopic(Topic.start_mission, TopicType.start_mission, {
-            command: Command.StartMission,
+    async startMission() {
+        await this.publishToTopic(Topic.start_mission, TopicType.start_mission, {
+            command: RobotCommand.StartMission,
             mission_details: {
-                orientation: 0.0,
-                position: {
+                orientation1: 0.0,
+                position1: {
+                    x: 0.0,
+                    y: 0.0,
+                },
+                orientation2: 0.0,
+                position2: {
                     x: 0.0,
                     y: 0.0,
                 },
             },
             timestamp: new Date().toISOString(),
-        } as StartMissionRequest);
+        } as StartMission);
     }
 
-    stopMission() {
-        this.publishToTopic(Topic.stop_mission, TopicType.stop_mission, {
-            command: Command.EndMission,
+    async stopMission() {
+        await this.publishToTopic(Topic.stop_mission, TopicType.stop_mission, {
+            command: RobotCommand.EndMission,
             timestamp: new Date().toISOString(),
-        } as EndMissionRequest);
+        } as EndMission);
     }
 
-    identify(target: '1' | '2') {
+    async identify() {
         var topicCommand;
-        if (target === '1') {
+        if (this._robotNumber == RobotId.robot1) {
             topicCommand = Topic.identify_command1;
-        } else if (target === '2') {
+        } else if (this._robotNumber == RobotId.robot2) {
             topicCommand = Topic.identify_command2;
         }
-        this.publishToTopic(topicCommand, TopicType.identify_robot, {
-            command: Command.Identify,
+        await this.publishToTopic(topicCommand, TopicType.identify_robot, {
+            command: RobotCommand.IdentifyRobot,
             timestamp: new Date().toISOString(),
-        } as RobotRequest);
+        } as BasicCommand);
     }
 }

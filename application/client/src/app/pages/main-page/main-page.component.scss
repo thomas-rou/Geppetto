@@ -83,16 +83,23 @@ span{
 }
 
 span:hover::before {
-    top: -475px;
-    transform: scale(0.3);
     position: absolute;
     opacity: 0;
     animation: crownAppear 4s forwards;
 }
 
 #css-king:hover::before {
-    content: url('../../../assets/css-king.png');;
-    left: -280px;
+    content: url('../../../assets/css-king.png');
+    left: -290px;
+    top: -475px;
+    transform: scale(0.3);
+}
+
+#gazebo-king:hover::before {
+    content: url('../../../assets/gazebo-king.png');
+    left: -55px;
+    top: -260px;
+    transform: scale(0.77);
 }
 
 @keyframes crownAppear {

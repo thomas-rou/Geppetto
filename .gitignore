@@ -1,6 +1,6 @@
-#ignoring .vscode folder but we keep some files for debuging
-/.vscode/chrome
-/.vs/
+#.vscode folder
+**/.vs/
+**/.vscode/
 
 application/package-lock.json
 .DS_Store
@@ -11,7 +11,10 @@ application/package-lock.json
 # Node Modules
 **/node_modules/
 
+.idea/
+
 # Build
 embedded_ws/build
 embedded_ws/install
 embedded_ws/log
+dockerfiles/.env

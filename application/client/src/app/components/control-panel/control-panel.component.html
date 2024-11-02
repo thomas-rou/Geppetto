@@ -1,9 +1,18 @@
-<section class="control-panel">
-    <h2>Panneau de Commande</h2>
+<section class="control-panel" [@collapseExpand]="isCollapsed ? 'collapsed' : 'expanded'">
+    <h2 (click)="toggleCollapse()">
+        <span>Panneau de Commande</span>
+        <span>{{ isCollapsed ? '&#x2b;' : '&#x2212;' }}</span>
+    </h2>
     <div class="controls">
         <button id="start-mission" (click)="startMission()">Lancer la Mission</button>
         <button id="stop-mission" (click)="stopMission()">Arrêter la Mission</button>
         <button id="return-home" (click)="returnHome()">Retour à la Maison</button>
         <button id="update-software" (click)="updateSoftware()">Mettre à Jour</button>
     </div>
+    <app-start-mission-popup
+        *ngIf="showPopup && !isCollapsed"
+        (startPhysicalMission)="onPhysicalMissionStart()"
+        (startSimulationMission)="onSimulationMissionStart()"
+        (cancelMission)="onCancel()"
+    ></app-start-mission-popup>
 </section>

@@ -1,84 +1,110 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, HostListener } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
+import { LogsService } from '@app/services/logs/logs.service';
 import { Subscription } from 'rxjs';
-import { NotificationService } from '../../services/notification.service';
+import { StartMissionPopupComponent } from '@app/components/start-mission-popup/start-mission-popup.component';
+import { RobotId } from '@common/enums/RobotId';
+import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
+import { MissionService } from '@app/services/mission/mission.service';
+import { MissionType } from '@app/enums/MissionType';
 
 @Component({
     selector: 'app-control-panel',
     standalone: true,
     templateUrl: './control-panel.component.html',
     styleUrls: ['./control-panel.component.scss'],
+    imports: [CommonModule, StartMissionPopupComponent],
+    animations: [collapseExpandAnimation],
 })
 export class ControlPanelComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription[] = [];
+
     private socketConnected: boolean = false;
 
-    constructor(private robotService: RobotCommunicationService, private notificationService: NotificationService) {}
+    showPopup: boolean = false;
+
+    isCollapsed = false;
+
+    constructor(
+        private robotService: RobotCommunicationService,
+        private logsService: LogsService,
+        private missionService: MissionService,
+    ) {}
 
     ngOnInit(): void {
         this.subscriptions.push(
-                this.robotService.onMissionStatus().subscribe((message) => {
-                    this.notificationService.sendNotification(message);
-                }),
-                this.robotService.onRobotIdentification().subscribe((message) => {
-                    this.notificationService.sendNotification(message);
-                }),
-                this.robotService.onCommandError().subscribe((message) => {
-                    this.notificationService.sendNotification(`Error: ${message}`);
-                }),
-                
-                this.robotService.onConnectionStatus().subscribe((isConnected) => {
-                if (isConnected)
-                    console.log('WebSocket is connected')
-                else
-                    console.log('WebSocket is disconnected');
+            this.robotService.onConnectionStatus().subscribe((isConnected) => {
                 this.socketConnected = isConnected;
-            })
+            }),
         );
     }
 
+    @HostListener('window:keydown', ['$event'])
+    handleKeyDown(event: KeyboardEvent) {
+        if (event.key === 'Escape') {
+            this.showPopup = false;
+        }
+    }
+
+    toggleCollapse() {
+        this.isCollapsed = !this.isCollapsed;
+    }
+
     verifySocketConnection() {
-        if(this.socketConnected)
-            return true;
-        else 
-            this.notificationService.sendNotification("No socket connection has been established");
+        if (this.socketConnected) return true;
         return false;
     }
 
     startMission() {
-        if(this.verifySocketConnection()) {
-            try {
-                this.robotService.startMission(0, { x: 0, y: 0 });
-            } catch (error) {
-                console.error('Error starting mission', error);
-            }
+        if (this.verifySocketConnection()) {
+            this.showPopup = true;
         }
+    }
+
+    onPhysicalMissionStart() {
+        this.showPopup = false;
+        this.robotService.startMissionRobot();
+        this.missionService.setMissionType(MissionType.Physical);
+        this.logsService.triggerClearLogs();
+    }
+
+    onSimulationMissionStart() {
+        this.showPopup = false;
+        this.robotService.startMissionGazebo();
+        this.missionService.setMissionType(MissionType.Simulation);
+        this.logsService.triggerClearLogs();
+    }
+
+    onCancel() {
+        this.showPopup = false;
     }
 
     stopMission() {
-        if(this.verifySocketConnection()) {
-            try {
-                this.robotService.endMission();
-            } catch (error) {
-                console.error('Error stopping mission', error);
-            }
+        switch (this.missionService.getMissionType()) {
+            case MissionType.Physical:
+                this.robotService.endMissionRobot();
+                break;
+            case MissionType.Simulation:
+                this.robotService.endMissionGazebo();
+                break;
         }
     }
 
-    identifyRobot(target: '1' | '2') {
-        if(this.verifySocketConnection()) {
+    identifyRobot(target: RobotId) {
+        if (this.verifySocketConnection()) {
             try {
                 this.robotService.identifyRobot(target);
             } catch (error) {
                 console.error('Error identifying robot', error);
-            } 
+            }
         }
     }
 
     returnHome() {
-        if(this.verifySocketConnection()) {
+        if (this.verifySocketConnection()) {
             try {
-                this.robotService.returnToBase;
+                this.robotService.returnToBase();
             } catch (error) {
                 console.error('Error identifying robot', error);
             }
@@ -86,12 +112,12 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     }
 
     updateSoftware() {
-        if(this.verifySocketConnection()) {
+        if (this.verifySocketConnection()) {
             try {
                 this.robotService.updateControllerCode('new code here');
             } catch (error) {
                 console.error('Error identifying robot', error);
-            } 
+            }
         }
     }
 
