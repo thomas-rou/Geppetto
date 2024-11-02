@@ -2,6 +2,7 @@ import rclpy
 import math
 from rclpy.node import Node
 from geometry_msgs.msg import Twist, PoseStamped
+from std_msgs.msg import Bool
 from common_msgs.msg import StartMission, StopMission
 from rclpy.executors import MultiThreadedExecutor
 from nav2_msgs.action import NavigateToPose
@@ -20,9 +21,9 @@ import os
 CALLBACK_PERIOD = 2.0
 
 
-class MissionServer(Node):
+class MissionServerGazebo(Node):
     def __init__(self):
-        super().__init__("mission_server")
+        super().__init__("mission_server_gazebo")
         self.declare_parameter("robot_id", "")
         self.robot_id = (
             self.get_parameter("robot_id").get_parameter_value().string_value
@@ -34,6 +35,7 @@ class MissionServer(Node):
         )
 
         self.action_client = ActionClient(self, NavigateToPose, "navigate_to_pose")
+        self.start_mission_publisher = self.create_publisher(Bool, 'explore/resume', 10)
 
         # Subscription pour démarrer et arrêter les missions
         self.start_mission_subscription = self.create_subscription(
@@ -105,14 +107,16 @@ class MissionServer(Node):
             self.logger.log_message(
                 LogType.INFO, f"Received new mission for robot {robot_id}"
             )
-            self.timer = self.create_timer(CALLBACK_PERIOD, self.send_goal)
+            msg = Bool()
+            msg.data = True
+            self.start_mission_publisher.publish(msg)
+            
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")
 
     def stop_mission_callback(self, msg: StopMission):
         try:
             if self.mission_active:
-                self.destroy_timer(self.timer)
                 self.stop_robot()
                 self._mission_status = RobotStatus.WAITING
             else:
@@ -123,6 +127,9 @@ class MissionServer(Node):
 
     def stop_robot(self):
         if self.mission_active:
+            msg = Bool()
+            msg.data = False
+            self.start_mission_publisher.publish(msg)
             twist_msg = Twist()
             twist_msg.linear.x = 0.0
             twist_msg.linear.y = 0.0
@@ -135,14 +142,14 @@ class MissionServer(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    mission_server = MissionServer()
+    mission_server_gazebo = MissionServerGazebo()
     executor = MultiThreadedExecutor()
-    executor.add_node(mission_server)
+    executor.add_node(mission_server_gazebo)
     try:
         executor.spin()
     finally:
         executor.shutdown()
-        mission_server.destroy_node()
+        mission_server_gazebo.destroy_node()
         rclpy.shutdown()
 
 

@@ -1,4 +1,4 @@
-MAIN_BRANCH="feature/explore_on_robot"
+MAIN_BRANCH="feat/start_sim_from_interface"
 echo "EN ATTENTE" >/tmp/.mission_status
 AUDIO_DEVICE_ID=$(pactl list short sinks | grep "USB_PnP_Audio_Device" | awk '{print $1}')
 pactl set-default-sink $AUDIO_DEVICE_ID
@@ -26,4 +26,7 @@ colcon build
 source install/setup.bash
 ros2 launch com_bridge com_bridge_launch.py &
 source install/setup.bash
-ros2 run rosbridge_server rosbridge_websocket
+ros2 run rosbridge_server rosbridge_websocket &
+source install/setup.bash
+ros2 launch explore_lite explore.launch.py &
+ros2 topic pub /explore/resume std_msgs/msg/Bool "{data: false}" --once
