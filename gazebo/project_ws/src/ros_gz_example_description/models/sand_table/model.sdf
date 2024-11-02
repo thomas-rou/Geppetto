@@ -7,7 +7,7 @@
                 <geometry>
                     <mesh>
                         <uri>package://ros_gz_example_description/models/sand_table/meshes/sand_table.stl</uri>
-                        <scale>2 2 2</scale>
+                        <scale>{scale_x} {scale_y} 1</scale>
                     </mesh>
                 </geometry>
             </collision>
@@ -16,7 +16,7 @@
                 <geometry>
                     <mesh>
                         <uri>package://ros_gz_example_description/models/sand_table/meshes/sand_table.dae</uri>
-                        <scale>2 2 2</scale>
+                        <scale>{scale_x} {scale_y} 1</scale>
                     </mesh>
                 </geometry>
             </visual>

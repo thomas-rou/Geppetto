@@ -45,14 +45,14 @@ robots = [
 
 # fmt: off
 boundary_walls = [
-    Wall(pose=Pose(x=-WALL_THICKNESS/2,                     z=WALL_HEIGHT),                      size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # west wall
-    Wall(pose=Pose(x=-WALL_THICKNESS/2,                   z=WALL_HEIGHT),                      size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # east wall
-    Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2,                    z=WALL_HEIGHT, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # north wall
-    Wall(pose=Pose(x=-MAP_WIDTH/2 - WALL_THICKNESS/2, z=WALL_HEIGHT, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # south wall
+    Wall(pose=Pose(y= MAP_HEIGHT/2,                    z=WALL_HEIGHT),  size=Size(x=MAP_WIDTH,  z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # west wall
+    Wall(pose=Pose(y=-MAP_HEIGHT/2,                    z=WALL_HEIGHT),  size=Size(x=MAP_WIDTH,  z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # east wall
+    Wall(pose=Pose(x= MAP_WIDTH/2, yaw=HORIZONTAL_YAW, z=WALL_HEIGHT),  size=Size(x=MAP_HEIGHT, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # north wall
+    Wall(pose=Pose(x=-MAP_WIDTH/2, yaw=HORIZONTAL_YAW, z=WALL_HEIGHT),  size=Size(x=MAP_HEIGHT, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # south wall
 ]
 # fmt: on
 
-sand_table = Sand_Table()
+sand_table = Sand_Table(size=Size(MAP_WIDTH, MAP_HEIGHT))
 
 
 def generate_launch_description():
@@ -76,7 +76,7 @@ def generate_launch_description():
     )
 
     # Spawn random wall obstacles
-    # Wall.generate_random_wall_obstacles(N_WALL_OBSTACLES)
+    Wall.generate_random_wall_obstacles(N_WALL_OBSTACLES)
 
     # Bridge ROS topics and Gazebo messages for establishing communication
     bridge = Node(
@@ -95,11 +95,19 @@ def generate_launch_description():
         output="screen",
     )
 
+    map_server = Node(
+        package="com_bridge",
+        executable="map_saver",
+        name="map_saver",
+        output="screen",
+    )
+
     return LaunchDescription(
         [
             gz_sim,
             bridge,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
+            map_server
         ]
     )

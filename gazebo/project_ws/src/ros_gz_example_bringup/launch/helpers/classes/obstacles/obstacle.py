@@ -24,6 +24,9 @@ class Obstacle(Entity):
         obstacle_desc = obstacle_desc.replace("{size_x}", str(self.size.x))
         obstacle_desc = obstacle_desc.replace("{size_y}", str(self.size.y))
         obstacle_desc = obstacle_desc.replace("{size_z}", str(self.size.z))
+        obstacle_desc = obstacle_desc.replace("{scale_x}", str(self.scale.x))
+        obstacle_desc = obstacle_desc.replace("{scale_y}", str(self.scale.y))
+
 
         obstacle_node = Node(
             package="ros_gz_sim",
@@ -56,3 +59,7 @@ class Obstacle(Entity):
     def check_spawn_kill(cls, obstacle: "Obstacle", skip: bool = False) -> bool:
         if skip: return
         return super().check_spawn_kill(obstacle)
+    
+    @classmethod
+    def bypass_spawn_kill(cls, obstacle: "Obstacle") -> bool:
+        return super().bypass_spawn_kill(obstacle)
