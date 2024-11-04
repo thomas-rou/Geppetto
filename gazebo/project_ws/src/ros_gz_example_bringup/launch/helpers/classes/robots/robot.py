@@ -20,7 +20,7 @@ class Robot(Entity):
         self.build_entity(pose, size)
         self.index = Robot.get_id()
         self.spawn_robot()
-        self.activate_status_simulation()
+        # self.activate_status_simulation()
 
     @staticmethod
     def get_id() -> int:
@@ -42,7 +42,7 @@ class Robot(Entity):
         robot_state_publisher = Node(
             package="robot_state_publisher",
             executable="robot_state_publisher",
-            name=f"robot_state_publisher{self.index}",
+            name=f"robot_state_publisher",
             output="both",
             parameters=[
                 {"use_sim_time": True},
@@ -64,9 +64,9 @@ class Robot(Entity):
             output="screen",
             arguments=[
                 "-topic",
-                f"/robot_description{self.index}",
+                f"/robot_description",
                 "-name",
-                f"limo_diff_drive{self.index}",
+                f"limo_diff_drive",
                 "-x",
                 str(self.pose.x),
                 "-y",
@@ -82,7 +82,7 @@ class Robot(Entity):
             ],
         )
 
-        # Entity.spawned_entities_nodes.append(robot_node)
+        Entity.spawned_entities_nodes.append(robot_node)
         return robot_node
 
     @classmethod

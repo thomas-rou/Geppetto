@@ -35,9 +35,9 @@ from helpers import *
 
 # Starter entities
 
-# robots = [
-#     Robot(name=name, pose=pose) for name, pose in zip(ROBOT_NAMES, ROBOT_STARTER_POSES)
-# ]
+robots = [
+    Robot(name=name, pose=pose) for name, pose in zip(ROBOT_NAMES, ROBOT_STARTER_POSES)
+]
 
 # fmt: off
 boundary_walls = [
