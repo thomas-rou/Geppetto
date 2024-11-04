@@ -51,8 +51,8 @@ describe('RobotCommunicationService', () => {
         expect(service.robot2).toEqual(robotManagementService.robot2);
     });
 
-    it('should emit startMission for robot and simulation', () => {
-        service.startMission();
+    it('should emit startMissionRobot for robot and simulation', () => {
+        service.startMissionRobot();
         expect(sendSpy).toHaveBeenCalledWith(RobotCommand.StartMission, {
             command: RobotCommand.StartMission,
             target: [RobotId.robot1, RobotId.robot2],
@@ -64,7 +64,10 @@ describe('RobotCommunicationService', () => {
             },
             timestamp: jasmine.any(String),
         });
-    
+    });
+
+    it('should emit startMissionGazebo for robot and simulation', () => {
+        service.startMissionGazebo();
         expect(sendSpy).toHaveBeenCalledWith('start_mission', {
             command: 'start_mission',
             target: [RobotId.gazebo],
@@ -78,13 +81,17 @@ describe('RobotCommunicationService', () => {
         });
     });
 
-    it('should emit endMission for robot and simulation', () => {
-        service.endMission();
+    it('should emit endMissionGazebo for simulation', () => {
+        service.endMissionRobot();
         expect(sendSpy).toHaveBeenCalledWith(RobotCommand.EndMission, {
             command: RobotCommand.EndMission,
             target: [RobotId.robot1, RobotId.robot2],
             timestamp: jasmine.any(String),
         });
+    });
+
+    it('should emit endMissionGazebo for simulation', () => {
+        service.endMissionGazebo();
         expect(sendSpy).toHaveBeenCalledWith(RobotCommand.EndMission, {
             command: RobotCommand.EndMission,
             target: [RobotId.gazebo],
@@ -257,3 +264,4 @@ describe('RobotCommunicationService', () => {
         });
     });
 });
+

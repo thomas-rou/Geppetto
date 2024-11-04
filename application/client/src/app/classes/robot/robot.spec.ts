@@ -1,12 +1,12 @@
 import { RobotId } from '@common/enums/RobotId';
+import { RobotState } from '@common/enums/RobotState';
 import { Robot } from './robot';
-import { RobotStatus } from '@app/enums/robot-status';
 
 describe('Robot', () => {
     let robot: Robot;
     const id = RobotId.robot1;
     const initialName = 'TestBot';
-    const initialStatus = RobotStatus.Idle;
+    const initialStatus = RobotState.WAITING;
     const initialBattery = 100;
     const initialPosition = { x: 0, y: 0 };
     const initialOrientation = 0.0;
@@ -38,7 +38,7 @@ describe('Robot', () => {
     });
 
     it('should set the status', () => {
-        const newStatus = RobotStatus.Charging;
+        const newStatus = 'EN MISSION';
         robot.status = newStatus;
         expect(robot.status).toBe(newStatus);
     });

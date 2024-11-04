@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientModule } from '@angular/common/http';
-import { MainPageComponent } from './main-page.component';
 import { ThemeService } from '@app/services/theme/theme.service';
 import { ControlPanelComponent } from '@app/components/control-panel/control-panel.component';
 import { StatusDisplayComponent } from '@app/components/status-display/status-display.component';
 import { MapDisplayComponent } from '@app/components/map-display/map-display.component';
 import { LogsDisplayComponent } from '@app/components/logs-display/logs-display.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MainPageComponent } from './main-page.component';
 
 describe('MainPageComponent', () => {
     let component: MainPageComponent;
@@ -16,7 +17,15 @@ describe('MainPageComponent', () => {
         const themeServiceSpy = jasmine.createSpyObj('ThemeService', ['toggleTheme']);
 
         await TestBed.configureTestingModule({
-            imports: [HttpClientModule, MainPageComponent, ControlPanelComponent, StatusDisplayComponent, MapDisplayComponent, LogsDisplayComponent],
+            imports: [
+                HttpClientModule,
+                BrowserAnimationsModule,
+                MainPageComponent,
+                ControlPanelComponent,
+                StatusDisplayComponent,
+                MapDisplayComponent,
+                LogsDisplayComponent,
+            ],
             providers: [{ provide: ThemeService, useValue: themeServiceSpy }],
         }).compileComponents();
 

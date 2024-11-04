@@ -1,10 +1,13 @@
 import { Component, OnDestroy, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
+import { LogsService } from '@app/services/logs/logs.service';
 import { Subscription } from 'rxjs';
-import { NotificationService } from '@app/services/notification/notification.service';
 import { StartMissionPopupComponent } from '@app/components/start-mission-popup/start-mission-popup.component';
 import { RobotId } from '@common/enums/RobotId';
+import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
+import { MissionService } from '@app/services/mission/mission.service';
+import { MissionType } from '@app/enums/MissionType';
 
 @Component({
     selector: 'app-control-panel',
@@ -12,32 +15,26 @@ import { RobotId } from '@common/enums/RobotId';
     templateUrl: './control-panel.component.html',
     styleUrls: ['./control-panel.component.scss'],
     imports: [CommonModule, StartMissionPopupComponent],
+    animations: [collapseExpandAnimation],
 })
 export class ControlPanelComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription[] = [];
+
     private socketConnected: boolean = false;
+
     showPopup: boolean = false;
+
+    isCollapsed = false;
 
     constructor(
         private robotService: RobotCommunicationService,
-        private notificationService: NotificationService,
+        private logsService: LogsService,
+        private missionService: MissionService,
     ) {}
 
     ngOnInit(): void {
         this.subscriptions.push(
-            this.robotService.onMissionStatus().subscribe((message) => {
-                this.notificationService.sendNotification(message);
-            }),
-            this.robotService.onRobotIdentification().subscribe((message) => {
-                this.notificationService.sendNotification(message);
-            }),
-            this.robotService.onCommandError().subscribe((message) => {
-                this.notificationService.sendNotification(`Error: ${message}`);
-            }),
-
             this.robotService.onConnectionStatus().subscribe((isConnected) => {
-                if (isConnected) console.log('WebSocket is connected');
-                else console.log('WebSocket is disconnected');
                 this.socketConnected = isConnected;
             }),
         );
@@ -50,9 +47,12 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
         }
     }
 
+    toggleCollapse() {
+        this.isCollapsed = !this.isCollapsed;
+    }
+
     verifySocketConnection() {
         if (this.socketConnected) return true;
-        else this.notificationService.sendNotification('No socket connection has been established');
         return false;
     }
 
@@ -62,9 +62,18 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
         }
     }
 
-    onMissionStart() {
+    onPhysicalMissionStart() {
         this.showPopup = false;
-        this.robotService.startMission();
+        this.robotService.startMissionRobot();
+        this.missionService.setMissionType(MissionType.Physical);
+        this.logsService.triggerClearLogs();
+    }
+
+    onSimulationMissionStart() {
+        this.showPopup = false;
+        this.robotService.startMissionGazebo();
+        this.missionService.setMissionType(MissionType.Simulation);
+        this.logsService.triggerClearLogs();
     }
 
     onCancel() {
@@ -72,12 +81,13 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     }
 
     stopMission() {
-        if (this.verifySocketConnection()) {
-            try {
-                this.robotService.endMission();
-            } catch (error) {
-                console.error('Error stopping mission', error);
-            }
+        switch (this.missionService.getMissionType()) {
+            case MissionType.Physical:
+                this.robotService.endMissionRobot();
+                break;
+            case MissionType.Simulation:
+                this.robotService.endMissionGazebo();
+                break;
         }
     }
 

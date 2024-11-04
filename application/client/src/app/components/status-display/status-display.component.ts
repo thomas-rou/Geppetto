@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
-import { Robot } from '@app/classes/robot/robot';
+import { RobotId } from '@common/enums/RobotId';
+import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
 
 @Component({
     selector: 'app-status-display',
@@ -9,8 +10,11 @@ import { Robot } from '@app/classes/robot/robot';
     imports: [],
     templateUrl: './status-display.component.html',
     styleUrl: './status-display.component.scss',
+    animations: [collapseExpandAnimation],
 })
 export class StatusDisplayComponent {
+    isCollapsed = false;
+
     constructor(
         private robotService: RobotCommunicationService,
         private robotManagementService: RobotManagementService,
@@ -19,11 +23,16 @@ export class StatusDisplayComponent {
     get robot1() {
         return this.robotManagementService.robot1;
     }
+
     get robot2() {
         return this.robotManagementService.robot2;
     }
 
-    identifyRobot(robot: Robot) {
-        this.robotService.identifyRobot(robot.id);
+    toggleCollapse() {
+        this.isCollapsed = !this.isCollapsed;
+    }
+
+    identifyRobot(target: RobotId) {
+        this.robotService.identifyRobot(target);
     }
 }

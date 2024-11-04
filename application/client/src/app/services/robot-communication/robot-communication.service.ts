@@ -12,15 +12,24 @@ import { Observable, Subject } from 'rxjs';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { RobotCommand } from '@common/enums/RobotCommand';
 import { RobotId } from '@common/enums/RobotId';
+import { RobotStatus } from '@common/interfaces/RobotStatus';
+import { LogMessage } from '@common/interfaces/LogMessage';
+import { OccupancyGrid } from '@common/interfaces/LiveMap';
 
 @Injectable({
     providedIn: 'root',
 })
 export class RobotCommunicationService {
     private missionStatusSubject = new Subject<string>();
+
     private robotIdentificationSubject = new Subject<string>();
+
     private commandErrorSubject = new Subject<string>();
+
     private connectionStatusSubject = new Subject<boolean>();
+
+    private logSubject = new Subject<string>();
+    private liveMapSubject = new Subject<OccupancyGrid>();
 
     constructor(
         public socketService: SocketHandlerService,
@@ -32,6 +41,7 @@ export class RobotCommunicationService {
     get robot1() {
         return this.robotManagementService.robot1;
     }
+
     get robot2() {
         return this.robotManagementService.robot2;
     }
@@ -43,6 +53,9 @@ export class RobotCommunicationService {
             this.handleMissionStatus();
             this.handleRobotIdentification();
             this.handleCommandError();
+            this.handleRobotStatus();
+            this.handleLog();
+            this.handleLiveMap();
         }
     }
 
@@ -56,6 +69,25 @@ export class RobotCommunicationService {
     handleMissionStatus() {
         this.socketService.on('missionStatus', (message: string) => {
             this.missionStatusSubject.next(message);
+        });
+    }
+
+    handleRobotStatus() {
+        this.socketService.on('robotStatus', (message: RobotStatus) => {
+            this.updateRobotStatus(message);
+        });
+    }
+
+    handleLog() {
+        this.socketService.on('log', (message: LogMessage) => {
+            const formattedLog = `[${message.date}] ${message.source} - ${message.log_type}: ${message.message}`;
+            this.logSubject.next(formattedLog);
+        });
+    }
+
+    handleLiveMap() {
+        this.socketService.on('liveMap', (message: OccupancyGrid) => {
+            this.liveMapSubject.next(message);
         });
     }
 
@@ -94,9 +126,12 @@ export class RobotCommunicationService {
         return this.connectionStatusSubject.asObservable();
     }
 
-    startMission(): void {
-        this.startMissionRobot();
-        this.startMissionGazebo();
+    onLog(): Observable<string> {
+        return this.logSubject.asObservable();
+    }
+
+    onLiveMap(): Observable<OccupancyGrid> {
+        return this.liveMapSubject.asObservable();
     }
 
     startMissionRobot(): void {
@@ -114,20 +149,6 @@ export class RobotCommunicationService {
         this.socketService.send(RobotCommand.StartMission, message);
     }
 
-    endMission(): void {
-        this.endMissionRobot();
-        this.endMissionGazebo();
-    }
-
-    endMissionRobot(): void {
-        const message: EndMission = {
-            command: RobotCommand.EndMission,
-            target: [RobotId.robot1, RobotId.robot2],
-            timestamp: new Date().toISOString(),
-        };
-        this.socketService.send(RobotCommand.EndMission, message);
-    }
-
     startMissionGazebo(): void {
         const message: StartMission = {
             command: RobotCommand.StartMission,
@@ -141,6 +162,15 @@ export class RobotCommunicationService {
             timestamp: new Date().toISOString(),
         };
         this.socketService.send(RobotCommand.StartMission, message);
+    }
+
+    endMissionRobot(): void {
+        const message: EndMission = {
+            command: RobotCommand.EndMission,
+            target: [RobotId.robot1, RobotId.robot2],
+            timestamp: new Date().toISOString(),
+        };
+        this.socketService.send(RobotCommand.EndMission, message);
     }
 
     endMissionGazebo(): void {
@@ -215,5 +245,15 @@ export class RobotCommunicationService {
 
     disconnect(): void {
         this.socketService.disconnect();
+    }
+
+    private updateRobotStatus(status: RobotStatus): void {
+        if (status.robot_id === RobotId.robot1) {
+            this.robot1.status = status.robot_status;
+            this.robot1.battery = status.battery_level;
+        } else if (status.robot_id === RobotId.robot2) {
+            this.robot2.status = status.robot_status;
+            this.robot2.battery = status.battery_level;
+        }
     }
 }

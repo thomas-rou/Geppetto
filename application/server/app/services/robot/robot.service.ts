@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
 import { MessageOperation } from '@common/interfaces/MessageOperation';
 import { StartMission } from '@common/interfaces/StartMission';
@@ -17,10 +17,12 @@ export class RobotService {
     private _robotNumber: RobotId;
     private ws: WebSocket;
 
-    constructor(robotIp: string, robotNb: RobotId) {
+    constructor(
+        @Inject('robotIp') robotIp: string,
+        @Inject('robotNb') robotNb: RobotId
+    ) {
         this._robotIp = robotIp;
         this._robotNumber = robotNb;
-        this.connect();
     }
 
     async connect() {
@@ -34,6 +36,7 @@ export class RobotService {
 
             this.ws.onerror = (error) => {
                 this.logger.error(`WebSocket error: ${error.message}`);
+                reject(error);
             };
 
             this.ws.onclose = () => {
@@ -42,9 +45,9 @@ export class RobotService {
         });
     }
 
-    async subscribeToTopic(topicName: Topic, topicType: TopicType) {
+    async subscribeToTopic(topicName: Topic, topicType: TopicType, handleIncomingMessage: (message) => void) {
         try {
-            if (this.ws.readyState === WebSocket.CLOSED) {
+            if (this.ws.readyState !== WebSocket.OPEN) {
                 await this.connect();
             }
             const subscribeMessage: MessageOperation = {
@@ -54,31 +57,41 @@ export class RobotService {
             };
             this.ws.send(JSON.stringify(subscribeMessage));
             this.logger.log(`Subscription to topic ${topicName} of robot ${this._robotIp}`);
+            this.ws.addEventListener('message', (event) => {
+                try {
+                    const messageData = JSON.parse(event.data);
+                    if (messageData.topic === topicName) {
+                        handleIncomingMessage(messageData);
+                    }
+                } catch (error) {
+                    this.logger.error(`Error processing message from topic ${topicName}: ${error}`);
+                }
+            });
         } catch (error) {
-            this.logger.error(`Error connecting to robot ${this._robotIp}`);
+            this.logger.error(`Subscription to ${this._robotIp} failed with error: ${error.message}`);
         }
     }
 
     async publishToTopic(topicName: Topic, topicType: TopicType, message: BasicCommand) {
         try {
-            if (this.ws.readyState === WebSocket.CLOSED) {
+            if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
                 await this.connect();
             }
             const publishMessage: MessageOperation = {
                 op: Operation.publish,
                 topic: topicName,
                 type: topicType,
-                msg: message.command,
+                msg: message,
             };
             this.ws.send(JSON.stringify(publishMessage));
             this.logger.log(`Publish message to topic ${topicName} of robot ${this._robotIp}:`);
         } catch (error) {
-            this.logger.error(`Error connecting to robot ${this._robotIp}`);
+            this.logger.error(`Publish to ${this._robotIp} failed with error: ${error.message}`);
         }
     }
 
-    startMission() {
-        this.publishToTopic(Topic.start_mission, TopicType.start_mission, {
+    async startMission() {
+        await this.publishToTopic(Topic.start_mission, TopicType.start_mission, {
             command: RobotCommand.StartMission,
             mission_details: {
                 orientation1: 0.0,
@@ -96,21 +109,21 @@ export class RobotService {
         } as StartMission);
     }
 
-    stopMission() {
-        this.publishToTopic(Topic.stop_mission, TopicType.stop_mission, {
+    async stopMission() {
+        await this.publishToTopic(Topic.stop_mission, TopicType.stop_mission, {
             command: RobotCommand.EndMission,
             timestamp: new Date().toISOString(),
         } as EndMission);
     }
 
-    identify() {
+    async identify() {
         var topicCommand;
-        if (this._robotNumber = RobotId.robot1) {
+        if (this._robotNumber == RobotId.robot1) {
             topicCommand = Topic.identify_command1;
-        } else if (this._robotNumber = RobotId.robot1) {
+        } else if (this._robotNumber == RobotId.robot2) {
             topicCommand = Topic.identify_command2;
         }
-        this.publishToTopic(topicCommand, TopicType.identify_robot, {
+        await this.publishToTopic(topicCommand, TopicType.identify_robot, {
             command: RobotCommand.IdentifyRobot,
             timestamp: new Date().toISOString(),
         } as BasicCommand);

@@ -1,6 +1,10 @@
 FROM ubuntu:22.04
 ARG DEBIAN_FRONTEND=noninteractive
 
+ENV ROBOT=gazebo
+
+RUN echo "EN ATTENTE" > /tmp/.mission_status
+
 RUN apt update; apt upgrade -y
 # INSTALL UTILS
 RUN apt install lsb-release wget curl gnupg python3-pip git -y
@@ -31,6 +35,11 @@ RUN pip3 install rosdep
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
 RUN echo "export GZ_VERSION=fortress" >> /root/.bashrc
 
+# INSTALL NAV2 & SLAM 
+RUN apt install ros-humble-navigation2 -y
+RUN apt install ros-humble-nav2-bringup -y
+RUN apt install ros-humble-slam-toolbox
+
 # Workdir to /lib
 WORKDIR /lib
 
@@ -42,14 +51,15 @@ RUN git clone https://github.com/thomas-rou/Geppetto.git\
     && git pull
 
 WORKDIR /lib/geppetto/embedded_ws
-RUN /bin/bash -c "source /opt/ros/humble/setup.bash; colcon build; source install/setup.bash"
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash; pip uninstall em; pip uninstall empy -y; pip install empy; colcon build; source install/setup.bash"
+RUN echo "EN ATTENTE" > /tmp/.mission_status
 
 # Change workdir to the cloned repository directory
 # TODO: Change the path to the correct one
 WORKDIR /lib/geppetto/gazebo/project_ws
 
 # Initialize, update install and build rosdep
-RUN /bin/bash -c "source /opt/ros/humble/setup.bash && source /opt/ros/humble/setup.bash && rosdep init && rosdep update\
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash && rosdep init && rosdep update\
     && apt-get update -y\
     && rosdep install --from-paths src --ignore-src -r -i -y\
     && apt install -y ros-humble-rosbridge-server\
@@ -57,6 +67,11 @@ RUN /bin/bash -c "source /opt/ros/humble/setup.bash && source /opt/ros/humble/se
 EXPOSE 9090
 # Command to run after launch or with docker compose
 # TODO: Change the launch file name
-CMD ["/bin/bash", "-c", "source /opt/ros/humble/setup.bash && source install/setup.bash && ros2 launch ros_gz_example_bringup diff_drive.launch.py\
-    & source ../../embedded_ws/install/setup.bash && ros2 run com_bridge com_serv\
-    & colcon build --packages-select common_msgs && source ../../embedded_ws/install/setup.bash && ros2 run rosbridge_server rosbridge_websocket"]
+CMD ["/bin/bash", "-c", "source ../../embedded_ws/install/setup.bash && source /opt/ros/humble/setup.bash && source install/setup.bash && ros2 launch ros_gz_example_bringup diff_drive.launch.py\
+    & source /opt/ros/humble/setup.bash && source install/setup.bash && cd src/ros_gz_example_bringup/config && ros2 launch slam_toolbox online_async_launch.py slam_params_file:=mapper_params_online_async.yaml\
+    & source /opt/ros/humble/setup.bash && source install/setup.bash && ros2 launch ros_gz_example_bringup navigation_launch.py\
+    & source /opt/ros/humble/setup.bash && source ../../embedded_ws/install/setup.bash && ros2 launch explore_lite explore.launch.py\
+    & source /opt/ros/humble/setup.bash && source install/setup.bash && ros2 run rviz2 rviz2 -d /opt/ros/humble/share/nav2_bringup/rviz/nav2_default_view.rviz\
+    & source /opt/ros/humble/setup.bash && source ../../embedded_ws/install/setup.bash && ros2 topic pub /explore/resume std_msgs/msg/Bool \"{data: false}\" --once\
+    & colcon build --packages-select common_msgs && source ../../embedded_ws/install/setup.bash && ros2 run rosbridge_server rosbridge_websocket\
+    "]
