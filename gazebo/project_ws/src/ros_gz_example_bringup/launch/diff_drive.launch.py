@@ -84,6 +84,7 @@ def generate_launch_description():
                     "ros_gz_example_bridge.yaml",
                 ),
                 "qos_overrides./tf_static.publisher.durability": "transient_local",
+                "expand_gz_topic_names": True,
             }
         ],
         output="screen",

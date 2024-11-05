@@ -66,7 +66,7 @@ class Robot(Entity):
                 "-topic",
                 f"/robot_description",
                 "-name",
-                f"limo_diff_drive",
+                str(self.name), # namespace for /tf 
                 "-x",
                 str(self.pose.x),
                 "-y",
