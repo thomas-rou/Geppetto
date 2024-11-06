@@ -97,6 +97,17 @@ def generate_launch_description():
         output="screen",
     )
 
+    map_merge = Node(
+        package="merge_map",
+        executable="merge_map",
+        output="screen",
+        parameters=[{"use_sim_time": True}],
+        remappings=[
+            ("/map1", "/limo1/map"),
+            ("/map2", "/limo2/map"),
+        ],
+    )
+
     return LaunchDescription(
         [
             gz_sim,
@@ -104,5 +115,6 @@ def generate_launch_description():
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
             map_server,
+            map_merge,
         ]
     )
