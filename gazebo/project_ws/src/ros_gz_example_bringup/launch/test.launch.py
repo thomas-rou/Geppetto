@@ -80,7 +80,7 @@ def generate_launch_description():
     # Declare the launch arguments
     declare_world_cmd = DeclareLaunchArgument(
         "world",
-        default_value=os.path.join(get_package_share_directory("ros_gz_example_gazebo"), "worlds", "diff_drive.sdf"),
+        default_value=os.path.join(launch_dir_map_merge, "worlds", "world_only.model"),
         description="Full path to world file to load",
     )
 
@@ -158,20 +158,17 @@ def generate_launch_description():
     #     ],
     #     output="screen",
     # )
-        # Setup to launch the simulator and Gazebo world
+
     pkg_ros_gz_sim = get_package_share_directory("ros_gz_sim")
-    gz_sim = IncludeLaunchDescription(
+
+    # Setup to launch the simulator and Gazebo world
+    start_gazebo_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_ros_gz_sim, "launch", "gz_sim.launch.py")
         ),
         launch_arguments={
             "gz_args": PathJoinSubstitution(
                 [
-                    "--verbose",
-                    "-s",
-                    "libgazebo_ros_init.so",
-                    "-s",
-                    "libgazebo_ros_factory.so",
                     get_package_share_directory("ros_gz_example_gazebo"),
                     "worlds",
                     "diff_drive.sdf",
@@ -179,6 +176,7 @@ def generate_launch_description():
             )
         }.items(),
     )
+
 
     robot_sdf = LaunchConfiguration("robot_sdf")
     declare_robot_sdf_cmd = DeclareLaunchArgument(
@@ -194,11 +192,11 @@ def generate_launch_description():
         if os.getenv("ROS_DISTRO") == "humble":
             spawn_robots_cmds.append(
                 Node(
-                    package="ros_gz_sim",
-                    executable="create",
+                    package="gazebo_ros",
+                    executable="spawn_entity.py",
                     output="screen",
                     arguments=[
-                        "-name",
+                        "-entity",
                         robot_known["name"],
                         "-file",
                         robot_sdf,
@@ -222,8 +220,8 @@ def generate_launch_description():
             )
             spawn_robots_cmds.append(
                 Node(
-                    package="gazebo_ros",
-                    executable="spawn_entity.py",
+                    package="ros_gz_sim",
+                    executable="create",
                     output="screen",
                     arguments=[
                         "-entity",
@@ -355,27 +353,27 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     # Declare the launch options
-    # ld.add_action(declare_simulator_cmd)
-    # ld.add_action(declare_world_cmd)
-    # ld.add_action(declare_map_yaml_cmd)
+    ld.add_action(declare_simulator_cmd)
+    ld.add_action(declare_world_cmd)
+    ld.add_action(declare_map_yaml_cmd)
     ld.add_action(declare_robot1_params_file_cmd)
     ld.add_action(declare_robot2_params_file_cmd)
-    # ld.add_action(declare_use_rviz_cmd)
-    # ld.add_action(declare_autostart_cmd)
-    # ld.add_action(declare_rviz_config_file_cmd)
-    # ld.add_action(declare_use_robot_state_pub_cmd)
-    # ld.add_action(declare_slam_toolbox_cmd)
-    # ld.add_action(declare_slam_gmapping_cmd)
+    ld.add_action(declare_use_rviz_cmd)
+    ld.add_action(declare_autostart_cmd)
+    ld.add_action(declare_rviz_config_file_cmd)
+    ld.add_action(declare_use_robot_state_pub_cmd)
+    ld.add_action(declare_slam_toolbox_cmd)
+    ld.add_action(declare_slam_gmapping_cmd)
     ld.add_action(declare_known_init_poses_cmd)
     ld.add_action(declare_robot_sdf_cmd)
 
     # Add the actions to start gazebo, robots and simulations
-    ld.add_action(gz_sim)
+    ld.add_action(start_gazebo_cmd)
 
     for spawn_robot_cmd in spawn_robots_cmds:
         ld.add_action(spawn_robot_cmd)
 
-    # for simulation_instance_cmd in nav_instances_cmds:
-    #     ld.add_action(simulation_instance_cmd)
+    for simulation_instance_cmd in nav_instances_cmds:
+        ld.add_action(simulation_instance_cmd)
 
     return ld

@@ -59,7 +59,7 @@ void SlamGmapping::init() {
     got_map_ = false;
 
     throttle_scans_ = 1;
-    base_frame_ = "base_link";
+    base_frame_ = "limo";
     map_frame_ = "map";
     odom_frame_ = "odom";
     transform_publish_period_ = 0.05;

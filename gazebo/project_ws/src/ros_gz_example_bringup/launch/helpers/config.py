@@ -24,7 +24,7 @@ WALL_THICKNESS = 0.1
 WALL_GAP = WALL_THICKNESS + ATOMIC_GAP
 
 # robots
-ROBOT_NAMES = ["limo", "limo2"]
+ROBOT_NAMES = ["limo1", "limo2"]
 # ROBOT_NAMES = ["pino"]
 
 ROBOT_STARTER_POSES = [Pose(y=0, z=ROBOT_SPAWN_HEIGHT), Pose(y=1, z=ROBOT_SPAWN_HEIGHT)]

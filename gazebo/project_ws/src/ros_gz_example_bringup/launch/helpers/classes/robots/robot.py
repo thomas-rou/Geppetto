@@ -32,7 +32,7 @@ class Robot(Entity):
         robot_desc = Entity.load_model_sdf(self.model_name)
 
         # Replace template {index} with the current robot index
-        # robot_desc = robot_desc.replace("{index}", str(self.index))
+        robot_desc = robot_desc.replace("{index}", str(self.index + 1))
 
         return robot_desc
 
@@ -43,6 +43,7 @@ class Robot(Entity):
             package="robot_state_publisher",
             executable="robot_state_publisher",
             name=f"robot_state_publisher",
+            namespace=f"{self.name}",
             output="both",
             parameters=[
                 {"use_sim_time": True},
@@ -64,9 +65,9 @@ class Robot(Entity):
             output="screen",
             arguments=[
                 "-topic",
-                f"/robot_description",
+                f"{self.name}/robot_description",
                 "-name",
-                str(self.name), # namespace for /tf 
+                str(self.name),  # namespace for /tf
                 "-x",
                 str(self.pose.x),
                 "-y",
