@@ -3,7 +3,6 @@ from com_bridge.common_enums import GlobalConst, LogType
 import rclpy
 from rclpy.node import Node
 from common_msgs.msg import LogMessage
-from sensor_msgs.msg import LaserScan
 from datetime import datetime
 
 class LoggerNode(Node):
@@ -28,16 +27,7 @@ class LoggerNode(Node):
         self.log_message(LogType.INFO,
             f"Log node Launched waiting for messages in {self.robot_name}"
         )
-        self.scan_subscription = self.create_subscription(
-            LaserScan,
-            '/scan',
-            self.scan_callback,
-            10
-        )
         self._initialized = True
-
-    def scan_callback(self,msg):
-        self.log_message(LogType.INFO, f"Received scan data: {msg}")
 
     def build_log_message(self, log_type, message) -> LogMessage:
         log_message = LogMessage()

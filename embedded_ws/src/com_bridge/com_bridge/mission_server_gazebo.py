@@ -4,6 +4,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist, PoseStamped
 from std_msgs.msg import Bool
 from common_msgs.msg import StartMission, StopMission
+from sensor_msgs.msg import LaserScan
 from rclpy.executors import MultiThreadedExecutor
 from nav2_msgs.action import NavigateToPose
 from rclpy.action import ActionClient
@@ -54,6 +55,11 @@ class MissionServerGazebo(Node):
         self.mission_mouvements = self.create_publisher(
             Twist, "cmd_vel", GlobalConst.QUEUE_SIZE
         )
+        self.scan_subscription = self.create_subscription(
+            LaserScan,
+            "/scan",
+            self.scan_callback,
+        )
 
     @property
     def mission_active(self):
@@ -90,7 +96,7 @@ class MissionServerGazebo(Node):
             LogType.INFO,
             f"Sending goal: x={goal_msg.pose.position.x}, y={goal_msg.pose.position.y}",
         )
-        
+
         self.action_client.send_goal_async(goal)
 
     def new_missions_callback(self, msg: StartMission):
@@ -110,7 +116,7 @@ class MissionServerGazebo(Node):
             msg = Bool()
             msg.data = True
             self.start_mission_publisher.publish(msg)
-            
+
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")
 
@@ -138,6 +144,9 @@ class MissionServerGazebo(Node):
             twist_msg.angular.y = 0.0
             twist_msg.angular.z = 0.0
             self.mission_mouvements.publish(twist_msg)
+
+    def scan_callback(self, msg):
+        self.logger.log_message(LogType.INFO, f"Received scan data: {msg}")
 
 
 def main(args=None):
