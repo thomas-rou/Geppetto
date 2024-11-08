@@ -3,6 +3,7 @@ from com_bridge.common_enums import GlobalConst, LogType
 import rclpy
 from rclpy.node import Node
 from common_msgs.msg import LogMessage
+from visualization_msgs.msg import InteractiveMarkerFeedback
 from datetime import datetime
 
 class LoggerNode(Node):
@@ -23,6 +24,12 @@ class LoggerNode(Node):
         self.robot_name = get_robot_name()
         self.log_publisher = self.create_publisher(
             LogMessage, f"{self.robot_name}/log", GlobalConst.LOG_QUEUE_SIZE
+        )
+        self.feedback_subscription = self.create_subscription(
+            InteractiveMarkerFeedback,
+            'slam_toolbox/feedback',
+            self.feedback_callback,
+            10
         )
         self.log_message(LogType.INFO,
             f"Log node Launched waiting for messages in {self.robot_name}"
@@ -54,6 +61,10 @@ class LoggerNode(Node):
             f.write(log_message.source + "\t" + log_message.log_type + "\t" + log_message.date + "\t" + log_message.message + "\n")
         self.log_publisher.publish(log_message)
         self.native_log(log_type, message)
+
+    def feedback_callback(self, msg: InteractiveMarkerFeedback):
+        message = f"Received InteractiveMarkerFeedback: client_id={msg.client_id}, marker_name={msg.marker_name}, control_name={msg.control_name}, event_type={msg.event_type}, pose=({msg.pose.position.x}, {msg.pose.position.y}, {msg.pose.position.z}, {msg.pose.orientation.x}, {msg.pose.orientation.y}, {msg.pose.orientation.z}, {msg.pose.orientation.w})"
+        self.log_message(LogType.INFO, message)
 
 
 
