@@ -99,8 +99,8 @@ def generate_launch_description():
         )
     mission_node = Node(
         package="com_bridge",
-        executable="mission_server",
-        name="mission_server",
+        executable="mission_controller",
+        name="mission_controller",
         output="screen",
     )
 
