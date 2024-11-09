@@ -20,10 +20,5 @@ def generate_launch_description():
                 executable="mission_status_manager",
                 name="mission_status_manager",
             ),
-            Node(
-                package="com_bridge",
-                executable="map_saver",
-                name="map_saver",
-            ),
         ]
     )

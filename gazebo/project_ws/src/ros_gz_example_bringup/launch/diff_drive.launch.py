@@ -90,13 +90,6 @@ def generate_launch_description():
         output="screen",
     )
 
-    map_server = Node(
-        package="com_bridge",
-        executable="map_saver",
-        name="map_saver",
-        output="screen",
-    )
-
     map_merge = Node(
         package="merge_map",
         executable="merge_map",
@@ -114,7 +107,6 @@ def generate_launch_description():
             bridge,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
-            map_server,
             map_merge,
         ]
     )

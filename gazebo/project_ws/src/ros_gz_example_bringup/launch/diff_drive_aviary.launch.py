@@ -95,19 +95,11 @@ def generate_launch_description():
         output="screen",
     )
 
-    map_server = Node(
-        package="com_bridge",
-        executable="map_saver",
-        name="map_saver",
-        output="screen",
-    )
-
     return LaunchDescription(
         [
             gz_sim,
             bridge,
             *Robot.robot_state_publishers,
-            *Entity.spawned_entities_nodes,
-            map_server
+            *Entity.spawned_entities_nodes
         ]
     )
