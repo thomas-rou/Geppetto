@@ -12,7 +12,6 @@ def generate_launch_description():
     slam_params_file = LaunchConfiguration("slam_params_file")
     slam_params_file2 = LaunchConfiguration("slam_params_file2")
 
-
     declare_use_sim_time_argument = DeclareLaunchArgument(
         "use_sim_time", default_value="true", description="Use simulation/Gazebo clock"
     )
@@ -54,6 +53,18 @@ def generate_launch_description():
         remappings=[("/map", "/limo2/map")],
     )
 
+    world_tf1 = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        arguments=["0", "0", "0", "0", "0", "0", "world", "limo1/map"],
+    )
+
+    world_tf2 = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        arguments=["0", "0", "0", "0", "0", "0", "world", "limo2/map"],
+    )
+
     ld = LaunchDescription()
 
     ld.add_action(declare_use_sim_time_argument)
@@ -61,5 +72,7 @@ def generate_launch_description():
     ld.add_action(declare_slam_params_file_cmd2)
     ld.add_action(start_async_slam_toolbox_node)
     ld.add_action(start_async_slam_toolbox_node2)
+    ld.add_action(world_tf1)
+    ld.add_action(world_tf2)
 
     return ld
