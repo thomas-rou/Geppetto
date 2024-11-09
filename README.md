@@ -1,93 +1,49 @@
-# Geppetto
-
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/polytechnique-montr-al/inf3995/20243/equipe-107/geppetto.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/polytechnique-montr-al/inf3995/20243/equipe-107/geppetto/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
 
 ## Name
-Choose a self-explaining name for your project.
+This is the official readme for the Geppetto project
 
 ## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+The purpose of this project is to develop a proof of concept for planetary exploration using a multi-robot system, equipped with the minimum sensors required by the Canadian Space Agency (CSA). This project, focused on research and education in space exploration, aims to demonstrate the effectiveness and viability of a simple autonomous multi-robot system in a controlled indoor environment simulating planetary exploration conditions. The robots can autonomously explore an unknown area, roughly the size of a room, using only the sensors specified by the CSA: an IMU ("Inertial Measurement Unit"), a 3D camera, an RGB camera, and a LiDAR ("Light Detection and Ranging"). The operator is able to monitor the data in real-time via a web interface, with limited control over starting and stopping the operations. The system will generate an accurate map of the explored area.
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Clone the project using :
+```sh
+git clone https://gitlab.com/polytechnique-montr-al/inf3995/20243/equipe-107/geppetto.git
+```
+
+The project uses Docker to simplify the management of services, dependencies, and deployment. The three non-embedded services (Client: Angular front-end application, Server: NestJS back-end API, and Gazebo: simulation environment) are configured in the compose.yaml file for simultaneous launch. This approach centralizes the construction and startup of services, with the option to launch each service independently.
+
+You can find the necessary information for installing Docker in their official documentation and the required modifications for granting the correct permissions in their post-installation steps documentation.
+
+To start the system, execute the following command in the launch directory:
+```sh
+./start.sh
+```
+This command performs two actions: it retrieves the computer's IP address to allow network users to connect to the server launched in a Docker container and executes docker-compose to build the necessary containers for the client, server, and simulation. Once launched, the server is accessible at http://localhost:3000/ and the user interface at http://localhost:4200/. The Gazebo simulation starts at the same time, and an exploration is ready to be launched.
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Before launching a mission, ensure that the robots are properly connected. If not, connect them by pressing "Robot 1" and "Robot 2" and verify that the simulation is started. Then, click the "Start Mission" button to begin exploration by selecting between simulation mode and physical mode. Use the "End Mission" button to stop the robots. You can access mission logs from the "Logs History" section in the header.
+
+For additional information on usage read the DocumentationDuProjet-107-offre-CDR document
+
+## Coding guidelines
+For Javascript and Typescript, the [Airbnb Standards](https://github.com/airbnb/javascript) have been used along with the [default prettier options](https://prettier.io/docs/en/options.html).
+
+For Python, the [Google coding guidlines](https://google.github.io/styleguide/pyguide.html) have been chosen.
+
+The branch and commits naming best practices have been taken from
+[this blog](https://medium.com/@shinjithkanhangad/git-good-best-practices-for-branch-naming-and-commit-messages-a903b9f08d68).
 
 ## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Contact "loic8558" and/or "velistic" on Discord for help or questions regarding the usage or installation of this project
 
 ## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Project Authors: Ely Cheikh Abyss, Omar Benzekri, Abdul-Wahab Chaarani, Loïc Nguemegne, Thomas Rouleau and Ivan Samoylenko
 
-## License
-For open source projects, say how it is licensed.
+Project made possible with help of Antoine Robillard, Mark Bong, Guillaume Ricard and Benjamin De Leener
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+S/o to our sponsors: Pizzeria Geppetto Beaubien.
+Don't hesitate to visit them: 2510 Rue Beaubien E, Montréal, QC H1Y 1G2
+Mention promo code: "Zavelafedouzegomen" for a 10% discount.
+
+

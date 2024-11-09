@@ -6,15 +6,27 @@
     <div class="robot-status">
         <div class="robot" id="robot1">
             <button class="robot-name" title="Identifier" (click)="identifyRobot(robot1.id)">{{ robot1.name }}</button>
-            <p><span>Statut:</span><span>{{ robot1.status }}</span></p>
-            <p><span>Batterie:</span><span>{{ robot1.battery }}%</span></p>
-            <p><span>Position: </span><span>({{ robot1.position.x }}, {{ robot1.position.y }})</span></p>
+            <p>
+                <span>Statut:</span><span>{{ robot1.status }}</span>
+            </p>
+            <p>
+                <span>Batterie:</span><span>{{ robot1.battery }}%</span>
+            </p>
+            <p>
+                <span>Position: </span><span>({{ robot1.position.x }}, {{ robot1.position.y }})</span>
+            </p>
         </div>
         <div class="robot" id="robot2">
             <button class="robot-name" title="Identifier" (click)="identifyRobot(robot2.id)">{{ robot2.name }}</button>
-            <p><span>Statut:</span><span>{{ robot2.status }}</span></p>
-            <p><span>Batterie:</span><span>{{ robot2.battery }}%</span></p>
-            <p><span>Position: </span><span>({{ robot2.position.x }}, {{ robot2.position.y }})</span></p>
+            <p>
+                <span>Statut:</span><span>{{ robot2.status }}</span>
+            </p>
+            <p>
+                <span>Batterie:</span><span>{{ robot2.battery }}%</span>
+            </p>
+            <p>
+                <span>Position: </span><span>({{ robot2.position.x }}, {{ robot2.position.y }})</span>
+            </p>
         </div>
     </div>
 </section>

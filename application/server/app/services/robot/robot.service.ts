@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
 import { MessageOperation } from '@common/interfaces/MessageOperation';
 import { StartMission } from '@common/interfaces/StartMission';
@@ -17,7 +17,10 @@ export class RobotService {
     private _robotNumber: RobotId;
     private ws: WebSocket;
 
-    constructor(robotIp: string, robotNb: RobotId) {
+    constructor(
+        @Inject('robotIp') robotIp: string,
+        @Inject('robotNb') robotNb: RobotId
+    ) {
         this._robotIp = robotIp;
         this._robotNumber = robotNb;
     }
@@ -55,15 +58,15 @@ export class RobotService {
             this.ws.send(JSON.stringify(subscribeMessage));
             this.logger.log(`Subscription to topic ${topicName} of robot ${this._robotIp}`);
             this.ws.addEventListener('message', (event) => {
-            try {
-                const messageData = JSON.parse(event.data);
-                if (messageData.topic === topicName) {
-                    handleIncomingMessage(messageData);
+                try {
+                    const messageData = JSON.parse(event.data);
+                    if (messageData.topic === topicName) {
+                        handleIncomingMessage(messageData);
+                    }
+                } catch (error) {
+                    this.logger.error(`Error processing message from topic ${topicName}: ${error}`);
                 }
-            } catch (error) {
-                this.logger.error(`Error processing message from topic ${topicName}: ${error}`);
-            }
-        });
+            });
         } catch (error) {
             this.logger.error(`Subscription to ${this._robotIp} failed with error: ${error.message}`);
         }

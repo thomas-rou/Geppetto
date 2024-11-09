@@ -3,7 +3,9 @@
         <span>Carte d'Exploration</span>
         <span>{{ isCollapsed ? '&#x2b;' : '&#x2212;' }}</span>
     </h2>
-    <div id="map-display">
-        <p>La carte sera ici.</p>
+    <div class="map-container">
+        <div id="map-display">
+            <canvas #mapCanvas></canvas>
+        </div>
     </div>
 </section>

@@ -89,6 +89,20 @@ def generate_launch_description():
         ],
         output="screen",
     )
+    
+    battery_node = Node(
+            package="com_bridge",
+            executable="mission_status_manager_gazebo",
+            name="status",
+            parameters=[{"robot_id": "robot_1"}],
+            output="screen",
+        )
+    mission_node = Node(
+        package="com_bridge",
+        executable="mission_server_gazebo",
+        name="mission_server_gazebo",
+        output="screen",
+    )
 
     map_merge = Node(
         package="merge_map",
@@ -105,6 +119,8 @@ def generate_launch_description():
         [
             gz_sim,
             bridge,
+            mission_node,
+            battery_node,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
             map_merge,

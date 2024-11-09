@@ -1,6 +1,6 @@
 import { RobotId } from '@common/enums/RobotId';
-import { Robot } from './robot';
 import { RobotState } from '@common/enums/RobotState';
+import { Robot } from './robot';
 
 describe('Robot', () => {
     let robot: Robot;
