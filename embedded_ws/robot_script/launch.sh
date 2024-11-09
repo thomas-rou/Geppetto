@@ -14,10 +14,8 @@ sudo chown nvidia:nvidia /dev/ttyTHS1 &&
         git switch $MAIN_BRANCH
         git pull
     fi
-cd ~/limo_ws
-colcon build
-source install/setup.bash
-cd ~/limo_ws/src/limo_ros2
+cd ~/geppeto/embedded_ws && colcon build && source install/setup.bash
+cd ~/geppeto/embedded_ws/limo_ws/src/limo_ros2
 ros2 launch limo_bringup limo_start.launch.py &
 sleep 2
 cd ~/geppetto/embedded_ws/ && ros2 launch slam_toolbox online_async_launch.py slam_params_file:=mapper_params_online_async.yaml &
