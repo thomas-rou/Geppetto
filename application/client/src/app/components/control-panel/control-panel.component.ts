@@ -19,11 +19,8 @@ import { MissionType } from '@app/enums/MissionType';
 })
 export class ControlPanelComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription[] = [];
-
     private socketConnected: boolean = false;
-
     showPopup: boolean = false;
-
     isCollapsed = false;
 
     constructor(
@@ -38,6 +35,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
                 this.socketConnected = isConnected;
             }),
         );
+
     }
 
     @HostListener('window:keydown', ['$event'])
@@ -66,6 +64,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
         this.showPopup = false;
         this.robotService.startMissionRobot();
         this.missionService.setMissionType(MissionType.Physical);
+        this.missionService.setIsMissionActive(true);
         this.logsService.triggerClearLogs();
     }
 
@@ -73,6 +72,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
         this.showPopup = false;
         this.robotService.startMissionGazebo();
         this.missionService.setMissionType(MissionType.Simulation);
+        this.missionService.setIsMissionActive(true);
         this.logsService.triggerClearLogs();
     }
 
@@ -89,6 +89,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
                 this.robotService.endMissionGazebo();
                 break;
         }
+        this.missionService.setIsMissionActive(false);
     }
 
     identifyRobot(target: RobotId) {
@@ -114,11 +115,20 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     updateSoftware() {
         if (this.verifySocketConnection()) {
             try {
-                this.robotService.updateControllerCode('new code here');
+                this.robotService.updateControllerCode(this.missionService.getNewCode());
+                this.missionService.setInitialCode(this.missionService.getNewCode());
             } catch (error) {
                 console.error('Error identifying robot', error);
             }
         }
+    }
+
+    isCodeChanged() {
+        return this.missionService.getIsCodeChanged();
+    }
+    
+    isMissionActive() {
+        return this.missionService.getIsMissionActive();
     }
 
     ngOnDestroy(): void {

@@ -6,6 +6,7 @@
     <code-editor 
         [(ngModel)]="value" 
         [lineWrapping]="true" 
-        [theme]="'dark'">
+        [theme]="'dark'"
+        (change)="onEditorChange($event)">
     </code-editor>
 </section>
