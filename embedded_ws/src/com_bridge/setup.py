@@ -10,7 +10,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/com_bridge_launch.py']), 
+        ('share/' + package_name + '/launch', ['launch/com_bridge_launch.py']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -27,6 +27,7 @@ setup(
             'mission_status_manager_gazebo = com_bridge.mission_status_manager_gazebo:main',
             'map_saver = com_bridge.map_saver:main',
             'mission_server_gazebo = com_bridge.mission_server_gazebo:main',
+            'log = com_bridge.log:main',
         ],
     },
 )

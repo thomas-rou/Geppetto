@@ -88,7 +88,7 @@ def generate_launch_description():
         ],
         output="screen",
     )
-    
+
     battery_node = Node(
             package="com_bridge",
             executable="mission_status_manager_gazebo",
@@ -102,6 +102,12 @@ def generate_launch_description():
         name="mission_server_gazebo",
         output="screen",
     )
+    log_node = Node(
+        package="com_bridge",
+        executable="log",
+        name="log",
+        output="screen",
+    )
 
     return LaunchDescription(
         [
@@ -109,6 +115,7 @@ def generate_launch_description():
             bridge,
             mission_node,
             battery_node,
+            log_node,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
         ]
