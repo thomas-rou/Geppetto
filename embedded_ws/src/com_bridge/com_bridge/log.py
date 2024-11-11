@@ -3,8 +3,10 @@ from com_bridge.common_enums import GlobalConst, LogType
 import rclpy
 from rclpy.node import Node
 from common_msgs.msg import LogMessage
-from geometry_msgs.msg import PoseWithCovarianceStamped
+from nav_msgs.msg import Odometry
 from datetime import datetime
+
+TIMER_PERIOD = 1.0
 
 class LoggerNode(Node):
 
@@ -25,13 +27,16 @@ class LoggerNode(Node):
         self.log_publisher = self.create_publisher(
             LogMessage, f"/{self.robot_name}/log", GlobalConst.LOG_QUEUE_SIZE
         )
-        self.robot_pose_subscription = self.create_subscription(
-            PoseWithCovarianceStamped,
-            '/pose',
-            self.log_pose_callback,
+        self.robot_odom_subscription = self.create_subscription(
+            Odometry,
+            '/odom',
+            self.log_odometry_callback,
             GlobalConst.QUEUE_SIZE
         )
-        self.robot_pose_subscription  # prevent unused variable warning
+        self.robot_odom_subscription  # prevent unused variable warning
+        self.last_odometry_msg, self.last_laser_msg = None, None
+        self.prev_odometry_msg, self.prev_laser_msg = None, None
+        self.timer = self.create_timer(TIMER_PERIOD, self.timer_callback)
         self.log_message(LogType.INFO,
             f"Log node Launched waiting for messages in {self.robot_name}"
         )
@@ -63,12 +68,32 @@ class LoggerNode(Node):
         self.log_publisher.publish(log_message)
         self.native_log(log_type, message)
 
-    def log_pose_callback(self, msg: PoseWithCovarianceStamped):
-        position = msg.pose.pose.position
-        orientation = msg.pose.pose.orientation
-        log_message = f"Position: x={position.x}, y={position.y}, z={position.z}; Orientation: x={orientation.x}, y={orientation.y}, z={orientation.z}, w={orientation.w}"
-        self.log_message(LogType.INFO, log_message)
+    def log_odometry_callback(self, msg: Odometry):
+        self.last_odometry_msg = msg
 
+    def timer_callback(self):
+        if self.should_log_odometry():
+            self.log_odometry()
+
+    def should_log_odometry(self):
+        return self.last_odometry_msg is not None and (
+            self.prev_odometry_msg is None or self.has_odometry_changed(self.prev_odometry_msg, self.last_odometry_msg)
+    )
+
+    def log_odometry(self):
+        position = self.last_odometry_msg.pose.pose.position
+        orientation = self.last_odometry_msg.pose.pose.orientation
+        linear_velocity = self.last_odometry_msg.twist.twist.linear
+        angular_velocity = self.last_odometry_msg.twist.twist.angular
+        log_message = (f"Position: x={position.x}, y={position.y}, z={position.z}; "
+                    f"Orientation: x={orientation.x}, y={orientation.y}, z={orientation.z}, w={orientation.w}; "
+                    f"Linear Velocity: x={linear_velocity.x}, y={linear_velocity.y}, z={linear_velocity.z}; "
+                    f"Angular Velocity: x={angular_velocity.x}, y={angular_velocity.y}, z={angular_velocity.z}")
+        self.log_message(LogType.INFO, log_message)
+        self.prev_odometry_msg = self.last_odometry_msg
+
+    def has_odometry_changed(self, prev_msg: Odometry, curr_msg: Odometry) -> bool:
+        return prev_msg.pose.pose.position != curr_msg.pose.pose.position or prev_msg.pose.pose.orientation != curr_msg.pose.pose.orientation or prev_msg.twist.twist != curr_msg.twist.twist
 
 
 def main(args=None):
