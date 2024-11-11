@@ -8,6 +8,9 @@ import { RobotId } from '@common/enums/RobotId';
 import { MissionCommandGateway } from '@app/gateways/mission-command/mission-command.gateway';
 import { MissionService } from '../mission/mission.service';
 import { OccupancyGrid } from '@common/interfaces/LiveMap';
+import * as fs from 'fs';
+import * as path from 'path';
+
 @Injectable()
 export class SubscriptionServiceService {
     public robot1: RobotService;
@@ -54,5 +57,18 @@ export class SubscriptionServiceService {
     async mapCallback(message) {
         const liveMap: OccupancyGrid = message.msg;
         this.server.emit('liveMap', liveMap);
+    }
+
+    async updateRobotController(newCode: string): Promise<void> {
+        const filePath = path.resolve(__dirname, '../../../../../../../embedded_ws/src/m-explore-ros2/explore/src/explore.cpp');
+        return new Promise((resolve, reject) => {
+            fs.writeFile(filePath, newCode, 'utf-8', (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
     }
 }

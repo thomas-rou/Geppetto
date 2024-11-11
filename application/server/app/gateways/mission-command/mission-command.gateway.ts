@@ -148,8 +148,7 @@ export class MissionCommandGateway {
     async updateControllerCode(client: Socket, payload: { code: string }) {
         try {
             await this.logger.logToClient(LogType.INFO, 'Mise à jour du code du contrôleur reçue');
-            // await this.subscriptionService.updateRobotController(payload.code);
-            console.log(payload.code);
+            await this.subscriptionService.updateRobotController(payload.code);
             client.emit('updateSuccess', 'Mise à jour du code réussie');
         } catch (e) {
             await this.logger.logToClient(LogType.ERROR, 'Erreur de mise à jour du code : ' + e.message);
