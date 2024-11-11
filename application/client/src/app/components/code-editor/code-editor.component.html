@@ -1,0 +1,11 @@
+<section class="logs" [@collapseExpand]="isCollapsed ? 'collapsed' : 'expanded'">
+    <h2 (click)="toggleCollapse()">
+        <span>Éditeur de Code</span>
+        <span>{{ isCollapsed ? '&#x2b;' : '&#x2212;' }}</span>
+    </h2>
+    <code-editor 
+        [(ngModel)]="value" 
+        [lineWrapping]="true" 
+        [theme]="'dark'">
+    </code-editor>
+</section>
