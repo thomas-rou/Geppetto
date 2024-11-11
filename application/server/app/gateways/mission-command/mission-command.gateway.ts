@@ -11,6 +11,8 @@ import { LogService } from '@app/services/log/log.service';
 import { LogType } from '@common/enums/LogType';
 import { ClientCommand } from '@common/enums/ClientCommand';
 import { MissionService } from '@app/services/mission/mission.service';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 @WebSocketGateway()
@@ -140,5 +142,28 @@ export class MissionCommandGateway {
         } catch (e) {
             await this.logger.logToClient(LogType.ERROR, 'Error in getLogs: ' + e.message);
         }
+    }
+
+    @SubscribeMessage(RobotCommand.UpdateControllerCode)
+    async updateControllerCode(client: Socket, payload: { code: string }) {
+        if (this.missionService.isMissionActive()) {
+            client.emit('commandError', 'Mise à jour impossible pendant une mission active');
+            return;
+        }
+        try {
+            await this.logger.logToClient(LogType.INFO, 'Mise à jour du code du contrôleur reçue');
+            // await this.subscriptionService.updateRobotController(payload.code);
+            client.emit('updateSuccess', 'Mise à jour du code réussie');
+        } catch (e) {
+            await this.logger.logToClient(LogType.ERROR, 'Erreur de mise à jour du code : ' + e.message);
+            client.emit('commandError', `Erreur : ${e.message}`);
+        }
+    }
+
+    @SubscribeMessage('getCodeFile')
+    async handleGetCodeFile(client: Socket) {
+        const filePath = path.resolve(__dirname, '../../../../../../../embedded_ws/src/m-explore-ros2/explore/src/explore.cpp');
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        client.emit('codeFileContent', fileContent);
     }
 }
