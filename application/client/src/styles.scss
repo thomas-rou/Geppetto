@@ -101,3 +101,9 @@ h2 {
         background-position: 0% 50%;
     }
 }
+
+body > app-root > app-main-page > div > main > app-code-editor > section > code-editor > div > div.cm-scroller {
+    &::-webkit-scrollbar {
+        display: none !important;
+    }
+}
