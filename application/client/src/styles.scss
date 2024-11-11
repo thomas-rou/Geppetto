@@ -9,7 +9,7 @@
     box-shadow: none;
 }
 
-:root, [data-theme='dark-theme'], [data-theme='light-theme'] {
+:root, [data='dark'], [data='light'] {
     transition: all 0.3s ease-in-out;
 }
 
@@ -24,7 +24,7 @@
     --footer-text: #888;
 }
 
-[data-theme='light-theme'] {
+[data='light'] {
     --color-primary: #f8f9fa;
     --color-secondary: #d1e7dd00;
     --color-tertiary: #d7d7d7;
@@ -44,7 +44,7 @@
 --text-color: #cbcbcb;
 }
 
-[data-theme='light-theme'] {
+[data='light'] {
 --primary-color: #ffffff;
 --secondary-color: #c8c8c8;
 --tertiary-color: #b1b1b1;

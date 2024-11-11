@@ -2,10 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
-import { CodeEditor } from '@acrodata/code-editor';
+import { CodeEditor, Theme } from '@acrodata/code-editor';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { MissionService } from '@app/services/mission/mission.service';
 import { languages } from '@codemirror/language-data';
+import { ThemeService } from '@app/services/theme/theme.service';
 
 @Component({
   selector: 'app-code-editor',
@@ -24,10 +25,12 @@ export class CodeEditorComponent implements OnInit {
   isCollapsed = true;
   value = '';
   languages = languages;
+  theme: Theme = 'dark'
 
   constructor(
     private socketService: SocketHandlerService,
-    private missionService: MissionService
+    private missionService: MissionService,
+    private themeService: ThemeService
   ) {}
 
   ngOnInit() {
@@ -40,6 +43,12 @@ export class CodeEditorComponent implements OnInit {
       console.error('Error loading code file:', error);
     });
     this.loadCodeFile();
+
+    // Subscribe to theme changes
+    this.theme = this.themeService.getCurrentTheme();
+    this.themeService.themeChanged.subscribe((newTheme: Theme) => {
+      this.theme = newTheme;
+    });
   }
 
   loadCodeFile() {

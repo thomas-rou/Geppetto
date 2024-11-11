@@ -146,10 +146,6 @@ export class MissionCommandGateway {
 
     @SubscribeMessage(RobotCommand.UpdateControllerCode)
     async updateControllerCode(client: Socket, payload: { code: string }) {
-        // if (this.missionService.isMissionActive()) {
-        //     client.emit('commandError', 'Mise à jour impossible pendant une mission active');
-        //     return;
-        // }
         try {
             await this.logger.logToClient(LogType.INFO, 'Mise à jour du code du contrôleur reçue');
             // await this.subscriptionService.updateRobotController(payload.code);
