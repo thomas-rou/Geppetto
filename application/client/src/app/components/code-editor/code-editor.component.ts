@@ -5,6 +5,7 @@ import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
 import { CodeEditor } from '@acrodata/code-editor';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { MissionService } from '@app/services/mission/mission.service';
+import { languages } from '@codemirror/language-data';
 
 @Component({
   selector: 'app-code-editor',
@@ -22,6 +23,7 @@ import { MissionService } from '@app/services/mission/mission.service';
 export class CodeEditorComponent implements OnInit {
   isCollapsed = true;
   value = '';
+  languages = languages;
 
   constructor(
     private socketService: SocketHandlerService,

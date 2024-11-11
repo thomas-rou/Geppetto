@@ -7,6 +7,8 @@
         [(ngModel)]="value" 
         [lineWrapping]="true" 
         [theme]="'dark'"
+        [languages]="languages"
+        language="cpp"
         class="code-editor"
         (change)="onEditorChange($event)">
     </code-editor>
