@@ -93,7 +93,6 @@ def generate_launch_description():
         package="com_bridge",
         executable="log",
         name="log",
-        output="screen",
     )
 
     return LaunchDescription(
