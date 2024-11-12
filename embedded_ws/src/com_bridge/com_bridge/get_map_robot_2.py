@@ -5,6 +5,7 @@ import os
 from nav_msgs.msg import OccupancyGrid, MapMetaData
 from std_msgs.msg import Header
 import rclpy
+from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
 from rclpy.node import Node
 from geometry_msgs.msg import Pose
 from com_bridge.common_methods import get_robot_id
@@ -18,7 +19,13 @@ ROS_BRIDGE_PORT = 9090
 class MapPublisher(Node):
     def __init__(self):
         super().__init__('get_map_robot_2')
-        self.map2_publisher = self.create_publisher(OccupancyGrid, "robot_2/map", 10)
+        qos_profile = QoSProfile(
+            depth=1,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+            reliability=ReliabilityPolicy.RELIABLE,
+            history=HistoryPolicy.KEEP_LAST
+        )
+        self.map2_publisher = self.create_publisher(OccupancyGrid, "robot_2/map", qos_profile)
         self.get_logger().info("Map Publisher node started")
 
 
