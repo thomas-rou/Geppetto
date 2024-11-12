@@ -107,3 +107,7 @@ body > app-root > app-main-page > div > main > app-code-editor > section > code-
         display: none !important;
     }
 }
+
+body > app-root > app-main-page > div > main > app-code-editor > section > code-editor > div > div.cm-panels.cm-panels-bottom {
+    display: none !important;
+}

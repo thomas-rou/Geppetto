@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
@@ -25,7 +25,7 @@ export class CodeEditorComponent implements OnInit {
   isCollapsed = true;
   value = '';
   languages = languages;
-  theme: Theme = 'dark'
+  theme: Theme = 'dark';
 
   constructor(
     private socketService: SocketHandlerService,
@@ -62,5 +62,14 @@ export class CodeEditorComponent implements OnInit {
   onEditorChange(newValue: string) {
     this.value = newValue;
     this.missionService.setNewCode(this.value);
+  }
+
+  @HostListener('document:keydown.control.f', ['$event'])
+  handleCtrlF(event: KeyboardEvent) {
+    event.preventDefault();
+    const closeButton = document.querySelector('button[name="close"][aria-label="close"]');
+    if (closeButton) {
+      (closeButton as HTMLElement).click();
+    }
   }
 }
