@@ -2,7 +2,8 @@ import asyncio
 import websockets
 import json
 import os
-from nav_msgs.msg import OccupancyGrid, MapMetaData, Header
+from nav_msgs.msg import OccupancyGrid, MapMetaData
+from std_msgs.msg import Header
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Pose
