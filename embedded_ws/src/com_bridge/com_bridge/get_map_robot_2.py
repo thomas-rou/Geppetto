@@ -11,6 +11,7 @@ from com_bridge.common_enums import RobotID
 
 ROBOT_2_IP = "lm1170"
 RECONNEXION_TIME_INTERVAL = 5.0 
+ROS_BRIDGE_PORT = 9090
 
 
 class MapPublisher(Node):
@@ -24,7 +25,7 @@ async def retry_connect(publisher_node):
     """Attempt to connect to the WebSocket and retry on failure."""
     while True:
         try:
-            async with websockets.connect(f'ws://{ROBOT_2_IP}:9090') as ws:
+            async with websockets.connect(f'ws://{ROBOT_2_IP}:{ROS_BRIDGE_PORT}') as ws:
                 print("Connected to WebSocket successfully!")
                 await subscribe_to_robot_2_topics(ws, publisher_node)
                 break  
