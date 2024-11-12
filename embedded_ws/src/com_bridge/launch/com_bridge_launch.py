@@ -20,6 +20,11 @@ def generate_launch_description():
                 executable="mission_status_manager",
                 name="mission_status_manager",
             ),
+            Node(
+                package="com_bridge",
+                executable="get_map_robot_2",
+                name="get_map_robot_2",
+            ),
             log_node = Node(
                 package="com_bridge",
                 executable="log",

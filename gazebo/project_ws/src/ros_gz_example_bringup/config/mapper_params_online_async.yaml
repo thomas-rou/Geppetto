@@ -9,10 +9,10 @@ slam_toolbox:
     ceres_loss_function: None
 
     # ROS Parameters
-    odom_frame: limo/odom
-    map_frame: map
-    base_frame: limo
-    scan_topic: /scan
+    odom_frame: limo1/odom
+    map_frame: limo1/map
+    base_frame: limo1
+    scan_topic: limo1/scan
     use_map_saver: true
     mode: mapping #localization
 

@@ -5,6 +5,7 @@ from .wall_type import Wall_Type
 from ..obstacle import Obstacle
 from ...core.pose import Pose
 from ...core.size import Size
+from ...core.scale import Scale
 from ament_index_python.packages import get_package_share_directory
 
 # import helpers directory
@@ -22,6 +23,9 @@ from helpers.classes.core.direction import Direction
 
 
 class Wall(Obstacle):
+    real_world_size_x = 3
+    real_world_size_y = 0.1
+
     def __init__(
         self,
         pose: Pose = None,
@@ -30,9 +34,14 @@ class Wall(Obstacle):
         wall_type: Wall_Type = Wall_Type.REGULAR,
     ) -> None:
         self.name = wall_type.value
-        self.build_entity(pose, size)
 
-        if starter_wall and not Wall.check_spawn_kill(self):
+        scale_x = size.x / Wall.real_world_size_x
+        scale = Scale(scale_x)
+
+        self.build_entity(pose, size, scale)
+
+        if starter_wall:
+            Wall.bypass_spawn_kill(self)
             self.spawn_wall()
 
     def spawn_wall(self) -> None:
@@ -92,3 +101,7 @@ class Wall(Obstacle):
     @classmethod
     def check_spawn_kill(cls, wall: "Wall") -> bool:
         return super().check_spawn_kill(wall)
+
+    @classmethod
+    def bypass_spawn_kill(cls, wall: "Wall") -> bool:
+        return super().bypass_spawn_kill(wall)
