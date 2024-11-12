@@ -5,7 +5,7 @@ import os
 from nav_msgs.msg import OccupancyGrid, MapMetaData
 from std_msgs.msg import Header
 import rclpy
-from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
+from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy, HistoryPolicy
 from rclpy.node import Node
 from geometry_msgs.msg import Pose
 from com_bridge.common_methods import get_robot_id
