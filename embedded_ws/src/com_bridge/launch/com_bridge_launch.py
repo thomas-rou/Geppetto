@@ -25,11 +25,10 @@ def generate_launch_description():
                 executable="get_map_robot_2",
                 name="get_map_robot_2",
             ),
-            log_node = Node(
+            Node(
                 package="com_bridge",
                 executable="log",
                 name="log",
-                output="screen",
             ),
         ]
     )
