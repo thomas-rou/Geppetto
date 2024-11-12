@@ -5,6 +5,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 from .pose import Pose
 from .size import Size
+from .scale import Scale
 from ament_index_python.packages import get_package_share_directory
 
 
@@ -21,7 +22,9 @@ class Entity(ABC):
     def __init__(self) -> None:
         pass
 
-    def build_entity(self, pose: Pose = None, size: Size = None) -> None:
+    def build_entity(
+        self, pose: Pose = None, size: Size = None, scale: Scale = None
+    ) -> None:
         # Initialize pose with provided values or default values
         if pose:
             self.pose = Pose(
@@ -44,6 +47,16 @@ class Entity(ABC):
             )
         else:
             self.size = Size()
+
+            # Initialize scale with provided values or default values
+        if scale:
+            self.scale = Scale(
+                x=scale.x,
+                y=scale.y,
+                z=scale.z,
+            )
+        else:
+            self.scale = Scale()
 
     @staticmethod
     def load_model_sdf(model_name: str) -> str:
@@ -76,6 +89,11 @@ class Entity(ABC):
         for spawned_entity in cls.spawned_entities:
             if Entity._boxes_overlap(new_entity, spawned_entity):
                 return True
+        cls.spawned_entities.append(new_entity)
+        return False
+    
+    @classmethod
+    def bypass_spawn_kill(cls, new_entity: "Entity") -> bool:
         cls.spawned_entities.append(new_entity)
         return False
 

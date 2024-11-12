@@ -1,4 +1,5 @@
 import rclpy
+import subprocess
 import math
 from rclpy.node import Node
 from geometry_msgs.msg import Twist, PoseStamped
@@ -69,30 +70,6 @@ class MissionServerGazebo(Node):
     def _mission_status(self, status):
         set_mission_status(status)
 
-    def send_goal(self):
-        if not self.action_client.server_is_ready():
-            self.get_logger().info("Action server not ready yet...")
-            return
-
-        goal_msg = PoseStamped()
-        goal_msg.header.frame_id = "map"
-        goal_msg.header.stamp = self.get_clock().now().to_msg()
-
-        x_range = [0.0, 2.0]
-        y_range = [0.0, 2.0]
-        goal_msg.pose.position.x = uniform(x_range[0], x_range[1])
-        goal_msg.pose.position.y = uniform(y_range[0], y_range[1])
-
-        goal = NavigateToPose.Goal()
-        goal.pose = goal_msg
-
-        self.logger.log_message(
-            LogType.INFO,
-            f"Sending goal: x={goal_msg.pose.position.x}, y={goal_msg.pose.position.y}",
-        )
-        
-        self.action_client.send_goal_async(goal)
-
     def new_missions_callback(self, msg: StartMission):
         try:
             if self.mission_active:
@@ -110,6 +87,8 @@ class MissionServerGazebo(Node):
             msg = Bool()
             msg.data = True
             self.start_mission_publisher.publish(msg)
+            command = ["ros2", "launch", "explore_lite", "explore.launch.py"]
+            subprocess.Popen(command)
             
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")

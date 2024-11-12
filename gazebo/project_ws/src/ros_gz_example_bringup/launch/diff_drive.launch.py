@@ -35,14 +35,14 @@ from helpers import *
 
 # Starter entities
 
-# robots = [
-#     Robot(name=name, pose=pose) for name, pose in zip(ROBOT_NAMES, ROBOT_STARTER_POSES)
-# ]
+robots = [
+    Robot(name=name, pose=pose) for name, pose in zip(ROBOT_NAMES, ROBOT_STARTER_POSES)
+]
 
 # fmt: off
 boundary_walls = [
-    Wall(pose=Pose(y= MAP_WIDTH/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # west wall
-    Wall(pose=Pose(y=-MAP_WIDTH/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # east wall
+    Wall(pose=Pose(y= MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # west wall
+    Wall(pose=Pose(y=-MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # east wall
     Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # north wall
     Wall(pose=Pose(x=-MAP_WIDTH/2 + WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # south wall
 ]
@@ -84,22 +84,9 @@ def generate_launch_description():
                     "ros_gz_example_bridge.yaml",
                 ),
                 "qos_overrides./tf_static.publisher.durability": "transient_local",
+                "expand_gz_topic_names": True,
             }
         ],
-        output="screen",
-    )
-    
-    battery_node = Node(
-            package="com_bridge",
-            executable="mission_status_manager_gazebo",
-            name="status",
-            parameters=[{"robot_id": "robot_1"}],
-            output="screen",
-        )
-    mission_node = Node(
-        package="com_bridge",
-        executable="mission_server_gazebo",
-        name="mission_server_gazebo",
         output="screen",
     )
 
@@ -107,8 +94,6 @@ def generate_launch_description():
         [
             gz_sim,
             bridge,
-            mission_node,
-            battery_node,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
         ]
