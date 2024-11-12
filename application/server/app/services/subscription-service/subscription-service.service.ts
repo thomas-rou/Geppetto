@@ -23,7 +23,7 @@ export class SubscriptionServiceService {
     async subscribeToTopicRobot1(gateway: MissionCommandGateway) {
         await this.robot1.subscribeToTopic(Topic.mission_status1, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
         await this.robot1.subscribeToTopic(Topic.log_robot1, TopicType.log_message, this.logCallback.bind(gateway));
-        await this.robot1.subscribeToTopic(Topic.map, TopicType.map, this.mapCallback.bind(gateway));
+        await this.robot1.subscribeToTopic(Topic.physical_robot_map, TopicType.map, this.mapCallback.bind(gateway));
     }
     async subscribeToTopicRobot2(gateway: MissionCommandGateway) {
         await this.robot2.subscribeToTopic(Topic.mission_status2, TopicType.mission_status, this.missionStatusCallback.bind(gateway));

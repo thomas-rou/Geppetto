@@ -8,7 +8,7 @@ map_merge:
     second_robot_map_topic: /robot_2/map
     robot_map_updates_topic: map_updates
     merged_map_topic: merge_map
-    world_frame: world
+    world_frame: map
     known_init_poses: true
     # known_init_poses: false
 

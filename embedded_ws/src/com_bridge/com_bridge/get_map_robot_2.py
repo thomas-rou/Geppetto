@@ -81,6 +81,12 @@ async def receive_messages(ws, publisher_node):
 
                     map_metadata.origin = origin
                     
+                    header = Header()
+                    header.stamp.sec = message_data.get('header', {}).get('stamp', {}).get('sec')
+                    header.stamp.nanosec = message_data.get('header', {}).get('stamp', {}).get('nanosec')
+                    header.frame_id = message_data.get('header', {}).get('frame_id')
+                    occupancy_grid.header = header
+                    
                     occupancy_grid.info = map_metadata
                     occupancy_grid.data = message_data.get('data')
                     
