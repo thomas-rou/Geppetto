@@ -9,7 +9,9 @@ import { Mission } from '@common/interfaces/Mission';
 })
 export class MissionService {
     private missionType: MissionType;
-
+    private isMissionActive: boolean = false;
+    private code: string = '';
+    private initialcode: string = '';
     public missions: Mission[] = [];
 
     constructor(private socketService: SocketHandlerService) {
@@ -42,5 +44,33 @@ export class MissionService {
 
     setMissionType(newMissionType: MissionType) {
         this.missionType = newMissionType;
+    }
+
+    getIsMissionActive() {
+        return this.isMissionActive;
+    }
+
+    setIsMissionActive(missionActive: boolean) {
+        this.isMissionActive = missionActive;
+    }
+
+    getIsCodeChanged() {
+        if (this.isMissionActive){
+            return false;
+        } else {
+            return this.initialcode !== this.code;
+        }
+    }
+
+    setInitialCode(initCode: string) {
+        this.initialcode = initCode;
+    }
+
+    getNewCode() {
+        return this.code;
+    }
+
+    setNewCode(newCode: string) {
+        this.code = newCode;
     }
 }

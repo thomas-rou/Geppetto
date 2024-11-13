@@ -27,7 +27,7 @@ interface OccupancyGrid {
 })
 export class MapDisplayComponent implements OnInit {
     @ViewChild('mapCanvas', { static: true }) mapCanvas!: ElementRef<HTMLCanvasElement>;
-    isCollapsed = false;
+    isCollapsed = true;
 
     constructor(private robotCommunicationService: RobotCommunicationService) {}
 

@@ -59,7 +59,7 @@ export class RobotService {
             this.logger.log(`Subscription to topic ${topicName} of robot ${this._robotIp}`);
             this.ws.addEventListener('message', (event) => {
                 try {
-                    const messageData = JSON.parse(event.data);
+                    const messageData = JSON.parse(event.data.toString());
                     if (messageData.topic === topicName) {
                         handleIncomingMessage(messageData);
                     }

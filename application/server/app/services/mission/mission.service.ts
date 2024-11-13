@@ -57,4 +57,17 @@ export class MissionService {
             return Promise.reject(`Failed to delete all missions`);
         }
     }
+    async isMissionActive(): Promise<boolean> {
+        try {
+            if (this.missionId) {
+                const mission = await this.missionModel.findOne({ id: this.missionId });
+                return !!mission;
+            }
+            return false;
+        } catch (err) {
+            this.logger.error('Failed to check mission status', err);
+            throw new Error('Failed to check mission status');
+        }
+    }
+    
 }

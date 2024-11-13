@@ -15,7 +15,6 @@ describe('AppController (e2e)', () => {
         await app.init();
     });
 
-    // Making sure our server starts well and we are able to get the date
     it('GET /date', async () => {
         return request(app.getHttpServer()).get('/date').expect(HttpStatus.OK);
     });

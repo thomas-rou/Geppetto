@@ -17,4 +17,8 @@
     &:hover {
         background-color: var(--color-background);
     }
+    &:disabled {
+        background-color: var(--color-background);
+        cursor: not-allowed;
+    }
 }
