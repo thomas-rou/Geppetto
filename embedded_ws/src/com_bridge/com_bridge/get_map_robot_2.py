@@ -11,7 +11,7 @@ from geometry_msgs.msg import Pose
 from com_bridge.common_methods import get_robot_id
 from com_bridge.common_enums import RobotID
 
-ROBOT_2_IP = "lm1170"
+ROBOT_2_IP = "ping lm1170.local"
 RECONNEXION_TIME_INTERVAL = 5.0 
 ROS_BRIDGE_PORT = 9090
 
