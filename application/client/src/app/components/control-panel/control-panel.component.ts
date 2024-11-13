@@ -57,11 +57,13 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     startMission() {
         if (this.verifySocketConnection()) {
             this.showPopup = true;
+            document.body.classList.add('no-scroll');
         }
     }
 
     onPhysicalMissionStart() {
         this.showPopup = false;
+        document.body.classList.remove('no-scroll');
         this.robotService.startMissionRobot();
         this.missionService.setMissionType(MissionType.Physical);
         this.missionService.setIsMissionActive(true);
@@ -70,6 +72,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
 
     onSimulationMissionStart() {
         this.showPopup = false;
+        document.body.classList.remove('no-scroll');
         this.robotService.startMissionGazebo();
         this.missionService.setMissionType(MissionType.Simulation);
         this.missionService.setIsMissionActive(true);
@@ -78,6 +81,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
 
     onCancel() {
         this.showPopup = false;
+        document.body.classList.remove('no-scroll');
     }
 
     stopMission() {
