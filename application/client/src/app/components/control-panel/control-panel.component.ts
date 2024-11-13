@@ -42,6 +42,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     handleKeyDown(event: KeyboardEvent) {
         if (event.key === 'Escape') {
             this.showPopup = false;
+            document.body.classList.add('no-scroll');
         }
     }
 
