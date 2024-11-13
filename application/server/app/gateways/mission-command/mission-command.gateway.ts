@@ -14,6 +14,8 @@ import { MissionService } from '@app/services/mission/mission.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
+const CODE_FILE_PATH = path.resolve(__dirname, '../../../../../../../embedded_ws/src/m-explore-ros2/explore/src/explore.cpp');
+
 @Injectable()
 @WebSocketGateway()
 export class MissionCommandGateway {
@@ -158,8 +160,7 @@ export class MissionCommandGateway {
 
     @SubscribeMessage('getCodeFile')
     async handleGetCodeFile(client: Socket) {
-        const filePath = path.resolve(__dirname, '../../../../../../../embedded_ws/src/m-explore-ros2/explore/src/explore.cpp');
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        const fileContent = fs.readFileSync(CODE_FILE_PATH, 'utf-8');
         client.emit('codeFileContent', fileContent);
     }
 }
