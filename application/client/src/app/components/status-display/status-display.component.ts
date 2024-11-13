@@ -13,7 +13,7 @@ import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
     animations: [collapseExpandAnimation],
 })
 export class StatusDisplayComponent {
-    isCollapsed = false;
+    isCollapsed : boolean = false;
 
     constructor(
         private robotService: RobotCommunicationService,

@@ -18,10 +18,10 @@ import { MissionType } from '@app/enums/MissionType';
     animations: [collapseExpandAnimation],
 })
 export class ControlPanelComponent implements OnInit, OnDestroy {
-    private subscriptions: Subscription[] = [];
-    private socketConnected: boolean = false;
-    showPopup: boolean = false;
-    isCollapsed = false;
+    private subscriptions : Subscription[] = [];
+    private socketConnected : boolean = false;
+    showPopup : boolean = false;
+    isCollapsed : boolean = false;
 
     constructor(
         private robotService: RobotCommunicationService,

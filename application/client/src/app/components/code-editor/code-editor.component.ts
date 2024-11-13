@@ -22,10 +22,11 @@ import { ThemeService } from '@app/services/theme/theme.service';
   animations: [collapseExpandAnimation],
 })
 export class CodeEditorComponent implements OnInit {
-  isCollapsed = true;
-  value = '';
-  languages = languages;
+  isCollapsed : boolean = true;
+  value : string = '';
   theme: Theme = 'dark';
+  
+  languages = languages;
 
   constructor(
     private socketService: SocketHandlerService,

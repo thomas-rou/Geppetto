@@ -14,10 +14,10 @@ import { Subscription } from 'rxjs';
 })
 export class LogsDisplayComponent implements OnInit, OnDestroy, AfterViewInit {
     private clearLogsSubscription: Subscription;
-
+    
     @ViewChild('logTerminal') logTerminal!: ElementRef;
 
-    isCollapsed = true;
+    isCollapsed : boolean = true;
 
     constructor(
         private robotCommunicationService: RobotCommunicationService,
