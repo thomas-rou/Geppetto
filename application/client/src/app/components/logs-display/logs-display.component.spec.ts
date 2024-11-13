@@ -43,7 +43,7 @@ describe('LogsDisplayComponent', () => {
     it('should subscribe to clearLogsEvent on init', () => {
         spyOn(component, 'clearLogs');
         component.ngOnInit();
-        clearLogsEvent.next(); // Emit the event
+        clearLogsEvent.next();
         expect(component.clearLogs).toHaveBeenCalled();
     });
 
@@ -85,7 +85,7 @@ describe('LogsDisplayComponent', () => {
     it('should initialize and subscribe to connection status', () => {
         spyOn(component, 'clearLogs');
         component.ngOnInit();
-        clearLogsEvent.next(); // Emit the event
+        clearLogsEvent.next();
         expect(component.clearLogs).toHaveBeenCalled();
     });
 });

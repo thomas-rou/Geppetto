@@ -25,7 +25,7 @@ export class CodeEditorComponent implements OnInit {
   isCollapsed : boolean = true;
   value : string = '';
   theme: Theme = 'dark';
-  
+
   languages = languages;
 
   constructor(
@@ -36,16 +36,15 @@ export class CodeEditorComponent implements OnInit {
 
   ngOnInit() {
     this.socketService.connect();
-    this.socketService.on<string>('codeFileContent', (data: string) => {
+    this.socketService.on('codeFileContent', (data: string) => {
       this.value = data;
       this.missionService.setInitialCode(this.value);
     });
-    this.socketService.on<string>('codeFileError', (error: string) => {
+    this.socketService.on('codeFileError', (error: string) => {
       console.error('Error loading code file:', error);
     });
     this.loadCodeFile();
 
-    // Subscribe to theme changes
     this.theme = this.themeService.getCurrentTheme();
     this.themeService.themeChanged.subscribe((newTheme: Theme) => {
       this.theme = newTheme;
