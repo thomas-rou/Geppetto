@@ -21,13 +21,9 @@ import { OccupancyGrid } from '@common/interfaces/LiveMap';
 })
 export class RobotCommunicationService {
     private missionStatusSubject = new Subject<string>();
-
     private robotIdentificationSubject = new Subject<string>();
-
     private commandErrorSubject = new Subject<string>();
-
     private connectionStatusSubject = new Subject<boolean>();
-
     private logSubject = new Subject<string>();
     private liveMapSubject = new Subject<OccupancyGrid>();
 

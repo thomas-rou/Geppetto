@@ -4,10 +4,10 @@
         <span>{{ isCollapsed ? '&#x2b;' : '&#x2212;' }}</span>
     </h2>
     <div class="controls">
-        <button id="start-mission" (click)="startMission()">Lancer la Mission</button>
-        <button id="stop-mission" (click)="stopMission()">Arrêter la Mission</button>
-        <button id="return-home" (click)="returnHome()">Retour à la Maison</button>
-        <button id="update-software" (click)="updateSoftware()">Mettre à Jour</button>
+        <button id="start-mission" (click)="startMission()" [disabled]="isMissionActive()">Lancer la Mission</button>
+        <button id="stop-mission" (click)="stopMission()" [disabled]="!isMissionActive()">Arrêter la Mission</button>
+        <button id="return-home" (click)="returnHome()" [disabled]="!isMissionActive()">Retour à la Maison</button>
+        <button id="update-software" (click)="updateSoftware()" [disabled]="!isCodeChanged()">Mettre à Jour</button>
     </div>
     <app-start-mission-popup
         *ngIf="showPopup && !isCollapsed"

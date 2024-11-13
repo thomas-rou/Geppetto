@@ -18,13 +18,10 @@ import { MissionType } from '@app/enums/MissionType';
     animations: [collapseExpandAnimation],
 })
 export class ControlPanelComponent implements OnInit, OnDestroy {
-    private subscriptions: Subscription[] = [];
-
-    private socketConnected: boolean = false;
-
-    showPopup: boolean = false;
-
-    isCollapsed = false;
+    private subscriptions : Subscription[] = [];
+    private socketConnected : boolean = false;
+    showPopup : boolean = false;
+    isCollapsed : boolean = false;
 
     constructor(
         private robotService: RobotCommunicationService,
@@ -38,12 +35,14 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
                 this.socketConnected = isConnected;
             }),
         );
+
     }
 
     @HostListener('window:keydown', ['$event'])
     handleKeyDown(event: KeyboardEvent) {
         if (event.key === 'Escape') {
             this.showPopup = false;
+            document.body.classList.remove('no-scroll');
         }
     }
 
@@ -59,25 +58,31 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     startMission() {
         if (this.verifySocketConnection()) {
             this.showPopup = true;
+            document.body.classList.add('no-scroll');
         }
     }
 
     onPhysicalMissionStart() {
         this.showPopup = false;
+        document.body.classList.remove('no-scroll');
         this.robotService.startMissionRobot();
         this.missionService.setMissionType(MissionType.Physical);
+        this.missionService.setIsMissionActive(true);
         this.logsService.triggerClearLogs();
     }
 
     onSimulationMissionStart() {
         this.showPopup = false;
+        document.body.classList.remove('no-scroll');
         this.robotService.startMissionGazebo();
         this.missionService.setMissionType(MissionType.Simulation);
+        this.missionService.setIsMissionActive(true);
         this.logsService.triggerClearLogs();
     }
 
     onCancel() {
         this.showPopup = false;
+        document.body.classList.remove('no-scroll');
     }
 
     stopMission() {
@@ -89,6 +94,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
                 this.robotService.endMissionGazebo();
                 break;
         }
+        this.missionService.setIsMissionActive(false);
     }
 
     identifyRobot(target: RobotId) {
@@ -114,11 +120,20 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     updateSoftware() {
         if (this.verifySocketConnection()) {
             try {
-                this.robotService.updateControllerCode('new code here');
+                this.robotService.updateControllerCode(this.missionService.getNewCode());
+                this.missionService.setInitialCode(this.missionService.getNewCode());
             } catch (error) {
                 console.error('Error identifying robot', error);
             }
         }
+    }
+
+    isCodeChanged() {
+        return this.missionService.getIsCodeChanged();
+    }
+    
+    isMissionActive() {
+        return this.missionService.getIsMissionActive();
     }
 
     ngOnDestroy(): void {
