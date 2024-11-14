@@ -89,17 +89,11 @@ def generate_launch_description():
         ],
         output="screen",
     )
-    log_node = Node(
-        package="com_bridge",
-        executable="log",
-        name="log",
-    )
 
     return LaunchDescription(
         [
             gz_sim,
             bridge,
-            log_node,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
         ]
