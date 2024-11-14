@@ -31,14 +31,8 @@ class RobotPose(Node):
             GlobalConst.QUEUE_SIZE
         )
 
-        if self.robot_name == RobotName.GAZEBO:
-            self.robot_pose_publisher = self.create_publisher(
-                Pose, f"{self.robot_id}/pose", GlobalConst.QUEUE_SIZE
-            )
-        else:
-            self.robot_pose_publisher = self.create_publisher(
-                Pose, f"{self.robot_name}/pose", GlobalConst.QUEUE_SIZE
-            )
+        topic_name = f"{self.robot_id}/pose" if self.robot_name == RobotName.GAZEBO else f"{self.robot_name}/pose"
+        self.robot_pose_publisher = self.create_publisher(Pose, topic_name, GlobalConst.QUEUE_SIZE)
 
         self.timer = self.create_timer(TIMER_PERIOD, self.timer_callback)
 
