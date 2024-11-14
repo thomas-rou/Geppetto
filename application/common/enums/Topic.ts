@@ -11,4 +11,8 @@ export enum Topic {
     log_robot1 = '/robot_1/log',
     log_robot2 = '/robot_2/log',
     log_gazebo = '/gazebo/log',
+    robot1_pose = '/robot_1/pose',
+    robot2_pose = '/robot_2/pose',
+    gazebo1_pose = '/limo1/pose',
+    gazebo2_pose = '/limo2/pose',
 }
