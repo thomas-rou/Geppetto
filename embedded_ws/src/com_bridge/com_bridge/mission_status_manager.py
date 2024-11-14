@@ -6,6 +6,7 @@ from common_msgs.msg import MissionStatus
 from com_bridge.common_methods import set_mission_status, get_mission_status
 from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
 from com_bridge.log import LoggerNode
+from std_msgs.msg import Bool
 BATTERY_CAPACITY = 12.0
 BATTERY_THRESHOLD = 30
 MAX_BATTERY_LEVEL = 100
@@ -32,11 +33,14 @@ class MissionStatusManager(Node):
             mission_status = MissionStatus()
             mission_status.robot_id = os.getenv('ROBOT')[-1]
             mission_status.battery_level = battery_level
+            self.logger.log_message(LogType.INFO, f'Updated battery level: {battery_level}%')
             mission_status.robot_status = get_mission_status()
             if mission_status.battery_level <= BATTERY_THRESHOLD and mission_status.robot_status != RobotStatus.LOW_BATTERY:
                 mission_status.robot_status = RobotStatus.LOW_BATTERY
                 set_mission_status(RobotStatus.LOW_BATTERY)
-                # TODO: call low battery callback here
+                low_battery_msg = Bool()
+                low_battery_msg.data = True 
+                self.low_battery_publisher.publish(low_battery_msg)
             self.mission_status_publisher.publish(mission_status)
         except Exception as e:
             self.logger.log_message(LogType.INFO, "Failed to publish mission status: "+str(e))

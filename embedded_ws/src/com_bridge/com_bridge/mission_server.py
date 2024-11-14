@@ -26,6 +26,7 @@ class MissionServerGazebo(Node):
     def __init__(self):
         super().__init__("mission_server")
         self.declare_parameter("robot_id", "")
+        self.declare_parameter("should_return", False)
         self.robot_id = (
             self.get_parameter("robot_id").get_parameter_value().string_value
         )
@@ -89,9 +90,25 @@ class MissionServerGazebo(Node):
             self.start_mission_publisher.publish(msg)
             command = ["ros2", "launch", "explore_lite", "explore.launch.py"]
             subprocess.Popen(command)
-            
+            # not returning to base by default
+            self.set_return_base(False)
+
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")
+
+    def set_return_base(self, value: bool):
+        try:
+            self.should_return = value
+            self.set_parameter(rclpy.parameter.Parameter("return_to_init", rclpy.Parameter.Type.BOOL, value))
+                    # Optionally, verify the parameter was updated
+            updated_value = self.get_parameter("return_to_base").value
+            if updated_value == value:
+                self.logger.log_message(LogType.INFO, f"Successfully set return_to_base to {value}.")
+            else:
+                self.logger.log_message(LogType.WARNING, f"Failed to set return_to_base to {value}.")
+        except Exception as e:
+            self.logger.log_message(LogType.INFO, f"Failed to change return_to_base parameter: {e}")    
+
 
     def stop_mission_callback(self, msg: StopMission):
         try:
@@ -104,6 +121,8 @@ class MissionServerGazebo(Node):
             self._mission_status = RobotStatus.WAITING
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to cancel mission: {e}")
+
+    
 
     def stop_robot(self):
         if self.mission_active:
@@ -119,6 +138,7 @@ class MissionServerGazebo(Node):
             twist_msg.angular.z = 0.0
             self.mission_mouvements.publish(twist_msg)
 
+    
 
 def main(args=None):
     rclpy.init(args=args)
