@@ -19,7 +19,7 @@ def get_robot_id():
     return robot_id
 
 def get_robot_name():
-    env_robot_name = os.getenv('ROBOT_NAME')
+    env_robot_name = os.getenv('ROBOT')
     if env_robot_name:
         return env_robot_name
     else:
