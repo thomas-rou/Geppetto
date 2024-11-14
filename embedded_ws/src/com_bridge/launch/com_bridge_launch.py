@@ -22,13 +22,18 @@ def generate_launch_description():
             ),
             Node(
                 package="com_bridge",
+                executable="mission_status_manager_gazebo",
+                name="status",
+            ),
+            Node(
+                package="com_bridge",
                 executable="get_map_robot_2",
                 name="get_map_robot_2",
             ),
             Node(
                 package="com_bridge",
-                executable="log",
-                name="log",
+                executable="sensor_logger",
+                name="sensor_logger",
             ),
         ]
     )
