@@ -8,12 +8,12 @@ def generate_launch_description():
             Node(
                 package="com_bridge",
                 executable="mission_controller",
-                name="mission_controller", 
+                name="mission_controller",
             ),
             Node(
                 package="com_bridge",
-                executable="identify_robot", 
-                name="identify_robot", 
+                executable="identify_robot",
+                name="identify_robot",
             ),
             Node(
                 package="com_bridge",
@@ -24,6 +24,11 @@ def generate_launch_description():
                 package="com_bridge",
                 executable="get_map_robot_2",
                 name="get_map_robot_2",
+            ),
+            Node(
+                package="com_bridge",
+                executable="robot_pose",
+                name="robot_pose",
             ),
         ]
     )

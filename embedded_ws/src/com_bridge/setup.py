@@ -10,7 +10,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/com_bridge_launch.py']), 
+        ('share/' + package_name + '/launch', ['launch/com_bridge_launch.py']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -24,7 +24,9 @@ setup(
             'mission_controller = com_bridge.mission_server:main',
             'identify_robot = com_bridge.identify:main',
             'mission_status_manager = com_bridge.mission_status_manager:main',
+            'mission_status_manager_gazebo = com_bridge.mission_status_manager_gazebo:main',
             'get_map_robot_2 = com_bridge.get_map_robot_2:main',
+            'robot_pose = com_bridge.robot_pose:main',
         ],
     },
 )
