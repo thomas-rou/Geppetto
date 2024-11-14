@@ -24,8 +24,9 @@ setup(
             'mission_controller = com_bridge.mission_server:main',
             'identify_robot = com_bridge.identify:main',
             'mission_status_manager = com_bridge.mission_status_manager:main',
+            'mission_status_manager_gazebo = com_bridge.mission_status_manager_gazebo:main',
             'get_map_robot_2 = com_bridge.get_map_robot_2:main',
-            'log = com_bridge.log:main',
+            'sensor_logger = com_bridge.sensor_logger:main',
         ],
     },
 )
