@@ -3,16 +3,27 @@ import time
 from rclpy.node import Node
 from std_msgs.msg import Float32, Bool
 from rclpy.parameter import Parameter
+from common_msgs.msg import ReturnBase
+from com_bridge.common_enums import GlobalConst
 from com_bridge.mission_server import MissionServerGazebo  # Import MissionServerGazebo
 
 class ReturnBase(Node):
     def __init__(self):
         super().__init__('return_base')
         self.mission_server = MissionServerGazebo() 
+        #Demnder Loic que fait cette ligne bizz
         self.create_subscription(Bool, f"{os.getenv('ROBOT')}/low_battery", self.low_battery_callback, 10)
 
+        self.battery_subscription = self.create_subscription(
+            ReturnBase,
+            'return_to_base',
+            self.returnToBase,
+            GlobalConst.QUEUE_SIZE
+        )
+
+
     def low_battery_callback(self, msg: Bool):
-        if msg.data:  # If the message indicates low battery
+        if msg.data:  
             self.get_logger().warn('Battery below threshold, returning to base...')
             self.returnToBase()
 

@@ -3,12 +3,14 @@ import { WebSocket } from 'ws';
 import { MessageOperation } from '@common/interfaces/MessageOperation';
 import { StartMission } from '@common/interfaces/StartMission';
 import { EndMission } from '@common/interfaces/EndMission';
+import { ReturnToBase } from '@common/interfaces/ReturnToBase';
 import { RobotCommand } from '@common/enums/RobotCommand';
 import { Operation } from '@common/enums/Operation';
 import { Topic } from '@common/enums/Topic';
 import { TopicType } from '@common/enums/TopicType';
 import { RobotId } from '@common/enums/RobotId';
 import { BasicCommand } from '@common/interfaces/BasicCommand';
+import { timeStamp } from 'console';
 
 @Injectable()
 export class RobotService {
@@ -114,6 +116,13 @@ export class RobotService {
             command: RobotCommand.EndMission,
             timestamp: new Date().toISOString(),
         } as EndMission);
+    }
+
+    async returnToBase() {
+        await this.publishToTopic(Topic.return_base, TopicType.return_base, {
+            command: RobotCommand.ReturnToBase,
+            timestamp: new Date().toISOString(),
+        } as ReturnToBase);
     }
 
     async identify() {

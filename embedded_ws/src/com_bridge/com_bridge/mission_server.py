@@ -92,6 +92,7 @@ class MissionServerGazebo(Node):
             subprocess.Popen(command)
             # not returning to base by default
             self.set_return_base(False)
+            time.sleep(0.5)
 
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")
@@ -121,8 +122,6 @@ class MissionServerGazebo(Node):
             self._mission_status = RobotStatus.WAITING
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to cancel mission: {e}")
-
-    
 
     def stop_robot(self):
         if self.mission_active:
