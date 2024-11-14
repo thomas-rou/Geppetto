@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
+import { RobotPose } from '@common/interfaces/RobotPose';
 
 interface MapMetaData {
     width: number;
@@ -28,12 +29,18 @@ interface OccupancyGrid {
 export class MapDisplayComponent implements OnInit {
     @ViewChild('mapCanvas', { static: true }) mapCanvas!: ElementRef<HTMLCanvasElement>;
     isCollapsed = true;
+    robotPose: RobotPose[] = [];
 
     constructor(private robotCommunicationService: RobotCommunicationService) {}
 
     ngOnInit(): void {
         this.robotCommunicationService.onLiveMap().subscribe((occupancyGrid: OccupancyGrid) => {
             this.drawMap(occupancyGrid);
+        });
+
+        this.robotCommunicationService.onRobotPositions().subscribe((robotPose: RobotPose[]) => {
+            this.robotPose = [robotPose[0], robotPose[1]];
+            this.drawRobotPositions();
         });
     }
 
@@ -66,5 +73,20 @@ export class MapDisplayComponent implements OnInit {
                 ctx.fillRect(x, y, 1, 1);
             }
         }
+
+        this.drawRobotPositions();
+    }
+
+    drawRobotPositions(): void {
+        const canvas = this.mapCanvas.nativeElement;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        this.robotPose.forEach(robot => {
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(robot.position.x, robot.position.y, 5, 0, 2 * Math.PI);
+            ctx.fill();
+        });
     }
 }
