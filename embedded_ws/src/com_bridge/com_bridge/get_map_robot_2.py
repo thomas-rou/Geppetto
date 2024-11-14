@@ -3,13 +3,15 @@ import websockets
 import json
 import os
 from nav_msgs.msg import OccupancyGrid, MapMetaData
+from std_msgs.msg import Header
 import rclpy
+from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy, HistoryPolicy
 from rclpy.node import Node
 from geometry_msgs.msg import Pose
 from com_bridge.common_methods import get_robot_id
 from com_bridge.common_enums import RobotID
 
-ROBOT_2_IP = "lm1170"
+ROBOT_2_IP = "ping lm1170.local"
 RECONNEXION_TIME_INTERVAL = 5.0 
 ROS_BRIDGE_PORT = 9090
 
@@ -17,7 +19,13 @@ ROS_BRIDGE_PORT = 9090
 class MapPublisher(Node):
     def __init__(self):
         super().__init__('get_map_robot_2')
-        self.map2_publisher = self.create_publisher(OccupancyGrid, "robot_2/map", 10)
+        qos_profile = QoSProfile(
+            depth=1,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+            reliability=ReliabilityPolicy.RELIABLE,
+            history=HistoryPolicy.KEEP_LAST
+        )
+        self.map2_publisher = self.create_publisher(OccupancyGrid, "robot_2/map", qos_profile)
         self.get_logger().info("Map Publisher node started")
 
 
@@ -80,6 +88,12 @@ async def receive_messages(ws, publisher_node):
                     origin.orientation.w = origin_data.get('orientation', {}).get('w')
 
                     map_metadata.origin = origin
+                    
+                    header = Header()
+                    header.stamp.sec = message_data.get('header', {}).get('stamp', {}).get('sec')
+                    header.stamp.nanosec = message_data.get('header', {}).get('stamp', {}).get('nanosec')
+                    header.frame_id = message_data.get('header', {}).get('frame_id')
+                    occupancy_grid.header = header
                     
                     occupancy_grid.info = map_metadata
                     occupancy_grid.data = message_data.get('data')

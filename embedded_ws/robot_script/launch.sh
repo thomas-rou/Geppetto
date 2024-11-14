@@ -22,6 +22,8 @@ ros2 launch limo_bringup navigation2.launch.py &
 sleep 2
 ros2 launch com_bridge com_bridge_launch.py &
 sleep 2
+ros2 launch multirobot_map_merge map_merge.launch.py &
+sleep 2
 ros2 run rosbridge_server rosbridge_websocket &
 sleep 2
 ros2 launch explore_lite explore.launch.py &
