@@ -20,7 +20,7 @@ class Robot(Entity):
         self.build_entity(pose, size)
         self.index = Robot.get_id()
         self.spawn_robot()
-        # self.activate_status_simulation()
+        self.activate_status_simulation()
 
     @staticmethod
     def get_id() -> int:
@@ -95,15 +95,23 @@ class Robot(Entity):
             package="com_bridge",
             executable="mission_status_manager_gazebo",
             name="status",
-            parameters=[{"robot_id": f"robot_{self.index + 1}"}],
+            parameters=[{"robot_id": f"limo{self.index + 1}"}],
             output="screen",
         )
         mission_node = Node(
             package="com_bridge",
             executable="mission_controller",
             name="mission_controller",
-            parameters=[{"robot_id": f"robot_{self.index + 1}"}],
+            parameters=[{"robot_id": f"limo{self.index + 1}"}],
+            output="screen",
+        )
+        sensor_logger_node = Node(
+            package="com_bridge",
+            executable="sensor_logger",
+            name="sensor_logger",
+            parameters=[{"robot_id": f"limo{self.index + 1}"}],
             output="screen",
         )
         Robot.robot_state_publishers.append(battery_node)
         Robot.robot_state_publishers.append(mission_node)
+        Robot.robot_state_publishers.append(sensor_logger_node)
