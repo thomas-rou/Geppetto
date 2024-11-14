@@ -5,4 +5,5 @@ export enum TopicType {
     mission_status = 'common_msgs/msg/MissionStatus',
     log_message = 'common_msgs/msg/LogMessage',
     map = 'nav_msgs/msg/OccupancyGrid',
+    pose = 'geometry_msgs/msg/Pose',
 }
