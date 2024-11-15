@@ -2,22 +2,7 @@ import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
 import { RobotPose } from '@common/interfaces/RobotPose';
-
-interface MapMetaData {
-    width: number;
-    height: number;
-    resolution: number;
-    origin: { x: number; y: number; z: number };
-}
-
-interface OccupancyGrid {
-    header: {
-        stamp: { sec: number; nsec: number };
-        frame_id: string;
-    };
-    info: MapMetaData;
-    data: Int8Array;
-}
+import { OccupancyGrid, MapMetaData } from '@common/interfaces/LiveMap';
 
 @Component({
     selector: 'app-map-display',
@@ -29,17 +14,22 @@ interface OccupancyGrid {
 export class MapDisplayComponent implements OnInit {
     @ViewChild('mapCanvas', { static: true }) mapCanvas!: ElementRef<HTMLCanvasElement>;
     isCollapsed = true;
-    robotPose: RobotPose[] = [];
+    private robotPoses: { [topic: string]: RobotPose[] } = {};
+    private topicColors: { [key: string]: string } = {};
+    private occupancyGridInfo: MapMetaData;
 
     constructor(private robotCommunicationService: RobotCommunicationService) {}
 
     ngOnInit(): void {
         this.robotCommunicationService.onLiveMap().subscribe((occupancyGrid: OccupancyGrid) => {
+            this.occupancyGridInfo = occupancyGrid.info;
             this.drawMap(occupancyGrid);
         });
 
-        this.robotCommunicationService.onRobotPositions().subscribe((robotPose: RobotPose[]) => {
-            this.robotPose = [robotPose[0], robotPose[1]];
+        this.robotCommunicationService.onRobotPositions().subscribe((robotPose: RobotPose) => {
+            if (robotPose.topic) {
+                this.robotPoses[robotPose.topic] = [robotPose];
+            }
             this.drawRobotPositions();
         });
     }
@@ -53,7 +43,7 @@ export class MapDisplayComponent implements OnInit {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        const { width, height } = occupancyGrid.info;
+        const { width, height } = this.occupancyGridInfo;
         canvas.width = width;
         canvas.height = height;
 
@@ -81,12 +71,39 @@ export class MapDisplayComponent implements OnInit {
         const canvas = this.mapCanvas.nativeElement;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
+        if (!this.occupancyGridInfo) return;
 
-        this.robotPose.forEach(robot => {
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
-            ctx.arc(robot.position.x, robot.position.y, 5, 0, 2 * Math.PI);
-            ctx.fill();
+        const { origin, resolution } = this.occupancyGridInfo;
+
+        Object.keys(this.robotPoses).forEach(topic => {
+            const color = this.getColorForTopic(topic);
+            this.robotPoses[topic].forEach(robot => {
+                if (robot && robot.position) {
+                    const x = (robot.position.x - origin.position.x) / resolution;
+                    const y = canvas.height - (robot.position.y - origin.position.y) / resolution;
+
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            });
         });
+    }
+
+    getColorForTopic(topic: string): string {
+        if (!this.topicColors[topic]) {
+            this.topicColors[topic] = this.getRandomColor();
+        }
+        return this.topicColors[topic];
+    }
+
+    getRandomColor(): string {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
     }
 }
