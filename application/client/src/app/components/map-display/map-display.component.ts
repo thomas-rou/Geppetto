@@ -8,6 +8,7 @@ const ROBOT_RADIUS = 5;
 const ROBOT_START_ANGLE = 0;
 const ROBOT_END_ANGLE = 2 * Math.PI;
 const HEX_LETTERS = '0123456789ABCDEF';
+const EMPTY_HEX_COLOR = '#';
 const COLOR_LENGTH = 6;
 const HEX_BASE = 16;
 const OCCUPANCY_GRID_UNKNOWN_COLOR = 'gray';
@@ -132,7 +133,7 @@ export class MapDisplayComponent implements OnInit {
     private drawRobotOrientation(ctx: CanvasRenderingContext2D, x: number, y: number, orientation: { x: number, y: number, z: number, w: number }): void {
         const angle = this.quaternionToAngle(orientation);
         ctx.beginPath();
-        ctx.moveTo(x + (ROBOT_RADIUS / 2) * Math.cos(angle), y - (ROBOT_RADIUS / 2) * Math.sin(angle));
+        ctx.moveTo(x + (ROBOT_RADIUS / 3) * Math.cos(angle), y - (ROBOT_RADIUS / 3) * Math.sin(angle));
         ctx.lineTo(x + ROBOT_RADIUS * Math.cos(angle), y - ROBOT_RADIUS * Math.sin(angle));
         ctx.stroke();
     }
@@ -149,7 +150,7 @@ export class MapDisplayComponent implements OnInit {
     }
 
     getRandomColor(): string {
-        let color = '#';
+        let color = EMPTY_HEX_COLOR;
         for (let i = 0; i < COLOR_LENGTH; i++) {
             color += HEX_LETTERS[Math.floor(Math.random() * HEX_BASE)];
         }
