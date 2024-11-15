@@ -19,6 +19,7 @@ class MissionStatusManager(Node):
         self.logger = LoggerNode()
         self.logger.log_message(LogType.INFO, f"Mission manager Launched waiting for messages in {os.getenv('ROBOT')}")
         self.mission_status_publisher = self.create_publisher(MissionStatus,f"{os.getenv('ROBOT')}/mission_status", GlobalConst.QUEUE_SIZE)
+        self.low_battery_publisher = self.create_publisher(Bool,f"{os.getenv('ROBOT')}/low_battery", GlobalConst.QUEUE_SIZE)
 
         self.battery_subscription = self.create_subscription(
             LimoStatus,

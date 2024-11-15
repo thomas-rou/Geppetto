@@ -1,4 +1,5 @@
 import rclpy
+import os
 import time
 from rclpy.node import Node
 from std_msgs.msg import Float32, Bool
@@ -11,15 +12,12 @@ class ReturnBase(Node):
     def __init__(self):
         super().__init__('return_base')
         self.mission_server = MissionServerGazebo() 
-        #Demnder Loic que fait cette ligne bizz
-        self.create_subscription(Bool, f"{os.getenv('ROBOT')}/low_battery", self.low_battery_callback, 10)
 
-        self.battery_subscription = self.create_subscription(
-            ReturnBase,
-            'return_to_base',
-            self.returnToBase,
-            GlobalConst.QUEUE_SIZE
+
+        self.return_to_base_publisher = self.create_publisher(
+            Bool, 'return_to_base', GlobalConst.QUEUE_SIZE
         )
+        self.create_subscription(Bool, f"{os.getenv('ROBOT')}/low_battery", self.low_battery_callback, GlobalConst.QUEUE_SIZE)
 
 
     def low_battery_callback(self, msg: Bool):
@@ -29,15 +27,20 @@ class ReturnBase(Node):
 
     def returnToBase(self):
         try:
-            self.mission_server.set_return_base(True)
-            time.sleep(0.5)
+            self.set_parameters([
+                Parameter("return_to_init", Parameter.Type.BOOL, True)
+            ])
+            time.sleep(0.1)
             msg = Bool()
-            self.mission_server.stop_mission_callback(msg)
-
+            self.return_to_base_publisher.publish(msg)
             self.get_logger().info('Return to base initialized, returning to base.')
 
         except Exception as e:
             self.get_logger().error(f'Failed to initiate return to base: {e}')
+
+    def _stop_mission(self):
+        msg = Bool()
+        self.mission_server.stop_mission_callback(msg)
 
 def main(args=None):
     rclpy.init(args=args)

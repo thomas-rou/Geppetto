@@ -18,6 +18,7 @@ from com_bridge.common_methods import (
 from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
 from com_bridge.log import LoggerNode
 import os
+from rclpy.parameter import Parameter
 
 CALLBACK_PERIOD = 2.0
 
@@ -26,7 +27,6 @@ class MissionServerGazebo(Node):
     def __init__(self):
         super().__init__("mission_server")
         self.declare_parameter("robot_id", "")
-        self.declare_parameter("should_return", False)
         self.robot_id = (
             self.get_parameter("robot_id").get_parameter_value().string_value
         )
@@ -92,23 +92,24 @@ class MissionServerGazebo(Node):
             subprocess.Popen(command)
             # not returning to base by default
             self.set_return_base(False)
-            time.sleep(0.5)
 
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")
 
+
     def set_return_base(self, value: bool):
         try:
-            self.should_return = value
-            self.set_parameter(rclpy.parameter.Parameter("return_to_init", rclpy.Parameter.Type.BOOL, value))
-                    # Optionally, verify the parameter was updated
-            updated_value = self.get_parameter("return_to_base").value
+            self.set_parameters([
+                Parameter("return_to_init", Parameter.Type.BOOL, value)
+            ])
+            time.sleep(0.1)
+            updated_value = self.get_parameter("return_to_init").value
             if updated_value == value:
-                self.logger.log_message(LogType.INFO, f"Successfully set return_to_base to {value}.")
+                self.logger.log_message(LogType.INFO, f"Successfully set return_to_init to {value}.")
             else:
-                self.logger.log_message(LogType.WARNING, f"Failed to set return_to_base to {value}.")
+                self.logger.log_message(LogType.WARNING, f"Failed to set return_to_init to {value}.")
         except Exception as e:
-            self.logger.log_message(LogType.INFO, f"Failed to change return_to_base parameter: {e}")    
+            self.logger.log_message(LogType.INFO, f"Failed to change return_to_init parameter: {e}")    
 
 
     def stop_mission_callback(self, msg: StopMission):
