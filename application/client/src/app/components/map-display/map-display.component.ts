@@ -10,6 +10,9 @@ const ROBOT_END_ANGLE = 2 * Math.PI;
 const HEX_LETTERS = '0123456789ABCDEF';
 const COLOR_LENGTH = 6;
 const HEX_BASE = 16;
+const OCCUPANCY_GRID_UNKNOWN_COLOR = 'gray';
+const OCCUPANCY_GRID_FREE_COLOR = 'white';
+const OCCUPANCY_GRID_OCCUPIED_COLOR = 'black';
 
 @Component({
     selector: 'app-map-display',
@@ -83,9 +86,9 @@ export class MapDisplayComponent implements OnInit {
 
     private getCellColor(cellValue: number): string {
         switch (cellValue) {
-            case -1: return 'gray';
-            case 0: return 'white';
-            default: return 'black';
+            case -1: return OCCUPANCY_GRID_UNKNOWN_COLOR;
+            case 0: return OCCUPANCY_GRID_FREE_COLOR;
+            default: return OCCUPANCY_GRID_OCCUPIED_COLOR;
         }
     }
 
@@ -107,13 +110,35 @@ export class MapDisplayComponent implements OnInit {
     }
 
     private drawRobot(ctx: CanvasRenderingContext2D, robot: RobotPose, color: string, origin: any, resolution: number, canvasHeight: number): void {
-        const x = (robot.position.x - origin.position.x) / resolution;
-        const y = canvasHeight - (robot.position.y - origin.position.y) / resolution;
+        const { x, y } = this.calculateRobotPosition(robot.position, origin, resolution, canvasHeight);
 
+        this.drawRobotBody(ctx, x, y, color);
+        this.drawRobotOrientation(ctx, x, y, robot.orientation);
+    }
+
+    private calculateRobotPosition(position: { x: number, y: number }, origin: any, resolution: number, canvasHeight: number): { x: number, y: number } {
+        const x = (position.x - origin.position.x) / resolution;
+        const y = canvasHeight - (position.y - origin.position.y) / resolution;
+        return { x, y };
+    }
+
+    private drawRobotBody(ctx: CanvasRenderingContext2D, x: number, y: number, color: string): void {
         ctx.fillStyle = color;
         ctx.beginPath();
         ctx.arc(x, y, ROBOT_RADIUS, ROBOT_START_ANGLE, ROBOT_END_ANGLE);
         ctx.fill();
+    }
+
+    private drawRobotOrientation(ctx: CanvasRenderingContext2D, x: number, y: number, orientation: { x: number, y: number, z: number, w: number }): void {
+        const angle = this.quaternionToAngle(orientation);
+        ctx.beginPath();
+        ctx.moveTo(x + (ROBOT_RADIUS / 2) * Math.cos(angle), y - (ROBOT_RADIUS / 2) * Math.sin(angle));
+        ctx.lineTo(x + ROBOT_RADIUS * Math.cos(angle), y - ROBOT_RADIUS * Math.sin(angle));
+        ctx.stroke();
+    }
+
+    private quaternionToAngle(q: { x: number, y: number, z: number, w: number }): number {
+        return Math.atan2(2.0 * (q.w * q.z + q.x * q.y), 1.0 - 2.0 * (q.y * q.y + q.z * q.z));
     }
 
     getColorForTopic(topic: string): string {
