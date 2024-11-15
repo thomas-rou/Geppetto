@@ -1,5 +1,5 @@
 from com_bridge.common_methods import get_robot_name
-from com_bridge.common_enums import GlobalConst, LogType
+from com_bridge.common_enums import GlobalConst, LogType, RobotName
 import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
@@ -7,7 +7,6 @@ from sensor_msgs.msg import LaserScan
 from datetime import datetime
 from com_bridge.log import LoggerNode
 from rclpy.executors import MultiThreadedExecutor
-from com_bridge.common_enums import RobotName
 
 TIMER_PERIOD = 1.0
 
@@ -18,20 +17,24 @@ class SensorLogger(Node):
         self.logger = LoggerNode()
 
         self.declare_parameter("robot_id", "")
-        self.robot_id = (
-            self.get_parameter("robot_id").get_parameter_value().string_value
-        )
-        self.robot_name = get_robot_name()
-        if not self.robot_name:
-            self.robot_name = self.robot_id
-            self.logger.log_message(LogType.WARNING, "Robot name not found, using robot_id instead")
+        self.robot_id = self.get_parameter("robot_id").get_parameter_value().string_value
+        self.robot_name = get_robot_name() or self.robot_id
 
-        self.last_odometry_msg, self.prev_odometry_msg = None, None
+        if not get_robot_name():
+            self.logger.log_message(LogType.WARNING, "Robot name not found. Defaulting to robot_id")
+
+        self.last_odometry_msg = None
+        self.prev_odometry_msg = None
         self.last_scan_msg = None
-        if self.robot_name is RobotName.GAZEBO:
-            odom_topic = f"/{self.robot_id}/odom"
-        else:
-            odom_topic = f"/odom"
+
+        self.subscribe_to_sensor_topics()
+        self.logger.log_message(LogType.INFO, f"Sensor Logger Launched waiting for messages in {self.robot_name}")
+        self.timer = self.create_timer(TIMER_PERIOD, self.timer_callback)
+
+    def subscribe_to_sensor_topics(self):
+        odom_topic = f"/{self.robot_id}/odom" if self.robot_name is RobotName.GAZEBO else "/odom"
+        scan_topic = f"/{self.robot_id}/scan" if self.robot_name is RobotName.GAZEBO else "/scan"
+
         self.robot_odom_subscription = self.create_subscription(
             Odometry,
             odom_topic,
@@ -39,21 +42,12 @@ class SensorLogger(Node):
             GlobalConst.QUEUE_SIZE
         )
 
-        if self.robot_name is RobotName.GAZEBO:
-            scan_topic = f"/{self.robot_id}/scan"
-        else:
-            scan_topic = f"/scan"
         self.robot_scan_subscription = self.create_subscription(
             LaserScan,
             scan_topic,
             self.scan_callback,
             GlobalConst.QUEUE_SIZE
         )
-
-        self.logger.log_message(LogType.INFO, f"Sensor Logger Launched waiting for messages in {self.robot_name}")
-        self.logger.log_message(LogType.INFO, f"Subscribed to {odom_topic} and {scan_topic}")
-
-        self.timer = self.create_timer(TIMER_PERIOD, self.timer_callback)
 
     def odom_callback(self, msg: Odometry):
         self.last_odometry_msg = msg
@@ -68,13 +62,15 @@ class SensorLogger(Node):
 
     def should_log(self):
         return self.last_odometry_msg is not None and (
-            self.prev_odometry_msg is None or self.has_odometry_changed(self.prev_odometry_msg, self.last_odometry_msg))
+            self.prev_odometry_msg is None or self.has_odometry_changed(self.prev_odometry_msg, self.last_odometry_msg)
+        )
 
     def log_odometry(self):
         position = self.last_odometry_msg.pose.pose.position
         orientation = self.last_odometry_msg.pose.pose.orientation
         linear_velocity = self.last_odometry_msg.twist.twist.linear
         angular_velocity = self.last_odometry_msg.twist.twist.angular
+
         log_message = (
             f"{self.robot_id} Odometry Data:\n"
             f"  Position:\n"
@@ -101,15 +97,16 @@ class SensorLogger(Node):
 
     def log_scan(self):
         if self.last_scan_msg:
-            scan = self.last_scan_msg
-            center_index = len(scan.ranges) // 2
-            log_distance = scan.ranges[center_index]
+            center_index = len(self.last_scan_msg.ranges) // 2
+            log_distance = self.last_scan_msg.ranges[center_index]
             self.logger.log_message(LogType.INFO, f"{self.robot_id} Center LaserScan distance: {log_distance}")
 
     def has_odometry_changed(self, prev_msg, curr_msg):
-        return (prev_msg.pose.pose.position != curr_msg.pose.pose.position or
-                prev_msg.pose.pose.orientation != curr_msg.pose.pose.orientation or
-                prev_msg.twist.twist != curr_msg.twist.twist)
+        return (
+            prev_msg.pose.pose.position != curr_msg.pose.pose.position or
+            prev_msg.pose.pose.orientation != curr_msg.pose.pose.orientation or
+            prev_msg.twist.twist != curr_msg.twist.twist
+        )
 
 
 def main(args=None):
