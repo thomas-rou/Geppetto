@@ -46,7 +46,7 @@ export class SubscriptionServiceService {
         await this.subscribeToTopicRobot2(gateway);
     }
 
-    missionStatusCallback(message) {
+    async missionStatusCallback(message) {
         const robotStatus: RobotStatus = message.msg;
         this.server.emit('robotStatus', robotStatus);
     }
