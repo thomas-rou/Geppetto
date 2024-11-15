@@ -27,7 +27,7 @@ export class RobotCommunicationService {
     private connectionStatusSubject = new Subject<boolean>();
     private logSubject = new Subject<string>();
     private liveMapSubject = new Subject<OccupancyGrid>();
-    private robotPoseSubject = new Subject<RobotPose[]>();
+    private robotPoseSubject = new Subject<RobotPose>();
 
     constructor(
         public socketService: SocketHandlerService,
@@ -110,7 +110,7 @@ export class RobotCommunicationService {
     }
 
     handleRobotPose() {
-        this.socketService.on('robotPositions', (message: RobotPose[]) => {
+        this.socketService.on('robotPose', (message: RobotPose) => {
             this.robotPoseSubject.next(message);
         });
     }
@@ -139,7 +139,7 @@ export class RobotCommunicationService {
         return this.liveMapSubject.asObservable();
     }
 
-    onRobotPositions(): Observable<RobotPose[]> {
+    onRobotPositions(): Observable<RobotPose> {
         return this.robotPoseSubject.asObservable();
     }
 
