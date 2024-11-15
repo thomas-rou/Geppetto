@@ -68,6 +68,7 @@ export class SubscriptionServiceService {
 
     async robotPoseCallback(message) {
         const robotPose: RobotPose = message.msg;
+        robotPose.topic = message.topic;
         this.server.emit('robotPose', robotPose);
     }
 
