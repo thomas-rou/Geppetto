@@ -20,7 +20,7 @@ services:
     devices:
       - "/dev/dri:/dev/dri"
     environment:
-      - DISPLAY=:0
+      - DISPLAY=$DISPLAY
       - QT_X11_NO_MITSHM=1
       - XAUTHORITY=/tmp/.docker.xauth
     volumes:
