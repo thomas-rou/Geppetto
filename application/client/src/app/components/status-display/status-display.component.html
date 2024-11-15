@@ -12,9 +12,13 @@
             <p>
                 <span>Batterie:</span><span>{{ robot1.battery }}%</span>
             </p>
-            <p>
-                <span>Position: </span><span>({{ robot1.position.x }}, {{ robot1.position.y }})</span>
-            </p>
+            <p *ngIf="(robotPoses['/robot_1/pose'] && robotPoses['/robot_1/pose'][0]) || (robotPoses['/limo1/pose'] && robotPoses['/limo1/pose'][0])">
+                <span>Position: </span>
+                <span>
+                  ({{ (robotPoses['/robot_1/pose'] ? robotPoses['/robot_1/pose'][0].position.x : robotPoses['/limo1/pose'][0].position.x) }},
+                  {{ (robotPoses['/robot_1/pose'] ? robotPoses['/robot_1/pose'][0].position.y : robotPoses['/limo1/pose'][0].position.y) }})
+                </span>
+              </p>
         </div>
         <div class="robot" id="robot2">
             <button class="robot-name" title="Identifier" (click)="identifyRobot(robot2.id)">{{ robot2.name }}</button>
@@ -24,9 +28,13 @@
             <p>
                 <span>Batterie:</span><span>{{ robot2.battery }}%</span>
             </p>
-            <p>
-                <span>Position: </span><span>({{ robot2.position.x }}, {{ robot2.position.y }})</span>
-            </p>
+            <p *ngIf="(robotPoses['/robot_2/pose'] && robotPoses['/robot_2/pose'][0]) || (robotPoses['/limo2/pose'] && robotPoses['/limo2/pose'][0])">
+                <span>Position: </span>
+                <span>
+                  ({{ (robotPoses['/robot_2/pose'] ? robotPoses['/robot_2/pose'][0].position.x : robotPoses['/limo2/pose'][0].position.x) }},
+                  {{ (robotPoses['/robot_2/pose'] ? robotPoses['/robot_2/pose'][0].position.y : robotPoses['/limo2/pose'][0].position.y) }})
+                </span>
+              </p>
         </div>
     </div>
 </section>
