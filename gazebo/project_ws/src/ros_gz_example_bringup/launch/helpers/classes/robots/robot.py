@@ -49,7 +49,6 @@ class Robot(Entity):
                 {"use_sim_time": True},
                 {"robot_description": robot_desc},
             ],
-            # remappings=[("/robot_description", f"/robot_description{self.index}")],
         )
         Robot.robot_state_publishers.append(robot_state_publisher)
 

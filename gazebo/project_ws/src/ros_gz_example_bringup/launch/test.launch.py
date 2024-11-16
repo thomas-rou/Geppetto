@@ -12,28 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Example for spawing multiple robots in Gazebo.
-
-This is an example on how to create a launch file for spawning multiple robots into Gazebo
-and launch multiple instances of the navigation stack, each controlling one robot.
-The robots co-exist on a shared environment and are controlled by independent nav stacks
-"""
+"""This is all-in-one launch script intended for use by nav2 developers."""
 
 import os
 
 from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription, condition
+
+from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
     ExecuteProcess,
-    GroupAction,
     IncludeLaunchDescription,
-    LogInfo,
 )
-from launch.conditions import IfCondition, UnlessCondition
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, TextSubstitution, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 
 
@@ -42,52 +35,60 @@ def generate_launch_description():
     bringup_dir = get_package_share_directory("nav2_bringup")
     launch_dir = os.path.join(bringup_dir, "launch")
 
-    # Get the launch directory for multirobot_map_merge where we have a modified launch files
+    ros_gz_bringup_dir = get_package_share_directory("ros_gz_example_bringup")
+
+    # Get the launch directory for multirobot_map_merge where we have a modified bringup launch file
     map_merge_dir = get_package_share_directory("multirobot_map_merge")
     launch_dir_map_merge = os.path.join(map_merge_dir, "launch", "tb3_simulation")
 
-    # Names and poses of the robots for known poses demo
-    robots_known_poses = [
-        {"name": "robot1", "x_pose": 0.0, "y_pose": 0.5, "z_pose": 0.01},
-        {"name": "robot2", "x_pose": -3.0, "y_pose": 1.5, "z_pose": 0.01},
-    ]
-    # Names and poses of the robots for unknown poses demo, the must be very close at beginning
-    robots_unknown_poses = [
-        {"name": "robot1", "x_pose": -2.0, "y_pose": 0.5, "z_pose": 0.01},
-        {"name": "robot2", "x_pose": -3.0, "y_pose": 0.5, "z_pose": 0.01},
-    ]
-
-    # Simulation settings
-    world = LaunchConfiguration("world")
-    simulator = LaunchConfiguration("simulator")
-
-    # On this example all robots are launched with the same settings
+    # Create the launch configuration variables
+    slam = LaunchConfiguration("slam")
+    slam_toolbox = LaunchConfiguration("slam_toolbox")
+    slam_gmapping = LaunchConfiguration("slam_gmapping")
+    namespace = LaunchConfiguration("namespace")
+    use_namespace = LaunchConfiguration("use_namespace")
     map_yaml_file = LaunchConfiguration("map")
-
+    use_sim_time = LaunchConfiguration("use_sim_time")
+    params_file = LaunchConfiguration("params_file")
     autostart = LaunchConfiguration("autostart")
-    rviz_config_file = LaunchConfiguration("rviz_config")
+
+    # Launch configuration variables specific to simulation
+    rviz_config_file = LaunchConfiguration("rviz_config_file")
+    use_simulator = LaunchConfiguration("use_simulator")
     use_robot_state_pub = LaunchConfiguration("use_robot_state_pub")
     use_rviz = LaunchConfiguration("use_rviz")
-    log_settings = LaunchConfiguration("log_settings", default="true")
+    headless = LaunchConfiguration("headless")
+    world = LaunchConfiguration("world")
 
-    known_init_poses = LaunchConfiguration("known_init_poses")
-    declare_known_init_poses_cmd = DeclareLaunchArgument(
-        "known_init_poses",
-        default_value="True",
-        description="Known initial poses of the robots. If so don't forget to declare them in the params.yaml file",
-    )
+    # Map fully qualified names to relative ones so the node's namespace can be prepended.
+    # In case of the transforms (tf), currently, there doesn't seem to be a better alternative
+    # https://github.com/ros/geometry2/issues/32
+    # https://github.com/ros/robot_state_publisher/pull/30
+    # TODO(orduno) Substitute with `PushNodeRemapping`
+    #              https://github.com/ros2/launch_ros/issues/56
+    remappings = [("/tf", "tf"), ("/tf_static", "tf_static")]
 
     # Declare the launch arguments
-    declare_world_cmd = DeclareLaunchArgument(
-        "world",
-        default_value=os.path.join(launch_dir_map_merge, "worlds", "world_only.model"),
-        description="Full path to world file to load",
+    declare_namespace_cmd = DeclareLaunchArgument(
+        "namespace", default_value="", description="Top-level namespace"
     )
 
-    declare_simulator_cmd = DeclareLaunchArgument(
-        "simulator",
-        default_value="gazebo",
-        description="The simulator to use (gazebo or gzserver)",
+    declare_use_namespace_cmd = DeclareLaunchArgument(
+        "use_namespace",
+        default_value="false",
+        description="Whether to apply a namespace to the navigation stack",
+    )
+
+    declare_slam_cmd = DeclareLaunchArgument(
+        "slam", default_value="False", description="Whether run a SLAM"
+    )
+    declare_slam_toolbox_cmd = DeclareLaunchArgument(
+        "slam_toolbox", default_value="False", description="Whether run a SLAM toolbox"
+    )
+    declare_slam_gmapping_cmd = DeclareLaunchArgument(
+        "slam_gmapping",
+        default_value="False",
+        description="Whether run a SLAM gmapping",
     )
 
     declare_map_yaml_cmd = DeclareLaunchArgument(
@@ -96,32 +97,34 @@ def generate_launch_description():
         description="Full path to map file to load",
     )
 
-    declare_robot1_params_file_cmd = DeclareLaunchArgument(
-        "robot1_params_file",
-        default_value=os.path.join(
-            launch_dir_map_merge, "config", "nav2_multirobot_params_1.yaml"
-        ),
-        description="Full path to the ROS2 parameters file to use for robot1 launched nodes",
+    declare_use_sim_time_cmd = DeclareLaunchArgument(
+        "use_sim_time",
+        default_value="true",
+        description="Use simulation (Gazebo) clock if true",
     )
 
-    declare_robot2_params_file_cmd = DeclareLaunchArgument(
-        "robot2_params_file",
-        default_value=os.path.join(
-            launch_dir_map_merge, "config", "nav2_multirobot_params_2.yaml"
-        ),
-        description="Full path to the ROS2 parameters file to use for robot2 launched nodes",
+    declare_params_file_cmd = DeclareLaunchArgument(
+        "params_file",
+        default_value=os.path.join(ros_gz_bringup_dir, "config", "nav2_params.yaml"),
+        description="Full path to the ROS2 parameters file to use for all launched nodes",
     )
 
     declare_autostart_cmd = DeclareLaunchArgument(
         "autostart",
         default_value="true",
-        description="Automatically startup the stacks",
+        description="Automatically startup the nav2 stack",
     )
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
-        "rviz_config",
-        default_value=os.path.join(bringup_dir, "rviz", "nav2_namespaced_view.rviz"),
-        description="Full path to the RVIZ config file to use.",
+        "rviz_config_file",
+        default_value=os.path.join(bringup_dir, "rviz", "nav2_default_view.rviz"),
+        description="Full path to the RVIZ config file to use",
+    )
+
+    declare_use_simulator_cmd = DeclareLaunchArgument(
+        "use_simulator",
+        default_value="True",
+        description="Whether to start the simulator",
     )
 
     declare_use_robot_state_pub_cmd = DeclareLaunchArgument(
@@ -134,246 +137,108 @@ def generate_launch_description():
         "use_rviz", default_value="True", description="Whether to start RVIZ"
     )
 
-    slam_toolbox = LaunchConfiguration("slam_toolbox")
-    slam_gmapping = LaunchConfiguration("slam_gmapping")
-    declare_slam_toolbox_cmd = DeclareLaunchArgument(
-        "slam_toolbox", default_value="False", description="Whether run a SLAM toolbox"
-    )
-    declare_slam_gmapping_cmd = DeclareLaunchArgument(
-        "slam_gmapping",
-        default_value="False",
-        description="Whether run a SLAM gmapping",
+    declare_simulator_cmd = DeclareLaunchArgument(
+        "headless", default_value="False", description="Whether to execute gzclient)"
     )
 
-    # Start Gazebo with plugin providing the robot spawing service
-    # start_gazebo_cmd = ExecuteProcess(
+    # declare_world_cmd = DeclareLaunchArgument(
+    #     "world",
+    #     # TODO(orduno) Switch back once ROS argument passing has been fixed upstream
+    #     #              https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/91
+    #     # default_value=os.path.join(get_package_share_directory('turtlebot3_gazebo'),
+    #     # worlds/turtlebot3_worlds/waffle.model')
+    #     default_value=os.path.join(bringup_dir, "worlds", "waffle.model"),
+    #     description="Full path to world model file to load",
+    # )
+
+    # Specify the actions
+    # start_gazebo_server_cmd = ExecuteProcess(
+    #     condition=IfCondition(use_simulator),
     #     cmd=[
-    #         simulator,
-    #         "--verbose",
+    #         "gzserver",
     #         "-s",
     #         "libgazebo_ros_init.so",
     #         "-s",
     #         "libgazebo_ros_factory.so",
     #         world,
     #     ],
+    #     cwd=[launch_dir],
     #     output="screen",
     # )
 
-    pkg_ros_gz_sim = get_package_share_directory("ros_gz_sim")
+    # start_gazebo_client_cmd = ExecuteProcess(
+    #     condition=IfCondition(PythonExpression([use_simulator, " and not ", headless])),
+    #     cmd=["gzclient"],
+    #     cwd=[launch_dir],
+    #     output="screen",
+    # )
 
-    # Setup to launch the simulator and Gazebo world
-    start_gazebo_cmd = IncludeLaunchDescription(
+    # urdf = os.path.join(bringup_dir, "urdf", "turtlebot3_waffle.urdf")
+
+    # start_robot_state_publisher_cmd = Node(
+    #     condition=IfCondition(use_robot_state_pub),
+    #     package="robot_state_publisher",
+    #     executable="robot_state_publisher",
+    #     name="robot_state_publisher",
+    #     namespace=namespace,
+    #     output="screen",
+    #     parameters=[{"use_sim_time": use_sim_time}],
+    #     remappings=remappings,
+    #     arguments=[urdf],
+    # )
+
+    # rviz_cmd = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(os.path.join(launch_dir, "rviz_launch.py")),
+    #     condition=IfCondition(use_rviz),
+    #     launch_arguments={
+    #         "namespace": "",
+    #         "use_namespace": "False",
+    #         "rviz_config": rviz_config_file,
+    #     }.items(),
+    # )
+
+    bringup_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg_ros_gz_sim, "launch", "gz_sim.launch.py")
+            os.path.join(launch_dir_map_merge, "bringup_launch.py")
         ),
         launch_arguments={
-            "gz_args": PathJoinSubstitution(
-                [
-                    get_package_share_directory("ros_gz_example_gazebo"),
-                    "worlds",
-                    "diff_drive.sdf",
-                ]
-            )
+            "namespace": "limo1",
+            "use_namespace": "True",
+            "map": "",
+            "use_sim_time": "True",
+            "params_file": params_file,
+            "autostart": autostart,
         }.items(),
     )
-
-
-    robot_sdf = LaunchConfiguration("robot_sdf")
-    declare_robot_sdf_cmd = DeclareLaunchArgument(
-        "robot_sdf",
-        default_value=os.path.join(bringup_dir, "worlds", "waffle.model"),
-        description="Full path to robot sdf file to spawn the robot in gazebo",
-    )
-
-    # Define commands for spawing the robots into Gazebo
-    spawn_robots_cmds = []
-    for robot_known, robot_unknown in zip(robots_known_poses, robots_unknown_poses):
-        # after humble release, use spawn_entity.py
-        if os.getenv("ROS_DISTRO") == "humble":
-            spawn_robots_cmds.append(
-                Node(
-                    package="gazebo_ros",
-                    executable="spawn_entity.py",
-                    output="screen",
-                    arguments=[
-                        "-entity",
-                        robot_known["name"],
-                        "-file",
-                        robot_sdf,
-                        "-robot_namespace",
-                        TextSubstitution(text=str(robot_known["name"])),
-                        "-x",
-                        TextSubstitution(text=str(robot_known["x_pose"])),
-                        "-y",
-                        TextSubstitution(text=str(robot_known["y_pose"])),
-                        "-z",
-                        TextSubstitution(text=str(robot_known["z_pose"])),
-                        "-R",
-                        "0.0",
-                        "-P",
-                        "0.0",
-                        "-Y",
-                        "0.0",
-                    ],
-                    condition=IfCondition(known_init_poses),
-                )
-            )
-            spawn_robots_cmds.append(
-                Node(
-                    package="ros_gz_sim",
-                    executable="create",
-                    output="screen",
-                    arguments=[
-                        "-entity",
-                        robot_unknown["name"],
-                        "-file",
-                        robot_sdf,
-                        "-robot_namespace",
-                        TextSubstitution(text=str(robot_unknown["name"])),
-                        "-x",
-                        TextSubstitution(text=str(robot_unknown["x_pose"])),
-                        "-y",
-                        TextSubstitution(text=str(robot_unknown["y_pose"])),
-                        "-z",
-                        TextSubstitution(text=str(robot_unknown["z_pose"])),
-                        "-R",
-                        "0.0",
-                        "-P",
-                        "0.0",
-                        "-Y",
-                        "0.0",
-                    ],
-                    condition=UnlessCondition(known_init_poses),
-                )
-            )
-        else:
-            spawn_robots_cmds.append(
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource(
-                        os.path.join(bringup_dir, "launch", "spawn_tb3_launch.py")
-                    ),
-                    launch_arguments={
-                        "x_pose": TextSubstitution(text=str(robot_known["x_pose"])),
-                        "y_pose": TextSubstitution(text=str(robot_known["y_pose"])),
-                        "z_pose": TextSubstitution(text=str(robot_known["z_pose"])),
-                        "robot_name": robot_known["name"],
-                        "turtlebot_type": TextSubstitution(text="waffle"),
-                    }.items(),
-                    condition=IfCondition(known_init_poses),
-                )
-            )
-            spawn_robots_cmds.append(
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource(
-                        os.path.join(bringup_dir, "launch", "spawn_tb3_launch.py")
-                    ),
-                    launch_arguments={
-                        "x_pose": TextSubstitution(text=str(robot_unknown["x_pose"])),
-                        "y_pose": TextSubstitution(text=str(robot_unknown["y_pose"])),
-                        "z_pose": TextSubstitution(text=str(robot_unknown["z_pose"])),
-                        "robot_name": robot_unknown["name"],
-                        "turtlebot_type": TextSubstitution(text="waffle"),
-                    }.items(),
-                    condition=UnlessCondition(known_init_poses),
-                )
-            )
-
-    # Define commands for launching the navigation instances
-    nav_instances_cmds = []
-    for robot in robots_known_poses:
-        params_file = LaunchConfiguration(f"{robot['name']}_params_file")
-
-        group = GroupAction(
-            [
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource(
-                        os.path.join(launch_dir, "rviz_launch.py")
-                    ),
-                    condition=IfCondition(use_rviz),
-                    launch_arguments={
-                        "namespace": TextSubstitution(text=robot["name"]),
-                        "use_namespace": "True",
-                        "rviz_config": rviz_config_file,
-                    }.items(),
-                ),
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource(
-                        os.path.join(launch_dir_map_merge, "tb3_simulation_launch.py")
-                    ),
-                    launch_arguments={
-                        "namespace": robot["name"],
-                        "use_namespace": "True",
-                        "map": map_yaml_file,
-                        "use_sim_time": "True",
-                        "params_file": params_file,
-                        "autostart": autostart,
-                        "use_rviz": "False",
-                        "use_simulator": "False",
-                        "headless": "False",
-                        "slam": "True",
-                        "slam_toolbox": slam_toolbox,
-                        "slam_gmapping": slam_gmapping,
-                        "use_robot_state_pub": use_robot_state_pub,
-                    }.items(),
-                ),
-                LogInfo(
-                    condition=IfCondition(log_settings),
-                    msg=["Launching ", robot["name"]],
-                ),
-                LogInfo(
-                    condition=IfCondition(log_settings),
-                    msg=[robot["name"], " map yaml: ", map_yaml_file],
-                ),
-                LogInfo(
-                    condition=IfCondition(log_settings),
-                    msg=[robot["name"], " params yaml: ", params_file],
-                ),
-                LogInfo(
-                    condition=IfCondition(log_settings),
-                    msg=[robot["name"], " rviz config file: ", rviz_config_file],
-                ),
-                LogInfo(
-                    condition=IfCondition(log_settings),
-                    msg=[
-                        robot["name"],
-                        " using robot state pub: ",
-                        use_robot_state_pub,
-                    ],
-                ),
-                LogInfo(
-                    condition=IfCondition(log_settings),
-                    msg=[robot["name"], " autostart: ", autostart],
-                ),
-            ]
-        )
-
-        nav_instances_cmds.append(group)
 
     # Create the launch description and populate
     ld = LaunchDescription()
 
     # Declare the launch options
-    ld.add_action(declare_simulator_cmd)
-    ld.add_action(declare_world_cmd)
-    ld.add_action(declare_map_yaml_cmd)
-    ld.add_action(declare_robot1_params_file_cmd)
-    ld.add_action(declare_robot2_params_file_cmd)
-    ld.add_action(declare_use_rviz_cmd)
-    ld.add_action(declare_autostart_cmd)
-    ld.add_action(declare_rviz_config_file_cmd)
-    ld.add_action(declare_use_robot_state_pub_cmd)
+    ld.add_action(declare_namespace_cmd)
+    ld.add_action(declare_use_namespace_cmd)
+    ld.add_action(declare_slam_cmd)
     ld.add_action(declare_slam_toolbox_cmd)
     ld.add_action(declare_slam_gmapping_cmd)
-    ld.add_action(declare_known_init_poses_cmd)
-    ld.add_action(declare_robot_sdf_cmd)
+    ld.add_action(declare_map_yaml_cmd)
+    ld.add_action(declare_use_sim_time_cmd)
+    ld.add_action(declare_params_file_cmd)
+    ld.add_action(declare_autostart_cmd)
 
-    # Add the actions to start gazebo, robots and simulations
-    ld.add_action(start_gazebo_cmd)
+    ld.add_action(declare_rviz_config_file_cmd)
+    ld.add_action(declare_use_simulator_cmd)
+    ld.add_action(declare_use_robot_state_pub_cmd)
+    ld.add_action(declare_use_rviz_cmd)
+    ld.add_action(declare_simulator_cmd)
+    # ld.add_action(declare_world_cmd)
 
-    for spawn_robot_cmd in spawn_robots_cmds:
-        ld.add_action(spawn_robot_cmd)
+    # Add any conditioned actions
+    # ld.add_action(start_gazebo_server_cmd)
+    # ld.add_action(start_gazebo_client_cmd)
 
-    for simulation_instance_cmd in nav_instances_cmds:
-        ld.add_action(simulation_instance_cmd)
+    # Add the actions to launch all of the navigation nodes
+    # ld.add_action(start_robot_state_publisher_cmd)
+    # ld.add_action(rviz_cmd)
+    ld.add_action(bringup_cmd)
 
     return ld
