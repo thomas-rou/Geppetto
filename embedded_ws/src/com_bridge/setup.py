@@ -27,7 +27,7 @@ setup(
             'mission_status_manager_gazebo = com_bridge.mission_status_manager_gazebo:main',
             'get_map_robot_2 = com_bridge.get_map_robot_2:main',
             'robot_pose = com_bridge.robot_pose:main',
-            'peer_to_peer = com_bridge.peer_to_peer:main',
+            'peer_to_peer = com_bridge.peer_to_peer:main_async',
         ],
     },
 )
