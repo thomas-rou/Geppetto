@@ -9,9 +9,7 @@ import { MissionCommandGateway } from '@app/gateways/mission-command/mission-com
 import { MissionService } from '../mission/mission.service';
 import { OccupancyGrid } from '@common/interfaces/LiveMap';
 import * as fs from 'fs';
-import * as path from 'path';
 
-const CODE_FILE_PATH = path.resolve(__dirname, '../../../../../../../embedded_ws/src/com_bridge/com_bridge/log.py');
 
 @Injectable()
 export class SubscriptionServiceService {
@@ -61,9 +59,9 @@ export class SubscriptionServiceService {
         this.server.emit('liveMap', liveMap);
     }
 
-    async updateRobotController(newCode: string): Promise<void> {
+    async updateRobotController(newCode: string, filePath: string): Promise<void> {
         return new Promise((resolve, reject) => {
-            fs.writeFile(CODE_FILE_PATH, newCode, 'utf-8', (err) => {
+            fs.writeFile(filePath, newCode, 'utf-8', (err) => {
                 if (err) {
                     reject(err);
                 } else {

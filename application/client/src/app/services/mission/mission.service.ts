@@ -13,6 +13,7 @@ export class MissionService {
     private code: string = '';
     private initialcode: string = '';
     public missions: Mission[] = [];
+    public filenameToModify: string = 'log.py';
 
     constructor(private socketService: SocketHandlerService) {
         this.connect();

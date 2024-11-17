@@ -52,7 +52,7 @@ export class CodeEditorComponent implements OnInit {
   }
 
   loadCodeFile() {
-    this.socketService.send('getCodeFile');
+    this.socketService.send('getCodeFile', this.missionService.filenameToModify);
   }
 
   toggleCollapse() {
