@@ -58,11 +58,14 @@ class ModifyCodeNode(Node):
             print(f"Error writing file: {err}")
 
     def update_code_callback(self, msg):
-        path_to_file = os.path.join(os.getcwd(), msg.filename)
-        self.update_code_in_file(path_to_file, msg.code)
-        node_name = self.node_dict[msg.filename]
-        self.stop_node(node_name)
-        self.start_node(node_name)
+        try:
+            path_to_file = os.path.join(os.getcwd(), msg.filename)
+            self.update_code_in_file(path_to_file, msg.code)
+            node_name = self.node_dict[msg.filename]
+            self.stop_node(node_name)
+            self.start_node(node_name)
+        except Exception as err:
+            print(f"Error occurred while updating code: {err}")
 
 
 def main(args=None):
