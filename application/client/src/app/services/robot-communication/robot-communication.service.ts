@@ -202,6 +202,7 @@ export class RobotCommunicationService {
             command: RobotCommand.UpdateControllerCode,
             code: newCode,
             timestamp: new Date().toISOString(),
+            path: 'controller.py', //TODO: update for a real path
         };
         this.socketService.send(RobotCommand.UpdateControllerCode, message);
     }

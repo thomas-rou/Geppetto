@@ -14,7 +14,7 @@ import { MissionService } from '@app/services/mission/mission.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const CODE_FILE_PATH = path.resolve(__dirname, '../../../../../../../embedded_ws/src/m-explore-ros2/explore/src/explore.cpp');
+const CODE_FILE_PATH = path.resolve(__dirname, '../../../../../../../embedded_ws/src/com_bridge/com_bridge/log.py');
 
 @Injectable()
 @WebSocketGateway()
