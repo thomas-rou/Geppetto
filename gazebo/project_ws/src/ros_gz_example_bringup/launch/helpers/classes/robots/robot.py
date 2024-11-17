@@ -50,7 +50,21 @@ class Robot(Entity):
                 {"robot_description": robot_desc},
             ],
         )
+
+        initial_pose_publisher = Node(
+            package="com_bridge",
+            executable="publish_initialpose",
+            name="initial_pose_publisher",
+            output="screen",
+            parameters=[
+                {"namespace": self.name},
+                {"x": self.pose.x},
+                {"y": self.pose.y},
+            ],
+        )
+
         Robot.robot_state_publishers.append(robot_state_publisher)
+        Robot.robot_state_publishers.append(initial_pose_publisher)
 
     def spawn_robot(self) -> Node:
         if Robot.check_spawn_kill(self):
