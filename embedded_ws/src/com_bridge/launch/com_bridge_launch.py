@@ -30,5 +30,10 @@ def generate_launch_description():
                 executable="robot_pose",
                 name="robot_pose",
             ),
+            Node(
+                package="com_bridge",
+                executable="peer_to_peer",
+                name="peer_to_peer",
+            ),
         ]
     )
