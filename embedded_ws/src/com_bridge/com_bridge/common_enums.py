@@ -23,3 +23,9 @@ class LogType:
     WARNING = "WARNING"
     ERROR = "ERROR"
     DEBUG = "DEBUG"
+
+class Network:
+    ROS_BRIDGE_PORT = 9090
+    ROBOT_1_IP = "lm1354.local"
+    ROBOT_2_IP = "lm1170.local"
+    RECONNEXION_TIME_INTERVAL = 5.0 
