@@ -25,5 +25,10 @@ def generate_launch_description():
                 executable="get_map_robot_2",
                 name="get_map_robot_2",
             ),
+            Node(
+                package="com_bridge",
+                executable="update_code_node",
+                name="update_code_node",
+            ),
         ]
     )
