@@ -9,7 +9,7 @@ import { MissionCommandGateway } from '@app/gateways/mission-command/mission-com
 import { MissionService } from '../mission/mission.service';
 import { OccupancyGrid } from '@common/interfaces/LiveMap';
 import * as fs from 'fs';
-
+import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 
 @Injectable()
 export class SubscriptionServiceService {
@@ -59,15 +59,26 @@ export class SubscriptionServiceService {
         this.server.emit('liveMap', liveMap);
     }
 
-    async updateRobotController(newCode: string, filePath: string): Promise<void> {
-        return new Promise((resolve, reject) => {
-            fs.writeFile(filePath, newCode, 'utf-8', (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
+    isAnyRobotConnected(): boolean {
+        return this.robot1.isConnected() || this.robot2.isConnected() || this.gazebo.isConnected();
+    }
+
+    async updateRobotController(payload: UpdateControllerCode, filePath: string): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            if (!this.isAnyRobotConnected()) {
+                reject({ message: 'No robot connected' });
+            } else {
+                if (this.robot1.isConnected()) await this.robot1.updateRobotCode(payload);
+                if (this.robot2.isConnected()) await this.robot2.updateRobotCode(payload);
+                if (this.gazebo.isConnected()) await this.gazebo.updateRobotCode(payload);
+                await fs.writeFile(filePath, payload.code, 'utf-8', (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
+            }
         });
     }
 }
