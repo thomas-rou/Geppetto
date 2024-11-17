@@ -1,4 +1,5 @@
 import rclpy
+import asyncio
 from rclpy.node import Node
 from geometry_msgs.msg import Pose
 from com_bridge.common_methods import get_robot_name, get_other_robot_name, get_robot_ip
@@ -89,6 +90,9 @@ async def main_async():
         await node.shutdown()
         rclpy.shutdown()
 
+def main():
+    asyncio.run(main_async())
+
 
 if __name__ == '__main__':
-    main_async()
+    main()
