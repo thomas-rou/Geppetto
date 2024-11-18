@@ -1,5 +1,6 @@
 import os
 from com_bridge.common_enums import RobotID, RobotName
+from com_bridge.common_enums import Network
 
 def set_mission_status(mission_status):
     with open('/tmp/.mission_status', 'w') as f:
