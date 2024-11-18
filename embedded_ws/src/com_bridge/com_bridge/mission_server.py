@@ -26,6 +26,7 @@ CALLBACK_PERIOD = 2.0
 class MissionServerGazebo(Node):
     def __init__(self):
         super().__init__("mission_server")
+
         self.declare_parameter("robot_id", "")
         self.robot_id = (
             self.get_parameter("robot_id").get_parameter_value().string_value
@@ -53,9 +54,19 @@ class MissionServerGazebo(Node):
             self.stop_mission_callback,
             GlobalConst.QUEUE_SIZE,
         )
+
+        self.return_base_subscription = self.create_subscription(
+            Bool, 
+            'return_to_base', 
+            self.return_to_base_callback, 
+            GlobalConst.QUEUE_SIZE
+        )
+
         self.mission_mouvements = self.create_publisher(
             Twist, "cmd_vel", GlobalConst.QUEUE_SIZE
         )
+
+
 
     @property
     def mission_active(self):
@@ -90,26 +101,36 @@ class MissionServerGazebo(Node):
             self.start_mission_publisher.publish(msg)
             command = ["ros2", "launch", "explore_lite", "explore.launch.py"]
             subprocess.Popen(command)
-            # not returning to base by default
-            self.set_return_base(False)
 
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")
 
-
-    def set_return_base(self, value: bool):
+    def navigate_to_home(self):
         try:
-            self.set_parameters([
-                Parameter("return_to_init", Parameter.Type.BOOL, value)
-            ])
-            time.sleep(0.1)
-            updated_value = self.get_parameter("return_to_init").value
-            if updated_value == value:
-                self.logger.log_message(LogType.INFO, f"Successfully set return_to_init to {value}.")
-            else:
-                self.logger.log_message(LogType.WARNING, f"Failed to set return_to_init to {value}.")
+            self.action_client.wait_for_server()
+            goal_msg = PoseStamped()
+            goal_msg.header.frame_id = 'map'
+            goal_msg.header.stamp = self.get_clock().now().to_msg()
+            # TODO: Replace with base/initial coordinates
+            goal_msg.pose.position.x = 0.0  
+            goal_msg.pose.position.y = 0.0
+            goal_msg.pose.orientation.w = 1.0
+            future = self.action_client.send_goal_async(goal_msg)
+            future.add_done_callback(self.goal_response_callback)
+            self.logger.log_message(LogType.INFO, "Navigating to base position.")
         except Exception as e:
-            self.logger.log_message(LogType.INFO, f"Failed to change return_to_init parameter: {e}")    
+            self.logger.log_message(LogType.ERROR, f"Failed to navigate to home: {e}")
+
+
+    def return_to_base_callback(self, msg: Bool):
+        if msg.data: 
+            self.get_logger().info('Received return to base signal.')
+            if self.mission_active:
+                self.stop_robot()
+                self._mission_status = RobotStatus.WAITING
+                self.logger.log_message(LogType.INFO, "Mission stopped")
+            self.navigate_to_home()
+
 
 
     def stop_mission_callback(self, msg: StopMission):
@@ -125,20 +146,28 @@ class MissionServerGazebo(Node):
             self.logger.log_message(LogType.INFO, f"Failed to cancel mission: {e}")
 
     def stop_robot(self):
-        if self.mission_active:
-            msg = Bool()
-            msg.data = False
-            self.start_mission_publisher.publish(msg)
-            twist_msg = Twist()
-            twist_msg.linear.x = 0.0
-            twist_msg.linear.y = 0.0
-            twist_msg.linear.z = 0.0
-            twist_msg.angular.x = 0.0
-            twist_msg.angular.y = 0.0
-            twist_msg.angular.z = 0.0
-            self.mission_mouvements.publish(twist_msg)
+        msg = Bool()
+        msg.data = False
+        self.start_mission_publisher.publish(msg)
+        twist_msg = Twist()
+        twist_msg.linear.x = 0.0
+        twist_msg.linear.y = 0.0
+        twist_msg.linear.z = 0.0
+        twist_msg.angular.x = 0.0
+        twist_msg.angular.y = 0.0
+        twist_msg.angular.z = 0.0
+        self.mission_mouvements.publish(twist_msg)
 
-    
+    def goal_response_callback(self, future):
+        try:
+            result = future.result()
+            if not result.accepted:
+                self.logger.log_message(LogType.WARNING, "Navigation goal rejected.")
+            else:
+                self.logger.log_message(LogType.INFO, "Navigation goal accepted. Returning home.")
+        except Exception as e:
+            self.logger.log_message(LogType.ERROR, f"Failed to process navigation goal response: {e}")
+
 
 def main(args=None):
     rclpy.init(args=args)
