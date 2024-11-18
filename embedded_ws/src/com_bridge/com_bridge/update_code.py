@@ -3,6 +3,7 @@ from com_bridge.common_enums import GlobalConst, LogType
 import rclpy
 from rclpy.node import Node
 from common_msgs.msg import UpdateControllerCode
+import subprocess
 
 import os
 import subprocess
@@ -15,13 +16,18 @@ class ModifyCodeNode(Node):
         self.logger = LoggerNode()
         self.logger.log_message(
             LogType.INFO,
-            f"Server Launched waiting for messages in {os.getenv('ROBOT')}",
+            f"Update code node Launched waiting for messages in {os.getenv('ROBOT')}",
         )
         self.update_code_subscription = self.create_subscription(
             UpdateControllerCode,
             f"{os.getenv('ROBOT')}/update_code",
             self.update_code_callback,
             GlobalConst.QUEUE_SIZE,
+        )
+        self.ws_path = (
+            "/lib/geppetto/embedded_ws"
+            if get_robot_name() == "gazebo"
+            else "~/geppetto/embedded_ws"
         )
         self.node_dict = {
             "identify.py": "identify_node",
@@ -33,22 +39,17 @@ class ModifyCodeNode(Node):
 
     def stop_node(self, node_name):
         command = f"ps aux | grep '{node_name}' | grep -v grep | awk '{{print $2}}' | while read process; do kill -9 $process; done"
-        subprocess.run(command)
+        subprocess.run(command, shell=True)
 
     def start_node(self, node_name):
-        ws_path = (
-            "/lib/geppetto/embedded_ws"
-            if get_robot_name() == "gazebo"
-            else "~/geppetto/embedded_ws"
-        )
-        cd_command = f"cd {ws_path}"
+        cd_command = f"cd {self.ws_path}"
         build_command = "colcon build --packages-select com_bridge"
         source_command = "source install/setup.bash"
         run_command = f"ros2 run {node_name}"
         command = (
             f"{cd_command} && {build_command} && {source_command} && {run_command}"
         )
-        subprocess.run(command)
+        subprocess.Popen(command, shell=True)
 
     def update_code_in_file(self, file_path, code):
         try:
@@ -59,7 +60,7 @@ class ModifyCodeNode(Node):
 
     def update_code_callback(self, msg):
         try:
-            path_to_file = os.path.join(os.getcwd(), msg.filename)
+            path_to_file = self.ws_path + "/src/com_bridge/com_bridge/" + msg.filename
             self.update_code_in_file(path_to_file, msg.code)
             node_name = self.node_dict[msg.filename]
             self.stop_node(node_name)
