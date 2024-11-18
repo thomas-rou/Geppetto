@@ -12,7 +12,7 @@ class P2PNode(Node):
     def __init__(self):
         super().__init__(f'P2PNode')
         self.robot_name = get_robot_name()
-        self.other_robot_name = get_odther_robot_name()
+        self.other_robot_name = get_other_robot_name()
         
         self.local_pose_subscriber = self.create_subscription(
             Pose,
