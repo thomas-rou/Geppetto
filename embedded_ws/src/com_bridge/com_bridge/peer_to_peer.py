@@ -3,6 +3,7 @@ import asyncio
 from rclpy.node import Node
 from geometry_msgs.msg import Pose
 from com_bridge.common_methods import get_robot_name, get_other_robot_name, get_robot_ip
+from com_bridge.common_enums import Network
 from com_bridge.websocket_subscriber import WebSocketSubscriber  
 
 def calculate_cartesian_distance(pose: Pose):
