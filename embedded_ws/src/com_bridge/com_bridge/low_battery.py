@@ -4,10 +4,9 @@ import time
 from rclpy.node import Node
 from std_msgs.msg import Float32, Bool
 from rclpy.parameter import Parameter
-from common_msgs.msg import ReturnBase
 from com_bridge.common_enums import GlobalConst
 
-class ReturnBase(Node):
+class LowBattery(Node):
     def __init__(self):
         super().__init__('return_base')
 
@@ -39,7 +38,7 @@ def returnToBase(self):
 
 def main(args=None):
     rclpy.init(args=args)
-    return_base_node = ReturnBase()
+    return_base_node = LowBattery()
     rclpy.spin(return_base_node)  
     return_base_node.destroy_node()  
     rclpy.shutdown() 

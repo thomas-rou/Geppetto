@@ -4,7 +4,7 @@ import math
 from rclpy.node import Node
 from geometry_msgs.msg import Twist, PoseStamped
 from std_msgs.msg import Bool
-from common_msgs.msg import StartMission, StopMission
+from common_msgs.msg import StartMission, StopMission, ReturnBase
 from rclpy.executors import MultiThreadedExecutor
 from nav2_msgs.action import NavigateToPose
 from rclpy.action import ActionClient
@@ -56,8 +56,8 @@ class MissionServerGazebo(Node):
         )
 
         self.return_base_subscription = self.create_subscription(
-            Bool, 
-            'return_to_base', 
+            ReturnBase, 
+            'return_to_base',
             self.return_to_base_callback, 
             GlobalConst.QUEUE_SIZE
         )
@@ -122,7 +122,7 @@ class MissionServerGazebo(Node):
             self.logger.log_message(LogType.ERROR, f"Failed to navigate to home: {e}")
 
 
-    def return_to_base_callback(self, msg: Bool):
+    def return_to_base_callback(self, msg: ReturnBase):
         if msg.data: 
             self.get_logger().info('Received return to base signal.')
             if self.mission_active:
