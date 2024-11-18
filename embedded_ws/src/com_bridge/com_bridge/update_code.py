@@ -30,10 +30,10 @@ class ModifyCodeNode(Node):
             else "~/geppetto/embedded_ws"
         )
         self.node_dict = {
-            "identify.py": "identify_node",
+            "identify.py": "identify_robot",
             "log.py": "log_node",
             "mission_server.py": "mission_server",
-            "mission_status_manager.py": "mission_manager",
+            "mission_status_manager.py": "mission_status_manager",
             "update_code.py": "update_code_node",
         }
 
@@ -42,14 +42,13 @@ class ModifyCodeNode(Node):
         subprocess.run(command, shell=True)
 
     def start_node(self, node_name):
-        exec_command = "/bin/bash"
         cd_command = f"cd {self.ws_path}"
         build_command = "colcon build --packages-select com_bridge"
-        source_command = "source /opt/ros/humble/setup.bash && source install/setup.bash"
-        run_command = f"ros2 run {node_name}"
-        command = (
-            f"{exec_command} && {cd_command} && {build_command} && {source_command} && {run_command}"
+        source_command = (
+            "source /opt/ros/humble/setup.bash && source install/setup.bash"
         )
+        run_command = f"ros2 run com_bridge {node_name}"
+        command = f"bash -c '{cd_command} && {build_command} && {source_command} && {run_command}'"
         subprocess.Popen(command, shell=True)
 
     def update_code_in_file(self, file_path, code):
@@ -61,6 +60,7 @@ class ModifyCodeNode(Node):
 
     def update_code_callback(self, msg):
         try:
+            self.logger.log_message(LogType.INFO, f"Updating code for {msg.filename}")
             path_to_file = self.ws_path + "/src/com_bridge/com_bridge/" + msg.filename
             self.update_code_in_file(path_to_file, msg.code)
             node_name = self.node_dict[msg.filename]
