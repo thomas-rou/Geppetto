@@ -40,7 +40,8 @@ class P2PNode(Node):
         Trigger actions based on whether the local robot is the nearest or farthest.
         """
         if self.local_distance is None or self.other_distance is None:
-            # Wait until both distances are available
+            self.get_logger().info(f"Did not get one of distances: local {self.local_distance} \
+            other : {self.other_distance}")
             return
 
         if self.local_distance > self.other_distance:
