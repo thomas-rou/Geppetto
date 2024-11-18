@@ -2,13 +2,14 @@ import math
 import rclpy
 import asyncio
 from rclpy.node import Node
+from dotmap import DotMap
 from geometry_msgs.msg import Pose
 from com_bridge.common_methods import get_robot_name, get_other_robot_name, get_robot_ip
 from com_bridge.common_enums import Network
 from com_bridge.websocket_subscriber import WebSocketSubscriber  
 
 def calculate_cartesian_distance(pose):
-    return math.sqrt(pose["position"]["x"] ** 2 + pose["position"]["y"] ** 2 + pose["position"]["z"] ** 2)
+    return math.sqrt(pose.position.x ** 2 + pose.position.y ** 2 + pose.position.z ** 2)
 
 class P2PNode(Node):
     def __init__(self):
@@ -26,7 +27,7 @@ class P2PNode(Node):
         self.websocket_subscriber = WebSocketSubscriber()
         self.local_distance = None 
         self.other_distance = None
-        
+
     async def subscribe_to_other_robot_pose(self):
         """
         Subscribe to the other robot's pose topic using WebSocketSubscriber.
@@ -66,6 +67,7 @@ class P2PNode(Node):
         """
         Handle pose updates from the other robot.
         """
+        msg = DotMap(msg)
         self.other_distance = calculate_cartesian_distance(msg)
         self.get_logger().info(f"Other robot distance: {self.other_distance}")
         self.compare_distances()
