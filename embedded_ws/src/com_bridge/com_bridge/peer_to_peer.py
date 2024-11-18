@@ -7,9 +7,8 @@ from com_bridge.common_methods import get_robot_name, get_other_robot_name, get_
 from com_bridge.common_enums import Network
 from com_bridge.websocket_subscriber import WebSocketSubscriber  
 
-def calculate_cartesian_distance(pose: Pose):
-    print(pose)
-    return math.sqrt(pose.position.x ** 2 + pose.position.y ** 2 + pose.position.z ** 2)
+def calculate_cartesian_distance(pose):
+    return math.sqrt(pose["position"]["x"] ** 2 + pose["position"]["y"] ** 2 + pose["position"]["z"] ** 2)
 
 class P2PNode(Node):
     def __init__(self):
