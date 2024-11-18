@@ -42,12 +42,13 @@ class ModifyCodeNode(Node):
         subprocess.run(command, shell=True)
 
     def start_node(self, node_name):
+        exec_command = "/bin/bash"
         cd_command = f"cd {self.ws_path}"
         build_command = "colcon build --packages-select com_bridge"
-        source_command = "source install/setup.bash"
+        source_command = "source /opt/ros/humble/setup.bash && source install/setup.bash"
         run_command = f"ros2 run {node_name}"
         command = (
-            f"{cd_command} && {build_command} && {source_command} && {run_command}"
+            f"{exec_command} && {cd_command} && {build_command} && {source_command} && {run_command}"
         )
         subprocess.Popen(command, shell=True)
 
