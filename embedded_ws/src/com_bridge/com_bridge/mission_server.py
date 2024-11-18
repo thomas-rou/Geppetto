@@ -107,15 +107,18 @@ class MissionServerGazebo(Node):
 
     def navigate_to_home(self):
         try:
+            self.logger.log_message(LogType.INFO, "Debugging AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
             self.action_client.wait_for_server()
             goal_msg = PoseStamped()
             goal_msg.header.frame_id = 'map'
             goal_msg.header.stamp = self.get_clock().now().to_msg()
+            self.logger.log_message(LogType.INFO, "Debugging BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
             # TODO: Replace with base/initial coordinates
             goal_msg.pose.position.x = 0.0  
             goal_msg.pose.position.y = 0.0
             goal_msg.pose.orientation.w = 1.0
             future = self.action_client.send_goal_async(goal_msg)
+            self.logger.log_message(LogType.INFO, "Debugging XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             future.add_done_callback(self.goal_response_callback)
             self.logger.log_message(LogType.INFO, "Navigating to base position.")
         except Exception as e:
