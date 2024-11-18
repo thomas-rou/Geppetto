@@ -24,6 +24,9 @@ class P2PNode(Node):
             10
         )
 
+        self.get_logger().debug(self.robot_name)
+
+
         self.websocket_subscriber = WebSocketSubscriber()
         self.local_distance = None 
         self.other_distance = None
