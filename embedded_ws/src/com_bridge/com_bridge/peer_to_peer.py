@@ -24,8 +24,9 @@ class P2PNode(Node):
         )
 
         self.websocket_subscriber = WebSocketSubscriber()
-
-
+        self.local_distance = None 
+        self.other_distance = None
+        
     async def subscribe_to_other_robot_pose(self):
         """
         Subscribe to the other robot's pose topic using WebSocketSubscriber.
