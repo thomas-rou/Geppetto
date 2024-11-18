@@ -24,7 +24,7 @@ class P2PNode(Node):
             10
         )
 
-        self.get_logger().debug(self.robot_name)
+        self.get_logger().info(self.robot_name)
 
 
         self.websocket_subscriber = WebSocketSubscriber()
