@@ -102,6 +102,13 @@ span:hover::before {
     transform: scale(0.77);
 }
 
+#raspberry-boss:hover::before {
+    content: url('../../../assets/raspberry-boss.png');
+    left: -190px;
+    top: -370px;
+    transform: scale(0.4);
+}
+
 @keyframes crownAppear {
     0% { opacity: 0; }
     100% { opacity: 1; }
