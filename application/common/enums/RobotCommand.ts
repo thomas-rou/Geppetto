@@ -4,6 +4,7 @@ export enum RobotCommand {
     IdentifyRobot = 'identify_robot',
     UpdateRobot = 'update',
     ReturnToBase = 'return_to_base',
+    GetCodeFile = 'getCodeFile',
     UpdateControllerCode = 'update_controller_code',
     InitiateP2P = 'P2P',
     FindFurthestRobot = 'find_furthest'

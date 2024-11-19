@@ -158,9 +158,15 @@ export class MissionCommandGateway {
         }
     }
 
-    @SubscribeMessage('getCodeFile')
+    @SubscribeMessage(RobotCommand.GetCodeFile)
     async handleGetCodeFile(client: Socket) {
         const fileContent = fs.readFileSync(CODE_FILE_PATH, 'utf-8');
         client.emit('codeFileContent', fileContent);
+    }
+
+    @SubscribeMessage(RobotCommand.InitiateP2P)
+    async handleP2P(client: Socket) {
+        await this.logger.logToClient(LogType.INFO, 'Commande P2P reçue');
+        // je sais pas
     }
 }

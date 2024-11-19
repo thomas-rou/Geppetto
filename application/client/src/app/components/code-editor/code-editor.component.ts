@@ -7,6 +7,7 @@ import { SocketHandlerService } from '@app/services/socket-handler/socket-handle
 import { MissionService } from '@app/services/mission/mission.service';
 import { languages } from '@codemirror/language-data';
 import { ThemeService } from '@app/services/theme/theme.service';
+import { RobotCommand } from '@common/enums/RobotCommand';
 
 @Component({
   selector: 'app-code-editor',
@@ -52,7 +53,7 @@ export class CodeEditorComponent implements OnInit {
   }
 
   loadCodeFile() {
-    this.socketService.send('getCodeFile');
+    this.socketService.send(RobotCommand.GetCodeFile);
   }
 
   toggleCollapse() {
