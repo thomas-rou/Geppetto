@@ -24,9 +24,6 @@ class P2PNode(Node):
             10
         )
 
-        self.get_logger().info(self.robot_name)
-
-
         self.websocket_subscriber = WebSocketSubscriber()
         self.local_distance = None 
         self.other_distance = None
@@ -62,6 +59,7 @@ class P2PNode(Node):
         """
         Handle pose updates from the local robot.
         """
+        self.get_logger().info("here")
         self.local_distance = calculate_cartesian_distance(msg)
         self.get_logger().info(f"Local robot distance: {self.local_distance}")
         self.compare_distances()
