@@ -19,7 +19,7 @@ class P2PNode(Node):
         
         self.local_pose_subscriber = self.create_subscription(
             Pose,
-            f'/{self.robot_name}/pose',
+            f'{self.robot_name}/pose',
             self.local_pose_callback,
             10
         )
@@ -59,7 +59,6 @@ class P2PNode(Node):
         """
         Handle pose updates from the local robot.
         """
-        self.get_logger().info("here")
         self.local_distance = calculate_cartesian_distance(msg)
         self.get_logger().info(f"Local robot distance: {self.local_distance}")
         self.compare_distances()
