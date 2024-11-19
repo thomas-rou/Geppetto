@@ -21,6 +21,7 @@ import os
 from rclpy.parameter import Parameter
 from action_msgs.msg import GoalStatusArray
 from geometry_msgs.msg import PoseWithCovarianceStamped
+import time
 
 
 CALLBACK_PERIOD = 2.0
@@ -147,6 +148,8 @@ class MissionServerGazebo(Node):
             self.stop_robot()
             self._mission_status = RobotStatus.WAITING
             self.logger.log_message(LogType.INFO, "Mission stopped")
+        self.cancel_active_goals()
+        time.sleep(1)    
         self.navigate_to_home()
 
     def nav2_status_callback(self, msg: GoalStatusArray):
