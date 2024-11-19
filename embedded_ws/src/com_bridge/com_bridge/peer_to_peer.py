@@ -16,13 +16,16 @@ class P2PNode(Node):
         super().__init__(f'P2PNode')
         self.robot_name = get_robot_name()
         self.other_robot_name = get_other_robot_name()
+        self_robot_topic_pose = f'{self.robot_name}/pose'
         
         self.local_pose_subscriber = self.create_subscription(
             Pose,
-            f'{self.robot_name}/pose',
+            self_robot_topic_pose,
             self.local_pose_callback,
             10
         )
+
+        self.get_logger().info(f"Subscribed succesfully to : {self_robot_topic_pose}")
 
         self.websocket_subscriber = WebSocketSubscriber()
         self.local_distance = None 
@@ -88,7 +91,7 @@ async def main_async():
     rclpy.init()
     node = P2PNode()
     try:
-        await node.subscribe_to_other_robot_pose()
+        # await node.subscribe_to_other_robot_pose()
         rclpy.spin(node)
     except KeyboardInterrupt:
         print("Shutting down node...")
