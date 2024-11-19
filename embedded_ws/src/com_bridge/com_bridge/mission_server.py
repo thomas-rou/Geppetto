@@ -207,19 +207,19 @@ class MissionServerGazebo(Node):
         f"Updated initial position: {self.initial_pos}"
     )
 
-def cancel_active_goals(self):
-    cancel_client = self.create_client(CancelGoal, '/navigate_to_pose/_action/cancel_goal')
-    if cancel_client.wait_for_service(timeout_sec=5.0):
-        self.get_logger().info("Canceling navigation goals...")
-        cancel_request = CancelGoal.Request()
-        cancel_future = cancel_client.call_async(cancel_request)
-        rclpy.spin_until_future_complete(self, cancel_future)
-        if cancel_future.result():
-            self.get_logger().info("Active goals successfully canceled.")
+    def cancel_active_goals(self):
+        cancel_client = self.create_client(CancelGoal, '/navigate_to_pose/_action/cancel_goal')
+        if cancel_client.wait_for_service(timeout_sec=5.0):
+            self.get_logger().info("Canceling navigation goals...")
+            cancel_request = CancelGoal.Request()
+            cancel_future = cancel_client.call_async(cancel_request)
+            rclpy.spin_until_future_complete(self, cancel_future)
+            if cancel_future.result():
+                self.get_logger().info("Active goals successfully canceled.")
+            else:
+                self.get_logger().warn("Failed to cancel active navigation goals.")
         else:
-            self.get_logger().warn("Failed to cancel active navigation goals.")
-    else:
-        self.get_logger().warn("CancelGoal service not available.")
+            self.get_logger().warn("CancelGoal service not available.")
 
 def main(args=None):
     rclpy.init(args=args)
