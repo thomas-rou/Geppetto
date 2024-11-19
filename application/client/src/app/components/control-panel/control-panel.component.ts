@@ -99,32 +99,26 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
 
     identifyRobot(target: RobotId) {
         if (this.verifySocketConnection()) {
-            try {
-                this.robotService.identifyRobot(target);
-            } catch (error) {
-                console.error('Error identifying robot', error);
-            }
+            this.robotService.identifyRobot(target);
         }
     }
 
     returnHome() {
         if (this.verifySocketConnection()) {
-            try {
-                this.robotService.returnToBase();
-            } catch (error) {
-                console.error('Error identifying robot', error);
-            }
+            this.robotService.returnToBase();
+        }
+    }
+
+    initiateP2P() {
+        if (this.verifySocketConnection()) {
+            this.robotService.notifyRobotsToCommunicate();
         }
     }
 
     updateSoftware() {
         if (this.verifySocketConnection()) {
-            try {
-                this.robotService.updateControllerCode(this.missionService.getNewCode());
-                this.missionService.setInitialCode(this.missionService.getNewCode());
-            } catch (error) {
-                console.error('Error identifying robot', error);
-            }
+            this.robotService.updateControllerCode(this.missionService.getNewCode());
+            this.missionService.setInitialCode(this.missionService.getNewCode());
         }
     }
 
