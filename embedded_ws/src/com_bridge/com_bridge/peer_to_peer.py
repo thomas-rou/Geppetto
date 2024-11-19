@@ -94,8 +94,8 @@ async def spin_ros_node(node: P2PNode, sleep_interval: float = 0.1):
     :param sleep_interval: Time to sleep between spin iterations, in seconds.
     """
     while rclpy.ok():
-        rclpy.spin_once(node, timeout_sec=0)  # Process ROS events
-        await asyncio.sleep(sleep_interval)  # Yield control to the asyncio event loop
+        rclpy.spin_once(node, timeout_sec=0)
+        await asyncio.sleep(sleep_interval)
 
 
 async def main_async():
