@@ -19,6 +19,9 @@ from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
 from com_bridge.log import LoggerNode
 import os
 from rclpy.parameter import Parameter
+from action_msgs.msg import GoalStatusArray
+from geometry_msgs.msg import PoseWithCovarianceStamped
+
 
 CALLBACK_PERIOD = 2.0
 
@@ -36,9 +39,9 @@ class MissionServerGazebo(Node):
             LogType.INFO,
             f"Server Launched waiting for messages in {os.getenv('ROBOT')}",
         )
-
-        self.action_client = ActionClient(self, NavigateToPose, "navigate_to_pose")
+        self.initial_pos = None
         self.start_mission_publisher = self.create_publisher(Bool, 'explore/resume', 10)
+        self. base_publisher = self.create_publisher(PoseStamped, '/goal_pose', 10)
 
         # Subscription pour démarrer et arrêter les missions
         self.start_mission_subscription = self.create_subscription(
@@ -62,11 +65,23 @@ class MissionServerGazebo(Node):
             GlobalConst.QUEUE_SIZE
         )
 
+        self.nav2_status_subscription = self.create_subscription(
+            GoalStatusArray, 
+            '/navigate_to_pose/_action/status', 
+            self.nav2_status_callback, 
+            10
+        )
+        
+        self.initial_pose_subscription = self.create_subscription(
+            PoseWithCovarianceStamped,
+            '/initialpose',
+            self.initialpose_callback,
+            10
+        )
+
         self.mission_mouvements = self.create_publisher(
             Twist, "cmd_vel", GlobalConst.QUEUE_SIZE
         )
-
-
 
     @property
     def mission_active(self):
@@ -108,21 +123,19 @@ class MissionServerGazebo(Node):
     def navigate_to_home(self):
         try:
             self.logger.log_message(LogType.INFO, "Debugging AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-            self.action_client.wait_for_server()
             goal_msg = PoseStamped()
             goal_msg.header.frame_id = 'map'
             goal_msg.header.stamp = self.get_clock().now().to_msg()
             self.logger.log_message(LogType.INFO, "Debugging BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
             # TODO: Replace with base/initial coordinates
+            # goal_msg.pose.position.x = self.current_position["x"]
+            # goal_msg.pose.position.y = self.current_position["y"]
+            # goal_msg.pose.orientation.w = self.current_position["orientation"]["w"]
             goal_msg.pose.position.x = 0.0  
             goal_msg.pose.position.y = 0.0
             goal_msg.pose.orientation.w = 1.0
-            if not self.action_client.wait_for_server(timeout_sec=5.0):
-                self.logger.log_message(LogType.ERROR, "Action server not available!")
-                return
-            future = self.action_client.send_goal_async(goal_msg)
+            self.base_publisher.publish(goal_msg)
             self.logger.log_message(LogType.INFO, "Debugging XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-            future.add_done_callback(self.goal_response_callback)
             self.logger.log_message(LogType.INFO, "Navigating to base position.")
         except Exception as e:
             self.logger.log_message(LogType.ERROR, f"Failed to navigate to home: {e}")
@@ -136,7 +149,13 @@ class MissionServerGazebo(Node):
             self.logger.log_message(LogType.INFO, "Mission stopped")
         self.navigate_to_home()
 
-
+    def nav2_status_callback(self, msg: GoalStatusArray):
+        for status in msg.status_list:
+            if status.status == 4:
+                self.get_logger().info("Robot came back to base")
+                return
+            else:
+                self.get_logger().info(f"Navigation status: {status.status}")
 
     def stop_mission_callback(self, msg: StopMission):
         try:
@@ -163,15 +182,25 @@ class MissionServerGazebo(Node):
         twist_msg.angular.z = 0.0
         self.mission_mouvements.publish(twist_msg)
 
-    def goal_response_callback(self, future):
-        try:
-            result = future.result()
-            if not result.accepted:
-                self.logger.log_message(LogType.WARNING, "Navigation goal rejected.")
-            else:
-                self.logger.log_message(LogType.INFO, "Navigation goal accepted. Returning home.")
-        except Exception as e:
-            self.logger.log_message(LogType.ERROR, f"Failed to process navigation goal response: {e}")
+
+    def initialpose_callback(self, msg: PoseWithCovarianceStamped):
+        position = msg.pose.pose.position
+        orientation = msg.pose.pose.orientation
+        self.current_position = {
+            "x": position.x,
+            "y": position.y,
+            "z": position.z,
+            "orientation": {
+                "x": orientation.x,
+                "y": orientation.y,
+                "z": orientation.z,
+                "w": orientation.w
+            }
+        }
+        self.logger.log_message(
+        LogType.INFO,
+        f"Updated initial position: {self.initial_pos}"
+    )
 
 
 def main(args=None):
