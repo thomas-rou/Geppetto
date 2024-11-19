@@ -1,45 +1,58 @@
 import math
-import rclpy
 import asyncio
 from rclpy.node import Node
 from dotmap import DotMap
 from geometry_msgs.msg import Pose
-from com_bridge.common_methods import get_robot_name, get_other_robot_name, get_robot_ip
-from com_bridge.common_enums import Network
+from com_bridge.common_methods import get_robot_name, get_other_robot_name
 from com_bridge.websocket_subscriber import WebSocketSubscriber  
+
 
 def calculate_cartesian_distance(pose):
     return math.sqrt(pose.position.x ** 2 + pose.position.y ** 2 + pose.position.z ** 2)
 
+
 class P2PNode(Node):
     def __init__(self):
-        super().__init__(f'P2PNode')
+        super().__init__('P2PNode')
         self.robot_name = get_robot_name()
         self.other_robot_name = get_other_robot_name()
-        self_robot_topic_pose = f'{self.robot_name}/pose'
-        
+        self_robot_topic_pose = f'/{self.robot_name}/pose'
+
+        # ROS 2 subscriber for local robot pose
         self.local_pose_subscriber = self.create_subscription(
             Pose,
             self_robot_topic_pose,
             self.local_pose_callback,
             10
         )
+        self.get_logger().info(f"Subscribed successfully to: {self_robot_topic_pose}")
 
-        self.get_logger().info(f"Subscribed succesfully to : {self_robot_topic_pose}")
-
+        # WebSocket subscriber for other robot
         self.websocket_subscriber = WebSocketSubscriber()
-        self.local_distance = None 
+        self.local_distance = None
         self.other_distance = None
 
-    async def subscribe_to_other_robot_pose(self):
+        # Use a ROS timer to periodically schedule the WebSocket subscription
+        self.loop = asyncio.get_event_loop()
+        self.create_timer(1.0, self.schedule_websocket_subscription)
+
+    def schedule_websocket_subscription(self):
         """
-        Subscribe to the other robot's pose topic using WebSocketSubscriber.
+        Schedule the async WebSocket subscription on the asyncio event loop.
         """
-        await self.websocket_subscriber.subscribe_to_topic(
-            f'/{self.other_robot_name}/pose',
-            'geometry_msgs/msg/Pose',
-            self.other_robot_pose_callback
+        future = asyncio.run_coroutine_threadsafe(
+            self.websocket_subscriber.subscribe_to_topic(
+                f'/{self.other_robot_name}/pose',
+                'geometry_msgs/msg/Pose',
+                self.other_robot_pose_callback
+            ),
+            self.loop
         )
+        # Add error handling if needed
+        try:
+            future.result()  # This will raise any exceptions in the async function
+        except Exception as e:
+            self.get_logger().error(f"Error in WebSocket subscription: {e}")
 
     def compare_distances(self):
         """
@@ -47,8 +60,7 @@ class P2PNode(Node):
         Trigger actions based on whether the local robot is the nearest or farthest.
         """
         if self.local_distance is None or self.other_distance is None:
-            self.get_logger().info(f"Did not get one of distances: local {self.local_distance} \
-            other : {self.other_distance}")
+            self.get_logger().info(f"Missing distances: local {self.local_distance}, other {self.other_distance}")
             return
 
         if self.local_distance > self.other_distance:
@@ -81,27 +93,17 @@ class P2PNode(Node):
     def on_nearest_icon(self):
         self.get_logger().info("Changing icon for the nearest robot.")
 
-    async def shutdown(self):
-        """
-        Close WebSocket connection on shutdown.
-        """
-        await self.websocket_subscriber.close()
 
-async def main_async():
+def main():
     rclpy.init()
     node = P2PNode()
     try:
-        asyncio.create_task(node.subscribe_to_other_robot_pose())
         rclpy.spin(node)
     except KeyboardInterrupt:
         print("Shutting down node...")
     finally:
-        await node.shutdown()
+        node.destroy_node()
         rclpy.shutdown()
-
-
-def main():
-    asyncio.run(main_async())
 
 
 if __name__ == '__main__':
