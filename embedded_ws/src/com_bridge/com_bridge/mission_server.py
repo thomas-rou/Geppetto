@@ -117,6 +117,9 @@ class MissionServerGazebo(Node):
             goal_msg.pose.position.x = 0.0  
             goal_msg.pose.position.y = 0.0
             goal_msg.pose.orientation.w = 1.0
+            if not self.action_client.wait_for_server(timeout_sec=5.0):
+                self.logger.log_message(LogType.ERROR, "Action server not available!")
+                return
             future = self.action_client.send_goal_async(goal_msg)
             self.logger.log_message(LogType.INFO, "Debugging XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             future.add_done_callback(self.goal_response_callback)
