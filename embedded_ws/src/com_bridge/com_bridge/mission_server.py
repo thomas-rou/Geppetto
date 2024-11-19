@@ -130,12 +130,11 @@ class MissionServerGazebo(Node):
 
     def return_to_base_callback(self, msg: ReturnBase):
         self.get_logger().info('Received return to base signal.')
-        self.navigate_to_home()
         if self.mission_active:
             self.stop_robot()
             self._mission_status = RobotStatus.WAITING
             self.logger.log_message(LogType.INFO, "Mission stopped")
-        
+        self.navigate_to_home()
 
 
 
