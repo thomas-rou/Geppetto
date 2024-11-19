@@ -1,5 +1,6 @@
 import math
 import asyncio
+import rclpy
 from rclpy.node import Node
 from dotmap import DotMap
 from geometry_msgs.msg import Pose
