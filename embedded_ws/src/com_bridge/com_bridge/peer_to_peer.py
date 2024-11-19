@@ -1,12 +1,20 @@
 import math
 import rclpy
 import asyncio
+import signal
 from rclpy.node import Node
 from dotmap import DotMap
 from geometry_msgs.msg import Pose
 from com_bridge.common_methods import get_robot_name, get_other_robot_name, get_robot_ip
 from com_bridge.common_enums import Network
 from com_bridge.websocket_subscriber import WebSocketSubscriber  
+from gi.repository import AppIndicator3, Gtk
+
+
+class Icon:
+    INITIAL = "dialog-information-symbolic"
+    NEAR = "emblem-ok-symbolic"
+    FAR = "dialog-warning-symbolic"
 
 def calculate_cartesian_distance(pose):
     return math.sqrt(pose.position.x ** 2 + pose.position.y ** 2 + pose.position.z ** 2)
@@ -30,6 +38,15 @@ class P2PNode(Node):
         self.websocket_subscriber = WebSocketSubscriber()
         self.local_distance = None 
         self.other_distance = None
+
+        # Icon manager
+        self.indicator = AppIndicator3.Indicator.new(
+            "dynamic_icon",
+            Icon.INITIAL,
+            AppIndicator3.IndicatorCategory.APPLICATION_STATUS,
+        )
+        self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
+        self.indicator.set_menu(Gtk.Menu())
 
     async def subscribe_to_other_robot_pose(self):
         """
@@ -76,9 +93,11 @@ class P2PNode(Node):
         self.compare_distances()
 
     def on_farthest_icon(self):
+        self.indicator.set_icon(Icon.FAR)
         self.get_logger().info("Changing icon for the farthest robot.")
 
     def on_nearest_icon(self):
+        self.indicator.set_icon(Icon.NEAR)
         self.get_logger().info("Changing icon for the nearest robot.")
 
     async def shutdown(self):
@@ -101,25 +120,21 @@ async def spin_ros_node(node: P2PNode, sleep_interval: float = 0.1):
 async def main_async():
     rclpy.init()
     node = P2PNode()
+    # Handle SIGINT (Ctrl+C) gracefully
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    main_loop = GLib.MainLoop()  # Create a GLib main loop for GTK
     try:
         loop = asyncio.get_event_loop()
         loop.create_task(spin_ros_node(node))
         loop.create_task(node.subscribe_to_other_robot_pose())
-        await asyncio.sleep(float('inf'))
+        # Run GLib MainLoop within the asyncio context
+        await loop.run_in_executor(None, main_loop.run)
     except KeyboardInterrupt:
         print("Shutting down node...")
     finally:
         await node.shutdown()
         rclpy.shutdown()
-
-
-def main():
-    asyncio.run(main_async())
-
-
-if __name__ == '__main__':
-    main()
-
+        main_loop.quit()
 
 def main():
     asyncio.run(main_async())
