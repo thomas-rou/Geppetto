@@ -100,8 +100,24 @@ def generate_launch_description():
         )
     )
 
+    # explore lite robot 1
+    explore_robot1 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "explore.launch.py")
+        )
+    )
+
+    # explore lite robot 2
+    explore_robot2 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "explore.launch2.py")
+        )
+    )
+
     return LaunchDescription(
         [
+            explore_robot1,
+            explore_robot2,
             gz_sim,
             bridge,
             *Robot.robot_state_publishers,
