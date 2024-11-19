@@ -1,59 +1,45 @@
 import math
-import asyncio
 import rclpy
+import asyncio
 from rclpy.node import Node
 from dotmap import DotMap
 from geometry_msgs.msg import Pose
-from com_bridge.common_methods import get_robot_name, get_other_robot_name
+from com_bridge.common_methods import get_robot_name, get_other_robot_name, get_robot_ip
+from com_bridge.common_enums import Network
 from com_bridge.websocket_subscriber import WebSocketSubscriber  
-
 
 def calculate_cartesian_distance(pose):
     return math.sqrt(pose.position.x ** 2 + pose.position.y ** 2 + pose.position.z ** 2)
 
-
 class P2PNode(Node):
     def __init__(self):
-        super().__init__('P2PNode')
+        super().__init__(f'P2PNode')
         self.robot_name = get_robot_name()
         self.other_robot_name = get_other_robot_name()
-        self_robot_topic_pose = f'/{self.robot_name}/pose'
-
-        # ROS 2 subscriber for local robot pose
+        self_robot_topic_pose = f'{self.robot_name}/pose'
+        
         self.local_pose_subscriber = self.create_subscription(
             Pose,
             self_robot_topic_pose,
             self.local_pose_callback,
             10
         )
-        self.get_logger().info(f"Subscribed successfully to: {self_robot_topic_pose}")
 
-        # WebSocket subscriber for other robot
+        self.get_logger().info(f"Subscribed succesfully to : {self_robot_topic_pose}")
+
         self.websocket_subscriber = WebSocketSubscriber()
-        self.local_distance = None
+        self.local_distance = None 
         self.other_distance = None
 
-        # Use a ROS timer to periodically schedule the WebSocket subscription
-        self.loop = asyncio.get_event_loop()
-        self.create_timer(1.0, self.schedule_websocket_subscription)
-
-    def schedule_websocket_subscription(self):
+    async def subscribe_to_other_robot_pose(self):
         """
-        Schedule the async WebSocket subscription on the asyncio event loop.
+        Subscribe to the other robot's pose topic using WebSocketSubscriber.
         """
-        future = asyncio.run_coroutine_threadsafe(
-            self.websocket_subscriber.subscribe_to_topic(
-                f'/{self.other_robot_name}/pose',
-                'geometry_msgs/msg/Pose',
-                self.other_robot_pose_callback
-            ),
-            self.loop
+        await self.websocket_subscriber.subscribe_to_topic(
+            f'/{self.other_robot_name}/pose',
+            'geometry_msgs/msg/Pose',
+            self.other_robot_pose_callback
         )
-        # Add error handling if needed
-        try:
-            future.result()  # This will raise any exceptions in the async function
-        except Exception as e:
-            self.get_logger().error(f"Error in WebSocket subscription: {e}")
 
     def compare_distances(self):
         """
@@ -61,7 +47,8 @@ class P2PNode(Node):
         Trigger actions based on whether the local robot is the nearest or farthest.
         """
         if self.local_distance is None or self.other_distance is None:
-            self.get_logger().info(f"Missing distances: local {self.local_distance}, other {self.other_distance}")
+            self.get_logger().info(f"Did not get one of distances: local {self.local_distance} \
+            other : {self.other_distance}")
             return
 
         if self.local_distance > self.other_distance:
@@ -94,17 +81,48 @@ class P2PNode(Node):
     def on_nearest_icon(self):
         self.get_logger().info("Changing icon for the nearest robot.")
 
+    async def shutdown(self):
+        """
+        Close WebSocket connection on shutdown.
+        """
+        await self.websocket_subscriber.close()
 
-def main():
+async def spin_ros_node(node: P2PNode, sleep_interval: float = 0.1):
+    """
+    Asynchronously spin a ROS 2 node, processing its callbacks.
+    :param node: The ROS 2 node to spin.
+    :param sleep_interval: Time to sleep between spin iterations, in seconds.
+    """
+    while rclpy.ok():
+        rclpy.spin_once(node, timeout_sec=0)  # Process ROS events
+        await asyncio.sleep(sleep_interval)  # Yield control to the asyncio event loop
+
+
+async def main_async():
     rclpy.init()
     node = P2PNode()
     try:
-        rclpy.spin(node)
+        loop = asyncio.get_event_loop()
+        loop.create_task(spin_ros_node(node))
+        loop.create_task(node.subscribe_to_other_robot_pose())
+        await asyncio.sleep(float('inf'))
     except KeyboardInterrupt:
         print("Shutting down node...")
     finally:
-        node.destroy_node()
+        await node.shutdown()
         rclpy.shutdown()
+
+
+def main():
+    asyncio.run(main_async())
+
+
+if __name__ == '__main__':
+    main()
+
+
+def main():
+    asyncio.run(main_async())
 
 
 if __name__ == '__main__':
