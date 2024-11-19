@@ -25,8 +25,10 @@ from launch_ros.actions import Node
 current_dir = os.path.dirname(__file__)
 sys.path.append(current_dir)
 
+ros_gz_bringup_dir = get_package_share_directory("ros_gz_example_bringup")
+
 helpers_dir = os.path.join(
-    get_package_share_directory("ros_gz_example_bringup"),
+    ros_gz_bringup_dir,
     "helpers",
 )
 sys.path.append(helpers_dir)
@@ -65,7 +67,8 @@ def generate_launch_description():
                     "worlds",
                     "diff_drive.sdf",
                 ]
-            )
+            ).perform(None)
+            + " -r"
         }.items(),
     )
 
@@ -79,7 +82,7 @@ def generate_launch_description():
         parameters=[
             {
                 "config_file": os.path.join(
-                    get_package_share_directory("ros_gz_example_bringup"),
+                    ros_gz_bringup_dir,
                     "config",
                     "ros_gz_example_bridge.yaml",
                 ),
@@ -90,11 +93,19 @@ def generate_launch_description():
         output="screen",
     )
 
+    # slam_toolbox launch file
+    slam_toolbox = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "online_async_launch.py")
+        )
+    )
+
     return LaunchDescription(
         [
             gz_sim,
             bridge,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
+            slam_toolbox,
         ]
     )
