@@ -91,13 +91,14 @@ async def main_async():
     rclpy.init()
     node = P2PNode()
     try:
-        # await node.subscribe_to_other_robot_pose()
+        asyncio.create_task(node.subscribe_to_other_robot_pose())
         rclpy.spin(node)
     except KeyboardInterrupt:
         print("Shutting down node...")
     finally:
         await node.shutdown()
         rclpy.shutdown()
+
 
 def main():
     asyncio.run(main_async())
