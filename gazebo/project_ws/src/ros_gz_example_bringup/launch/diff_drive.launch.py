@@ -135,8 +135,27 @@ def generate_launch_description():
         )
     )
 
+    # rviz
+    rviz_cmd = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory("nav2_bringup"), "launch", "rviz_launch.py"
+            )
+        ),
+        launch_arguments={
+            "namespace": "",
+            "use_namespace": "False",
+            "rviz_config": os.path.join(
+                ros_gz_bringup_dir,
+                "config",
+                "nav2_default_view.rviz",
+            ),
+        }.items(),
+    )
+
     return LaunchDescription(
         [
+            # rviz_cmd,
             explore_robot1,
             explore_robot2,
             gz_sim,
