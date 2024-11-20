@@ -130,13 +130,14 @@ class MissionServerGazebo(Node):
             goal_msg.header.frame_id = 'map'
             goal_msg.header.stamp = self.get_clock().now().to_msg()
             self.logger.log_message(LogType.INFO, "Debugging BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
-            # TODO: Replace with base/initial coordinates
-            # goal_msg.pose.position.x = self.current_position["x"]
-            # goal_msg.pose.position.y = self.current_position["y"]
-            # goal_msg.pose.orientation.w = self.current_position["orientation"]["w"]
-            goal_msg.pose.position.x = 0.0  
-            goal_msg.pose.position.y = 0.0
-            goal_msg.pose.orientation.w = 1.0
+            self.logger.log_message(LogType.INFO, self.initial_pos["x"])
+            self.logger.log_message(LogType.INFO, self.initial_pos["y"])
+            goal_msg.pose.position.x = self.initial_pos["x"]
+            goal_msg.pose.position.y = self.initial_pos["y"]
+            goal_msg.pose.orientation.w = self.initial_pos["orientation"]["w"]
+            # goal_msg.pose.position.x = 0.0  
+            # goal_msg.pose.position.y = 0.0
+            # goal_msg.pose.orientation.w = 1.0
             self.base_publisher.publish(goal_msg)
             self.logger.log_message(LogType.INFO, "Debugging XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             self.logger.log_message(LogType.INFO, "Navigating to base position.")
@@ -146,7 +147,9 @@ class MissionServerGazebo(Node):
 
     def return_to_base_callback(self, msg: ReturnBase):
         self.get_logger().info('Received return to base signal.')
-        time.sleep(1)    
+        self.stop_robot()
+        self.logger.log_message(LogType.INFO, "Mission stopped")
+        time.sleep(1)
         self.navigate_to_home()
 
 
@@ -154,9 +157,6 @@ class MissionServerGazebo(Node):
         for status in msg.status_list:
             if status.status == 4:
                 self.get_logger().info("Robot came back to base")
-                self.stop_robot()
-                self._mission_status = RobotStatus.WAITING
-                self.logger.log_message(LogType.INFO, "Mission stopped")
                 return
             else:
                 self.get_logger().info(f"Navigation status: {status.status}")
@@ -190,7 +190,7 @@ class MissionServerGazebo(Node):
     def initialpose_callback(self, msg: PoseWithCovarianceStamped):
         position = msg.pose.pose.position
         orientation = msg.pose.pose.orientation
-        self.current_position = {
+        self.initial_pos = {
             "x": position.x,
             "y": position.y,
             "z": position.z,
