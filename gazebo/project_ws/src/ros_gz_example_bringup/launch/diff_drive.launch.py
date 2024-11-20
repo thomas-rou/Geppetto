@@ -121,6 +121,20 @@ def generate_launch_description():
         )
     )
 
+    # nav2 stack robot 1
+    navigation_robot1 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "navigation.launch.py")
+        )
+    )
+
+    # nav2 stack robot 2
+    navigation_robot2 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "navigation.launch2.py")
+        )
+    )
+
     return LaunchDescription(
         [
             explore_robot1,
@@ -131,5 +145,7 @@ def generate_launch_description():
             *Entity.spawned_entities_nodes,
             slam_toolbox,
             map_merge,
+            navigation_robot1,
+            navigation_robot2,
         ]
     )
