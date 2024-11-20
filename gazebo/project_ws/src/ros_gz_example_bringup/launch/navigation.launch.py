@@ -141,62 +141,6 @@ def generate_launch_description():
         "headless", default_value="False", description="Whether to execute gzclient)"
     )
 
-    # declare_world_cmd = DeclareLaunchArgument(
-    #     "world",
-    #     # TODO(orduno) Switch back once ROS argument passing has been fixed upstream
-    #     #              https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/91
-    #     # default_value=os.path.join(get_package_share_directory('turtlebot3_gazebo'),
-    #     # worlds/turtlebot3_worlds/waffle.model')
-    #     default_value=os.path.join(bringup_dir, "worlds", "waffle.model"),
-    #     description="Full path to world model file to load",
-    # )
-
-    # Specify the actions
-    # start_gazebo_server_cmd = ExecuteProcess(
-    #     condition=IfCondition(use_simulator),
-    #     cmd=[
-    #         "gzserver",
-    #         "-s",
-    #         "libgazebo_ros_init.so",
-    #         "-s",
-    #         "libgazebo_ros_factory.so",
-    #         world,
-    #     ],
-    #     cwd=[launch_dir],
-    #     output="screen",
-    # )
-
-    # start_gazebo_client_cmd = ExecuteProcess(
-    #     condition=IfCondition(PythonExpression([use_simulator, " and not ", headless])),
-    #     cmd=["gzclient"],
-    #     cwd=[launch_dir],
-    #     output="screen",
-    # )
-
-    # urdf = os.path.join(bringup_dir, "urdf", "turtlebot3_waffle.urdf")
-
-    # start_robot_state_publisher_cmd = Node(
-    #     condition=IfCondition(use_robot_state_pub),
-    #     package="robot_state_publisher",
-    #     executable="robot_state_publisher",
-    #     name="robot_state_publisher",
-    #     namespace=namespace,
-    #     output="screen",
-    #     parameters=[{"use_sim_time": use_sim_time}],
-    #     remappings=remappings,
-    #     arguments=[urdf],
-    # )
-
-    # rviz_cmd = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(os.path.join(launch_dir, "rviz_launch.py")),
-    #     condition=IfCondition(use_rviz),
-    #     launch_arguments={
-    #         "namespace": "",
-    #         "use_namespace": "False",
-    #         "rviz_config": rviz_config_file,
-    #     }.items(),
-    # )
-
     bringup_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(launch_dir_map_merge, "bringup_launch.py")
