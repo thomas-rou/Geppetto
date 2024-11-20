@@ -6,6 +6,9 @@ class CurrentPositionNode(Node):
 
     def __init__(self):
         super().__init__('current_position_node')
+        self.get_logger().info(
+            "DID I START *********************************************************************************************"
+        )
         self.subscription = self.create_subscription(
             PoseWithCovarianceStamped,
             '/amcl_pose',

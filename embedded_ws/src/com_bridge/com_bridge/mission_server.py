@@ -74,7 +74,7 @@ class MissionServerGazebo(Node):
             self.nav2_status_callback, 
             10
         )
-        
+        time.sleep(2) 
         self.initial_pose_subscription = self.create_subscription(
             PoseWithCovarianceStamped,
             '/initialpose',
