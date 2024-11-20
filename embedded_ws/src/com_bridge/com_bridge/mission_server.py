@@ -42,6 +42,7 @@ class MissionServerGazebo(Node):
             LogType.INFO,
             f"Server Launched waiting for messages in {os.getenv('ROBOT')}",
         )
+        self.returning_home = False;
         self.initial_pos = None
         self.start_mission_publisher = self.create_publisher(Bool, 'explore/resume', 10)
         self. base_publisher = self.create_publisher(PoseStamped, '/goal_pose', 10)
@@ -147,18 +148,22 @@ class MissionServerGazebo(Node):
     def return_to_base_callback(self, msg: ReturnBase):
         self.get_logger().info('Received return to base signal.')
         self.stop_robot()
-        self.logger.log_message(LogType.INFO, "Mission stopped")
+        self.returning_home = True
         time.sleep(1)
         self.navigate_to_home()
+        self._mission_status = RobotStatus.WAITING
+        returning_home = False
+        
 
 
     def nav2_status_callback(self, msg: GoalStatusArray):
-        for status in msg.status_list:
-            if status.status == 4:
-                self.get_logger().info("Robot came back to base. Wow!!")
-                return
-            else:
-                self.get_logger().info(f"Navigation status: {status.status}")
+        if self._mission_status == RobotStatus.WAITING:
+            for status in msg.status_list:
+                if status.status == 4:
+                    self.get_logger().info("Robot came back to base. Wow!!")
+                    return
+                else:
+                    self.get_logger().info(f"Navigation status: {status.status}")
 
     def stop_mission_callback(self, msg: StopMission):
         try:
