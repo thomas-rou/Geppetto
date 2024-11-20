@@ -22,6 +22,8 @@ ros2 launch limo_bringup navigation2.launch.py &
 sleep 2
 ros2 launch com_bridge com_bridge_launch.py &
 sleep 2
+ros2 run com_bridge current_position_node &
+sleep 1
 ros2 launch multirobot_map_merge map_merge.launch.py &
 sleep 2
 ros2 run rosbridge_server rosbridge_websocket &
@@ -29,8 +31,6 @@ sleep 2
 ros2 launch explore_lite explore.launch.py &
 sleep 1
 ros2 run com_bridge return_base &
-sleep 1
-ros2 run com_bridge current_position_node &
 sleep 1
 ros2 topic pub /explore/resume std_msgs/msg/Bool "{data: false}" --once 
 
