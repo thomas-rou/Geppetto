@@ -8,7 +8,7 @@ from com_bridge.common_enums import GlobalConst
 
 class LowBattery(Node):
     def __init__(self):
-        super().__init__('return_base')
+        super().__init__('low_battery')
 
         self.returning_to_base = False
         self.return_to_base_publisher = self.create_publisher(
@@ -38,9 +38,9 @@ def returnToBase(self):
 
 def main(args=None):
     rclpy.init(args=args)
-    return_base_node = LowBattery()
-    rclpy.spin(return_base_node)  
-    return_base_node.destroy_node()  
+    low_battery = LowBattery()
+    rclpy.spin(low_battery)  
+    low_battery.destroy_node()  
     rclpy.shutdown() 
 
 if __name__ == '__main__':

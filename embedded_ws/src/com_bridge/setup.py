@@ -25,6 +25,8 @@ setup(
             'identify_robot = com_bridge.identify:main',
             'mission_status_manager = com_bridge.mission_status_manager:main',
             'get_map_robot_2 = com_bridge.get_map_robot_2:main',
+            'current_position_node = com_bridge.current_position_node:main',
+            'low_battery = com_bridge.low_battery:main'
         ],
     },
 )
