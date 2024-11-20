@@ -131,6 +131,9 @@ class MissionServerGazebo(Node):
             self.logger.log_message(LogType.INFO, "Debugging BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
             self.logger.log_message(LogType.INFO, self.initial_pos["x"])
             self.logger.log_message(LogType.INFO, self.initial_pos["y"])
+            if self.initial_pos is None:
+                self.get_logger().error("Initial position is not set. Cannot navigate to home.")
+                return
             goal_msg.pose.position.x = self.initial_pos["x"]
             goal_msg.pose.position.y = self.initial_pos["y"]
             goal_msg.pose.orientation.w = self.initial_pos["orientation"]["w"]
@@ -188,10 +191,6 @@ class MissionServerGazebo(Node):
         self.logger.log_message(LogType.INFO, "Debugging ALLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
         position = msg.pose.pose.position
         orientation = msg.pose.pose.orientation
-        self.get_logger().info(
-            f"WHAT WE RECEIVED TO COMEBACK TO : x={position.x}, y={position.y}, z={position.z}, "
-            f"WHAT WE RECEIVED TO COMEBACK TO: w={orientation.w}, x={orientation.x}, y={orientation.y}, z={orientation.z}"
-        )
         self.initial_pos = {
             "x": position.x,
             "y": position.y,
@@ -205,7 +204,7 @@ class MissionServerGazebo(Node):
         }
         self.logger.log_message(
         LogType.INFO,
-        f"Updated initial position: {self.initial_pos}"
+        f"UPDATED INITIAL POSITION: {self.initial_pos}"
     )
 
 def main(args=None):
