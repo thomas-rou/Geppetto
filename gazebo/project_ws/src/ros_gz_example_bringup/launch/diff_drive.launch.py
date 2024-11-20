@@ -100,6 +100,13 @@ def generate_launch_description():
         )
     )
 
+    # map_merge launch file
+    map_merge = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "map_merge.launch.py")
+        )
+    )
+
     # explore lite robot 1
     explore_robot1 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -123,5 +130,6 @@ def generate_launch_description():
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
             slam_toolbox,
+            map_merge,
         ]
     )
