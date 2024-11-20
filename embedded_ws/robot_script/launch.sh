@@ -30,6 +30,8 @@ ros2 launch explore_lite explore.launch.py &
 sleep 1
 ros2 run com_bridge return_base &
 sleep 1
+ros2 run com_bridge current_position_node &
+sleep 1
 ros2 topic pub /explore/resume std_msgs/msg/Bool "{data: false}" --once 
 
 

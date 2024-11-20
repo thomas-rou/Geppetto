@@ -1,0 +1,42 @@
+from rclpy.node import Node
+from geometry_msgs.msg import PoseWithCovarianceStamped
+from com_bridge.common_enums import GlobalConst
+
+class CurrentPositionNode(Node):
+
+    def __init__(self):
+        super().__init__('current_position_node')
+        self.subscription = self.create_subscription(
+            PoseWithCovarianceStamped,
+            '/amcl_pose',
+            self.amcl_pose_callback,
+            10
+        )
+        self.firstPosSent = False
+        self.first_pos_publisher = self.create_publisher(
+            PoseWithCovarianceStamped, 
+            '/initialpose', 
+            GlobalConst.QUEUE_SIZE
+        )
+
+    def amcl_pose_callback(self, msg: PoseWithCovarianceStamped):
+        if not self.firstPosSent :
+            self.first_pos_publisher.publish(msg)
+            position = msg.pose.pose.position
+            orientation = msg.pose.pose.orientation
+            self.get_logger().info(
+                f"Robot very initial position: x={position.x}, y={position.y}, z={position.z}, "
+                f"And very initial orientation: w={orientation.w}, x={orientation.x}, y={orientation.y}, z={orientation.z}"
+            )
+            self.firstPosSent = True
+
+def main(args=None):
+    import rclpy
+    rclpy.init(args=args)
+    node = CurrentPositionNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == "__main__":
+    main()

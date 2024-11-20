@@ -125,7 +125,6 @@ class MissionServerGazebo(Node):
 
     def navigate_to_home(self):
         try:
-            self.logger.log_message(LogType.INFO, "Debugging AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
             goal_msg = PoseStamped()
             goal_msg.header.frame_id = 'map'
             goal_msg.header.stamp = self.get_clock().now().to_msg()
@@ -135,9 +134,6 @@ class MissionServerGazebo(Node):
             goal_msg.pose.position.x = self.initial_pos["x"]
             goal_msg.pose.position.y = self.initial_pos["y"]
             goal_msg.pose.orientation.w = self.initial_pos["orientation"]["w"]
-            # goal_msg.pose.position.x = 0.0  
-            # goal_msg.pose.position.y = 0.0
-            # goal_msg.pose.orientation.w = 1.0
             self.base_publisher.publish(goal_msg)
             self.logger.log_message(LogType.INFO, "Debugging XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             self.logger.log_message(LogType.INFO, "Navigating to base position.")
@@ -156,7 +152,7 @@ class MissionServerGazebo(Node):
     def nav2_status_callback(self, msg: GoalStatusArray):
         for status in msg.status_list:
             if status.status == 4:
-                self.get_logger().info("Robot came back to base")
+                self.get_logger().info("Robot came back to base. Wow!!")
                 return
             else:
                 self.get_logger().info(f"Navigation status: {status.status}")
@@ -186,10 +182,16 @@ class MissionServerGazebo(Node):
         twist_msg.angular.z = 0.0
         self.mission_mouvements.publish(twist_msg)
 
+    
 
     def initialpose_callback(self, msg: PoseWithCovarianceStamped):
+        self.logger.log_message(LogType.INFO, "Debugging ALLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
         position = msg.pose.pose.position
         orientation = msg.pose.pose.orientation
+        self.get_logger().info(
+            f"WHAT WE RECEIVED TO COMEBACK TO : x={position.x}, y={position.y}, z={position.z}, "
+            f"WHAT WE RECEIVED TO COMEBACK TO: w={orientation.w}, x={orientation.x}, y={orientation.y}, z={orientation.z}"
+        )
         self.initial_pos = {
             "x": position.x,
             "y": position.y,
