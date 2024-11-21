@@ -1,5 +1,6 @@
 import { Mission, MissionDocument } from '@app/model/database/Mission';
 import { LogMessage } from '@common/interfaces/LogMessage';
+import { MissionType } from '@common/enums/MissionType';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -9,7 +10,7 @@ export class MissionService {
     constructor(@InjectModel(Mission.name) public missionModel: Model<MissionDocument>) {}
     private readonly logger = new Logger(MissionService.name);
     public missionId = '';
-    async createMission(mission: Mission = { id: new Date().toISOString().slice(0, -5), logs: [] } as Mission): Promise<void> {
+    async createMission(mission: Mission = { id: new Date().toISOString().slice(0, -5), logs: [], missionType: MissionType.UNKNOWN, missionDuration: 0, traveledDistance: 0, robots: [] } as Mission): Promise<void> {
         try {
             this.logger.log(`Creating mission ${mission.id}`);
             await this.missionModel.create(mission);
@@ -69,5 +70,5 @@ export class MissionService {
             throw new Error('Failed to check mission status');
         }
     }
-    
+
 }
