@@ -70,5 +70,48 @@ export class MissionService {
             throw new Error('Failed to check mission status');
         }
     }
+    async updateMissionType(missionId: string, missionType: MissionType): Promise<void> {
+        try {
+            this.logger.log(`Updating mission ${missionId} type to ${missionType}`);
+            await this.missionModel.updateOne({ id: missionId }, { missionType });
+        } catch (err) {
+            return Promise.reject(`Failed to update mission ${missionId} type to ${missionType}`);
+        }
+    }
 
+    async updateMissionDuration(missionId: string, missionDuration: number): Promise<void> {
+        try {
+            this.logger.log(`Updating mission ${missionId} duration to ${missionDuration}`);
+            await this.missionModel.updateOne({ id: missionId }, { missionDuration });
+        } catch (err) {
+            return Promise.reject(`Failed to update mission ${missionId} duration to ${missionDuration}`);
+        }
+    }
+
+    async updateTraveledDistance(missionId: string, traveledDistance: number): Promise<void> {
+        try {
+            this.logger.log(`Updating mission ${missionId} traveled distance to ${traveledDistance}`);
+            await this.missionModel.updateOne({ id: missionId }, { traveledDistance });
+        } catch (err) {
+            return Promise.reject(`Failed to update mission ${missionId} traveled distance to ${traveledDistance}`);
+        }
+    }
+
+    async addRobotToMission(missionId: string, robot: string): Promise<void> {
+        try {
+            this.logger.log(`Adding robot ${robot} to mission ${missionId}`);
+            await this.missionModel.updateOne({ id: missionId }, { $push: { robots: robot } });
+        } catch (err) {
+            return Promise.reject(`Failed to add robot ${robot} to mission ${missionId}`);
+        }
+    }
+
+    async updateRobotsToMission(missionId: string, robots: string[]): Promise<void> {
+        try {
+            this.logger.log(`Updating mission ${missionId} robots to ${robots}`);
+            await this.missionModel.updateOne({ id: missionId }, { robots });
+        } catch (err) {
+            return Promise.reject(`Failed to update mission ${missionId} robots to ${robots}`);
+        }
+    }
 }
