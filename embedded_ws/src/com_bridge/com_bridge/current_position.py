@@ -21,7 +21,7 @@ class CurrentPositionNode(Node):
             '/initialpose', 
             GlobalConst.QUEUE_SIZE
         )
-        self.publish_initial_pose
+        self.publish_initial_pose()
 
     def amcl_pose_callback(self, msg: PoseWithCovarianceStamped):
         if not self.firstPosSent :
@@ -55,7 +55,7 @@ class CurrentPositionNode(Node):
                                         0, 0, 0, 0, 0, 0.1]
 
         self.first_pos_publisher.publish(initial_pose)
-        self.get_logger().info('Initial pose published.')
+        self.get_logger().info('INITALPOSE PUBLIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIISHED')
 
 def main(args=None):
     rclpy.init(args=args)
