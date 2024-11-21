@@ -34,6 +34,7 @@ class ModifyCodeNode(Node):
             "log.py": "log_node",
             "mission_server.py": "mission_server",
             "mission_status_manager.py": "mission_status_manager",
+            "mission_status_manager_gazebo.py": "mission_status_manager_gazebo",
             "update_code.py": "update_code_node",
         }
 
