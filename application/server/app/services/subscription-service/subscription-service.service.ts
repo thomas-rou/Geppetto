@@ -61,6 +61,7 @@ export class SubscriptionServiceService {
         this.server.emit('log', logMessage);
         await this.missionService.addLogToMission(this.missionService.missionId, logMessage);
     }
+
     async mapCallback(message) {
         const liveMap: OccupancyGrid = message.msg;
         this.server.emit('liveMap', liveMap);
