@@ -45,8 +45,6 @@ class MissionServerGazebo(Node):
         self.initial_pos = None
         self.start_mission_publisher = self.create_publisher(Bool, 'explore/resume', 10)
         self.base_publisher = self.create_publisher(PoseStamped, '/goal_pose', 10)
-        self.publisher = self.create_publisher(PoseWithCovarianceStamped, '/initialpose', 10)
-        self.timer = self.create_timer(1.0, self.publish_initial_pose)
 
         # Subscription pour démarrer et arrêter les missions
         self.start_mission_subscription = self.create_subscription(
@@ -77,6 +75,7 @@ class MissionServerGazebo(Node):
             GlobalConst.QUEUE_SIZE
         )
         time.sleep(2) 
+
         self.initial_pose_subscription = self.create_subscription(
             PoseWithCovarianceStamped,
             '/initialpose',
@@ -110,7 +109,6 @@ class MissionServerGazebo(Node):
                     "A goal is already being executed. Rejecting new goal request.",
                 )
                 return
-            
             clear_logs()
             self._mission_status = RobotStatus.MISSION_ON_GOING
             robot_id = self.robot_id[-1] if self.robot_id else get_robot_id()
@@ -214,37 +212,6 @@ class MissionServerGazebo(Node):
         LogType.INFO,
         f"UPDATED INITIAL POSITION: {self.initial_pos}"
     )
-        
-    def publish_initial_pose(self):
-        # Create the initial pose message
-        initial_pose = PoseWithCovarianceStamped()
-        
-        # Header
-        initial_pose.header.stamp = self.get_clock().now().to_msg()
-        initial_pose.header.frame_id = 'map'  # Set to the map frame
-        
-        # Pose
-        initial_pose.pose.pose.position.x = 1.0  # Set your desired X position
-        initial_pose.pose.pose.position.y = 2.0  # Set your desired Y position
-        initial_pose.pose.pose.position.z = 0.0  # Usually 0 for 2D robots
-
-        # Orientation (Quaternion)
-        initial_pose.pose.pose.orientation.x = 0.0
-        initial_pose.pose.pose.orientation.y = 0.0
-        initial_pose.pose.pose.orientation.z = 0.707  # Example rotation (45 degrees)
-        initial_pose.pose.pose.orientation.w = 0.707
-
-        
-        initial_pose.pose.covariance = [0.1, 0, 0, 0, 0, 0,
-                                        0, 0.1, 0, 0, 0, 0,
-                                        0, 0, 0.1, 0, 0, 0,
-                                        0, 0, 0, 0.1, 0, 0,
-                                        0, 0, 0, 0, 0.1, 0,
-                                        0, 0, 0, 0, 0, 0.1]
-
-        # Publish the message
-        self.publisher.publish(initial_pose)
-        self.get_logger().info('Initial pose published.')
 
 def main(args=None):
     rclpy.init(args=args)

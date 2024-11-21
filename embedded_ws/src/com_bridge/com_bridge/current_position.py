@@ -21,6 +21,7 @@ class CurrentPositionNode(Node):
             '/initialpose', 
             GlobalConst.QUEUE_SIZE
         )
+        self.publish_initial_pose
 
     def amcl_pose_callback(self, msg: PoseWithCovarianceStamped):
         if not self.firstPosSent :
@@ -28,7 +29,33 @@ class CurrentPositionNode(Node):
                 "DID I DO ANYTHING *********************************************************************************************"
             )
             self.firstPosSent = True
-        self.first_pos_publisher.publish(msg)
+            self.first_pos_publisher.publish(msg)
+
+    def publish_initial_pose(self):
+        initial_pose = PoseWithCovarianceStamped()
+        
+        initial_pose.header.stamp = self.get_clock().now().to_msg()
+        initial_pose.header.frame_id = 'map'  
+        
+        initial_pose.pose.pose.position.x = 0.0  
+        initial_pose.pose.pose.position.y = 0.0  
+        initial_pose.pose.pose.position.z = 0.0 
+
+        initial_pose.pose.pose.orientation.x = 0.0
+        initial_pose.pose.pose.orientation.y = 0.0
+        initial_pose.pose.pose.orientation.z = 0.707 
+        initial_pose.pose.pose.orientation.w = 0.707
+
+        
+        initial_pose.pose.covariance = [0.1, 0, 0, 0, 0, 0,
+                                        0, 0.1, 0, 0, 0, 0,
+                                        0, 0, 0.1, 0, 0, 0,
+                                        0, 0, 0, 0.1, 0, 0,
+                                        0, 0, 0, 0, 0.1, 0,
+                                        0, 0, 0, 0, 0, 0.1]
+
+        self.first_pos_publisher.publish(initial_pose)
+        self.get_logger().info('Initial pose published.')
 
 def main(args=None):
     rclpy.init(args=args)
