@@ -3,6 +3,10 @@
         <span>Éditeur de Code</span>
         <span>{{ isCollapsed ? '&#x2b;' : '&#x2212;' }}</span>
     </h2>
+    <div class="options">
+        <button class="option" [ngClass]="{ selected: selectedOption === 'physical' }" (click)="selectedOption = 'physical'" (click)="onOptionChange('physical')">Physique</button>
+        <button class="option" [ngClass]="{ selected: selectedOption === 'simulation' }" (click)="selectedOption = 'simulation'" (click)="onOptionChange('simulation')">Simulation</button>
+    </div>
     <code-editor 
         [(ngModel)]="value" 
         [lineWrapping]="true" 

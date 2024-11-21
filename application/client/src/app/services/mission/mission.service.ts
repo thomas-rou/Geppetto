@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { FileName } from '@app/enums/FileName';
 import { MissionType } from '@app/enums/MissionType';
 import { SocketHandlerService } from '@app/services/socket-handler/socket-handler.service';
 import { ClientCommand } from '@common/enums/ClientCommand';
@@ -10,10 +11,10 @@ import { Mission } from '@common/interfaces/Mission';
 export class MissionService {
     private missionType: MissionType;
     private isMissionActive: boolean = false;
+    private filenameToModify: FileName = FileName.Physical;
     private code: string = '';
     private initialcode: string = '';
     public missions: Mission[] = [];
-    public filenameToModify: string = 'identify.py';
 
     constructor(private socketService: SocketHandlerService) {
         this.connect();
@@ -73,5 +74,13 @@ export class MissionService {
 
     setNewCode(newCode: string) {
         this.code = newCode;
+    }
+
+    getFileName() {
+        return this.filenameToModify;
+    }
+
+    setFileName(newFile: FileName) {
+        this.filenameToModify = newFile;
     }
 }
