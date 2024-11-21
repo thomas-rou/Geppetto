@@ -96,7 +96,7 @@ def generate_launch_description():
     # slam_toolbox launch file
     slam_toolbox = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros_gz_bringup_dir, "launch", "online_async_launch.py")
+            os.path.join(ros_gz_bringup_dir, "launch", "slam_toolbox.py")
         )
     )
 
