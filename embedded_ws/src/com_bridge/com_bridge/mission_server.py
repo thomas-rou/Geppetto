@@ -73,14 +73,14 @@ class MissionServerGazebo(Node):
             GoalStatusArray, 
             '/navigate_to_pose/_action/status', 
             self.nav2_status_callback, 
-            10
+            GlobalConst.QUEUE_SIZE
         )
         time.sleep(2) 
         self.initial_pose_subscription = self.create_subscription(
             PoseWithCovarianceStamped,
             '/initialpose',
             self.initialpose_callback,
-            10
+            GlobalConst.QUEUE_SIZE
         )
 
         self.mission_mouvements = self.create_publisher(

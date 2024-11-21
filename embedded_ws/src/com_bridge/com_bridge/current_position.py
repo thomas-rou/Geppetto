@@ -1,3 +1,4 @@
+import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from com_bridge.common_enums import GlobalConst
@@ -12,7 +13,7 @@ class CurrentPositionNode(Node):
             PoseWithCovarianceStamped,
             '/amcl_pose',
             self.amcl_pose_callback,
-            10
+            GlobalConst.QUEUE_SIZE
         )
         self.firstPosSent = False
         self.first_pos_publisher = self.create_publisher(
@@ -30,7 +31,6 @@ class CurrentPositionNode(Node):
         self.first_pos_publisher.publish(msg)
 
 def main(args=None):
-    import rclpy
     rclpy.init(args=args)
     node = CurrentPositionNode()
     rclpy.spin(node)
