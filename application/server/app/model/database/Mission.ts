@@ -2,13 +2,9 @@ import { LogMessage } from '@common/interfaces/LogMessage';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
+import { MissionType } from '@common/enums/MissionType';
 
 export type MissionDocument = Mission & Document;
-
-enum MissionType {
-    PHYSICAL_ROBOTS = 'Physical Robots',
-    GAZEBO_SIMULATION = 'Gazebo Simulation',
-}
 
 @Schema()
 export class Mission {
