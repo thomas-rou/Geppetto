@@ -22,16 +22,25 @@ class CurrentPositionNode(Node):
             GlobalConst.QUEUE_SIZE
         )
         self.publish_initial_pose()
+        self.get_logger().info(
+            "DID I DO ANYTHING 1*********************************************************************************************"
+        )  
 
     def amcl_pose_callback(self, msg: PoseWithCovarianceStamped):
+        self.get_logger().info(
+            "DID I DO ANYTHING 4*********************************************************************************************"
+        )
         if not self.firstPosSent :
             self.get_logger().info(
-                "DID I DO ANYTHING *********************************************************************************************"
+                "DID I DO ANYTHING 4*********************************************************************************************"
             )
             self.firstPosSent = True
             self.first_pos_publisher.publish(msg)
 
     def publish_initial_pose(self):
+        self.get_logger().info(
+            "DID I DO ANYTHING 2*********************************************************************************************"
+        )
         initial_pose = PoseWithCovarianceStamped()
         
         initial_pose.header.stamp = self.get_clock().now().to_msg()
