@@ -156,8 +156,6 @@ def generate_launch_description():
     return LaunchDescription(
         [
             # rviz_cmd,
-            explore_robot1,
-            explore_robot2,
             gz_sim,
             bridge,
             *Robot.robot_state_publishers,
