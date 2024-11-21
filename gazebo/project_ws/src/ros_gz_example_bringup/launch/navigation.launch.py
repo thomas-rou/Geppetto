@@ -42,6 +42,9 @@ def generate_launch_description():
     launch_dir_map_merge = os.path.join(map_merge_dir, "launch", "tb3_simulation")
 
     # Create the launch configuration variables
+    slam = LaunchConfiguration("slam")
+    slam_toolbox = LaunchConfiguration("slam_toolbox")
+    slam_gmapping = LaunchConfiguration("slam_gmapping")
     namespace = LaunchConfiguration("namespace")
     use_namespace = LaunchConfiguration("use_namespace")
     map_yaml_file = LaunchConfiguration("map")
@@ -76,6 +79,17 @@ def generate_launch_description():
         description="Whether to apply a namespace to the navigation stack",
     )
 
+    declare_slam_cmd = DeclareLaunchArgument(
+        "slam", default_value="False", description="Whether run a SLAM"
+    )
+    declare_slam_toolbox_cmd = DeclareLaunchArgument(
+        "slam_toolbox", default_value="False", description="Whether run a SLAM toolbox"
+    )
+    declare_slam_gmapping_cmd = DeclareLaunchArgument(
+        "slam_gmapping",
+        default_value="False",
+        description="Whether run a SLAM gmapping",
+    )
 
     declare_map_yaml_cmd = DeclareLaunchArgument(
         "map",
@@ -147,6 +161,9 @@ def generate_launch_description():
     # Declare the launch options
     ld.add_action(declare_namespace_cmd)
     ld.add_action(declare_use_namespace_cmd)
+    ld.add_action(declare_slam_cmd)
+    ld.add_action(declare_slam_toolbox_cmd)
+    ld.add_action(declare_slam_gmapping_cmd)
     ld.add_action(declare_map_yaml_cmd)
     ld.add_action(declare_use_sim_time_cmd)
     ld.add_action(declare_params_file_cmd)
