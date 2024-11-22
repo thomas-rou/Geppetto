@@ -21,10 +21,11 @@ class CurrentPositionNode(Node):
             '/initialpose', 
             GlobalConst.QUEUE_SIZE
         )
-        self.publish_initial_pose()
         self.get_logger().info(
             "DID I DO ANYTHING 1*********************************************************************************************"
         )  
+        self.publish_initial_pose()
+
 
     def amcl_pose_callback(self, msg: PoseWithCovarianceStamped):
         self.get_logger().info(
@@ -32,7 +33,7 @@ class CurrentPositionNode(Node):
         )
         if not self.firstPosSent :
             self.get_logger().info(
-                "DID I DO ANYTHING 4*********************************************************************************************"
+                "DID I DO ANYTHING 5*********************************************************************************************"
             )
             self.firstPosSent = True
             self.first_pos_publisher.publish(msg)
@@ -56,13 +57,16 @@ class CurrentPositionNode(Node):
         initial_pose.pose.pose.orientation.w = 0.707
 
         
-        initial_pose.pose.covariance = [0.1, 0, 0, 0, 0, 0,
-                                        0, 0.1, 0, 0, 0, 0,
-                                        0, 0, 0.1, 0, 0, 0,
-                                        0, 0, 0, 0.1, 0, 0,
-                                        0, 0, 0, 0, 0.1, 0,
-                                        0, 0, 0, 0, 0, 0.1]
+        initial_pose.pose.covariance = [float(x) for x in [
+            0.1, 0, 0, 0, 0, 0,
+            0, 0.1, 0, 0, 0, 0,
+            0, 0, 0.1, 0, 0, 0,
+            0, 0, 0, 0.1, 0, 0,
+            0, 0, 0, 0, 0.1, 0,
+            0, 0, 0, 0, 0, 0.1
+        ]]
 
+        self.get_logger().info(f"Covariance: {initial_pose.pose.covariance}")
         self.first_pos_publisher.publish(initial_pose)
         self.get_logger().info('INITALPOSE PUBLIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIISHED')
 
