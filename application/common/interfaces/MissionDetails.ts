@@ -6,3 +6,4 @@ export interface MissionDetails {
     orientation2: number;
     position2: Position;
 }
+

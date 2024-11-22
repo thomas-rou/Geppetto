@@ -9,11 +9,13 @@ from rclpy.executors import MultiThreadedExecutor
 from nav2_msgs.action import NavigateToPose
 from rclpy.action import ActionClient
 from random import uniform
+from common_enums import RobotName
 from com_bridge.common_methods import (
     clear_logs,
     get_robot_id,
     set_mission_status,
     get_mission_status,
+    get_robot_name
 )
 from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
 from com_bridge.log import LoggerNode
@@ -45,6 +47,11 @@ class MissionServerGazebo(Node):
         self.initial_pos = None
         self.start_mission_publisher = self.create_publisher(Bool, 'explore/resume', 10)
         self.base_publisher = self.create_publisher(PoseStamped, '/goal_pose', 10)
+        self.first_pos_publisher = self.create_publisher(
+            PoseWithCovarianceStamped, 
+            '/initialpose', 
+            GlobalConst.QUEUE_SIZE
+        )
 
         # Subscription pour démarrer et arrêter les missions
         self.start_mission_subscription = self.create_subscription(
@@ -74,14 +81,7 @@ class MissionServerGazebo(Node):
             self.nav2_status_callback, 
             GlobalConst.QUEUE_SIZE
         )
-        time.sleep(2) 
-
-        self.initial_pose_subscription = self.create_subscription(
-            PoseWithCovarianceStamped,
-            '/initialpose',
-            self.initialpose_callback,
-            GlobalConst.QUEUE_SIZE
-        )
+        time.sleep(2)
 
         self.mission_mouvements = self.create_publisher(
             Twist, "cmd_vel", GlobalConst.QUEUE_SIZE
@@ -110,6 +110,7 @@ class MissionServerGazebo(Node):
                 )
                 return
             clear_logs()
+            self.publish_initial_pose(msg)
             self._mission_status = RobotStatus.MISSION_ON_GOING
             robot_id = self.robot_id[-1] if self.robot_id else get_robot_id()
             self.logger.log_message(
@@ -145,7 +146,6 @@ class MissionServerGazebo(Node):
             self.logger.log_message(LogType.INFO, "Navigating to base position.")
         except Exception as e:
             self.logger.log_message(LogType.ERROR, f"Failed to navigate to home: {e}")
-
 
     def return_to_base_callback(self, msg: ReturnBase):
         self.get_logger().info('Received return to base signal.')
@@ -193,26 +193,50 @@ class MissionServerGazebo(Node):
         self.mission_mouvements.publish(twist_msg)
 
     
+    def publish_initial_pose(self, startCoordinates: StartMission):
+        self.get_logger().info(
+            "DID I DO ANYTHING 2*********************************************************************************************"
+        )
 
-    def initialpose_callback(self, msg: PoseWithCovarianceStamped):
-        self.logger.log_message(LogType.INFO, "Debugging ALLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
-        position = msg.pose.pose.position
-        orientation = msg.pose.pose.orientation
-        self.initial_pos = {
-            "x": position.x,
-            "y": position.y,
-            "z": position.z,
-            "orientation": {
-                "x": orientation.x,
-                "y": orientation.y,
-                "z": orientation.z,
-                "w": orientation.w
-            }
-        }
+        initial_pose = PoseWithCovarianceStamped()
+        
+        initial_pose.header.stamp = self.get_clock().now().to_msg()
+        initial_pose.header.frame_id = 'map'
+        
+        if(get_robot_name() == RobotName.ROBOT_1) : 
+            initial_pose.pose.pose.position.x = float(startCoordinates.mission_details.position1.x)
+            initial_pose.pose.pose.position.y = float(startCoordinates.mission_details.position1.y)
+            initial_pose.pose.pose.position.z = 0.0 
+            initial_pose.pose.pose.orientation.z = float(startCoordinates.mission_details.orientation1)
+            initial_pose.pose.pose.orientation.w = float(startCoordinates.mission_details.orientation1)
+        elif(get_robot_name() == RobotName.ROBOT_2) :
+            initial_pose.pose.pose.position.x = float(startCoordinates.mission_details.position2.x)
+            initial_pose.pose.pose.position.y = float(startCoordinates.mission_details.position2.y)
+            initial_pose.pose.pose.position.z = 0.0 
+            initial_pose.pose.pose.orientation.z = float(startCoordinates.mission_details.orientation2)
+            initial_pose.pose.pose.orientation.w = float(startCoordinates.mission_details.orientation2)
+
+        initial_pose.pose.pose.orientation.x = 0.0
+        initial_pose.pose.pose.orientation.y = 0.0
+
+        
+        initial_pose.pose.covariance = [float(x) for x in [
+            0.1, 0, 0, 0, 0, 0,
+            0, 0.1, 0, 0, 0, 0,
+            0, 0, 0.1, 0, 0, 0,
+            0, 0, 0, 0.1, 0, 0,
+            0, 0, 0, 0, 0.1, 0,
+            0, 0, 0, 0, 0, 0.1
+        ]]
+        self.initial_pos = initial_pose
         self.logger.log_message(
-        LogType.INFO,
-        f"UPDATED INITIAL POSITION: {self.initial_pos}"
-    )
+            LogType.INFO,
+            f"UPDATED INITIAL POSITION: {self.initial_pos}"
+        )
+        self.get_logger().info(f"Covariance: {initial_pose.pose.covariance}")
+        self.first_pos_publisher.publish(initial_pose)
+        self.get_logger().info('INITALPOSE PUBLIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIISHED')
+
 
 def main(args=None):
     rclpy.init(args=args)
