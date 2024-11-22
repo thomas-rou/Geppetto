@@ -16,7 +16,7 @@ import os
 import sys
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
@@ -160,9 +160,8 @@ def generate_launch_description():
             bridge,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
-            slam_toolbox,
-            map_merge,
-            navigation_robot1,
-            navigation_robot2,
+            explore_robot1,
+            explore_robot2,
+            map_merge
         ]
     )
