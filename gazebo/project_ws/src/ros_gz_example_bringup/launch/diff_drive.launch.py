@@ -160,8 +160,6 @@ def generate_launch_description():
             bridge,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
-            explore_robot1,
-            explore_robot2,
             map_merge
         ]
     )
