@@ -55,7 +55,7 @@ class CurrentPositionNode(Node):
         initial_pose.pose.pose.orientation.y = 0.0
         initial_pose.pose.pose.orientation.z = 0.707 
         initial_pose.pose.pose.orientation.w = 0.707
-
+ 
         
         initial_pose.pose.covariance = [float(x) for x in [
             0.1, 0, 0, 0, 0, 0,

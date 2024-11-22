@@ -134,11 +134,12 @@ class MissionServerGazebo(Node):
                 self.get_logger().error("Initial position is not set. Cannot navigate to home.")
                 return
             self.logger.log_message(LogType.INFO, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ POS WE HAVE  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-            self.logger.log_message(LogType.INFO, self.initial_pos["x"])
-            self.logger.log_message(LogType.INFO, self.initial_pos["y"])
+            self.logger.log_message(LogType.INFO, str(self.initial_pos["x"]))
+            self.logger.log_message(LogType.INFO, str(self.initial_pos["y"]))
             goal_msg.pose.position.x = self.initial_pos["x"]
             goal_msg.pose.position.y = self.initial_pos["y"]
             goal_msg.pose.orientation.w = self.initial_pos["orientation"]["w"]
+            self.logger.log_message(LogType.INFO, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ WE ALMOST THERE BABYYYY  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
             self.base_publisher.publish(goal_msg)
             self.logger.log_message(LogType.INFO, "Debugging XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             self.logger.log_message(LogType.INFO, "Navigating to base position.")
