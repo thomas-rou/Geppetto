@@ -20,7 +20,7 @@ class Robot(Entity):
         self.build_entity(pose, size)
         self.index = Robot.get_id()
         self.spawn_robot()
-        # self.activate_status_simulation()
+        self.activate_status_simulation()
 
     @staticmethod
     def get_id() -> int:

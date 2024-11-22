@@ -8,12 +8,12 @@ from common_msgs.msg import StartMission, StopMission
 from rclpy.executors import MultiThreadedExecutor
 from nav2_msgs.action import NavigateToPose
 from rclpy.action import ActionClient
-from random import uniform
 from com_bridge.common_methods import (
     clear_logs,
     get_robot_id,
     set_mission_status,
     get_mission_status,
+    get_robot_name
 )
 from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
 from com_bridge.log import LoggerNode
@@ -36,7 +36,9 @@ class MissionServerGazebo(Node):
         )
 
         self.action_client = ActionClient(self, NavigateToPose, "navigate_to_pose")
-        self.start_mission_publisher = self.create_publisher(Bool, 'explore/resume', 10)
+        self.start_mission_publisher = self.create_publisher(Bool, 'explore/resume', GlobalConst.QUEUE_SIZE)
+        self.start_mission_publisher_limo1 = self.create_publisher(Bool, 'limo1/explore/resume', GlobalConst.QUEUE_SIZE)
+        self.start_mission_publisher_limo2 = self.create_publisher(Bool, 'limo2/explore/resume', GlobalConst.QUEUE_SIZE)
 
         # Subscription pour démarrer et arrêter les missions
         self.start_mission_subscription = self.create_subscription(
@@ -86,9 +88,13 @@ class MissionServerGazebo(Node):
             )
             msg = Bool()
             msg.data = True
-            self.start_mission_publisher.publish(msg)
-            command = ["ros2", "launch", "explore_lite", "explore.launch.py"]
-            subprocess.Popen(command)
+            if get_robot_name() == "gazebo":
+                self.start_mission_publisher_limo1.publish(msg)
+                self.start_mission_publisher_limo2.publish(msg)
+            else:
+                self.start_mission_publisher.publish(msg)
+                command = ["ros2", "launch", "explore_lite", "explore.launch.py"]
+                subprocess.Popen(command)
             
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")
@@ -109,7 +115,11 @@ class MissionServerGazebo(Node):
         if self.mission_active:
             msg = Bool()
             msg.data = False
-            self.start_mission_publisher.publish(msg)
+            if get_robot_name() == "gazebo":
+                self.start_mission_publisher_limo1.publish(msg)
+                self.start_mission_publisher_limo2.publish(msg)
+            else:
+                self.start_mission_publisher.publish(msg)
             twist_msg = Twist()
             twist_msg.linear.x = 0.0
             twist_msg.linear.y = 0.0
