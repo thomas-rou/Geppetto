@@ -27,7 +27,7 @@ class ModifyCodeNode(Node):
         self.ws_path = (
             "/lib/geppetto/embedded_ws"
             if get_robot_name() == "gazebo"
-            else "~/geppetto/embedded_ws"
+            else os.path.expanduser("~/geppetto/embedded_ws")
         )
         self.node_dict = {
             "identify.py": "identify_robot",
