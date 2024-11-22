@@ -71,7 +71,7 @@ CMD ["/bin/bash", "-c", "source ../../embedded_ws/install/setup.bash && source /
     & source /opt/ros/humble/setup.bash && source install/setup.bash && sleep 7 && ros2 launch ros_gz_example_bringup slam_toolbox.py\
     & source /opt/ros/humble/setup.bash && source install/setup.bash && sleep 10 && ros2 launch ros_gz_example_bringup navigation.launch.py\
     & source /opt/ros/humble/setup.bash && source install/setup.bash && sleep 10 && ros2 launch ros_gz_example_bringup navigation.launch2.py\
-    & source /opt/ros/humble/setup.bash && source install/setup.bash && sleep 13 ros2 topic pub limo1/explore/resume std_msgs/msg/Bool \"{data: false}\" --once\
+    & source /opt/ros/humble/setup.bash && source install/setup.bash && sleep 13 && ros2 topic pub limo1/explore/resume std_msgs/msg/Bool \"{data: false}\" --once\
     && ros2 topic pub limo2/explore/resume std_msgs/msg/Bool \"{data: false}\" --once\
     & colcon build --packages-select common_msgs && source ../../embedded_ws/install/setup.bash && ros2 run rosbridge_server rosbridge_websocket\
     "]
