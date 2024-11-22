@@ -16,7 +16,7 @@ import os
 import sys
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
@@ -25,8 +25,10 @@ from launch_ros.actions import Node
 current_dir = os.path.dirname(__file__)
 sys.path.append(current_dir)
 
+ros_gz_bringup_dir = get_package_share_directory("ros_gz_example_bringup")
+
 helpers_dir = os.path.join(
-    get_package_share_directory("ros_gz_example_bringup"),
+    ros_gz_bringup_dir,
     "helpers",
 )
 sys.path.append(helpers_dir)
@@ -65,7 +67,8 @@ def generate_launch_description():
                     "worlds",
                     "diff_drive.sdf",
                 ]
-            )
+            ).perform(None)
+            + " -r"
         }.items(),
     )
 
@@ -79,7 +82,7 @@ def generate_launch_description():
         parameters=[
             {
                 "config_file": os.path.join(
-                    get_package_share_directory("ros_gz_example_bringup"),
+                    ros_gz_bringup_dir,
                     "config",
                     "ros_gz_example_bridge.yaml",
                 ),
@@ -90,11 +93,73 @@ def generate_launch_description():
         output="screen",
     )
 
+    # slam_toolbox launch file
+    slam_toolbox = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "slam_toolbox.py")
+        )
+    )
+
+    # map_merge launch file
+    map_merge = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "map_merge.launch.py")
+        )
+    )
+
+    # explore lite robot 1
+    explore_robot1 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "explore.launch.py")
+        )
+    )
+
+    # explore lite robot 2
+    explore_robot2 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "explore.launch2.py")
+        )
+    )
+
+    # nav2 stack robot 1
+    navigation_robot1 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "navigation.launch.py")
+        )
+    )
+
+    # nav2 stack robot 2
+    navigation_robot2 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "navigation.launch2.py")
+        )
+    )
+
+    # rviz
+    rviz_cmd = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory("nav2_bringup"), "launch", "rviz_launch.py"
+            )
+        ),
+        launch_arguments={
+            "namespace": "",
+            "use_namespace": "False",
+            "rviz_config": os.path.join(
+                ros_gz_bringup_dir,
+                "config",
+                "nav2_default_view.rviz",
+            ),
+        }.items(),
+    )
+
     return LaunchDescription(
         [
+            # rviz_cmd,
             gz_sim,
             bridge,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
+            map_merge
         ]
     )
