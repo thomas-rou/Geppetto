@@ -37,6 +37,8 @@ class MissionServerGazebo(Node):
 
         self.action_client = ActionClient(self, NavigateToPose, "navigate_to_pose")
         self.start_mission_publisher = self.create_publisher(Bool, 'explore/resume', GlobalConst.QUEUE_SIZE)
+        self.start_mission_publisher_limo1 = self.create_publisher(Bool, 'limo1/explore/resume', GlobalConst.QUEUE_SIZE)
+        self.start_mission_publisher_limo2 = self.create_publisher(Bool, 'limo2/explore/resume', GlobalConst.QUEUE_SIZE)
 
         # Subscription pour démarrer et arrêter les missions
         self.start_mission_subscription = self.create_subscription(
