@@ -133,7 +133,7 @@ class MissionServerGazebo(Node):
             if self.initial_pos is None:
                 self.get_logger().error("Initial position is not set. Cannot navigate to home.")
                 return
-            goal_msg.pose = self.initial_pos.pose
+            goal_msg.pose = self.initial_pos.pose.pose
             self.base_publisher.publish(goal_msg)
             self.logger.log_message(LogType.INFO, "Navigating to base position.")
         except Exception as e:
