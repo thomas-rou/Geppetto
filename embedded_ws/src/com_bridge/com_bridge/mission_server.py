@@ -9,7 +9,7 @@ from rclpy.executors import MultiThreadedExecutor
 from nav2_msgs.action import NavigateToPose
 from rclpy.action import ActionClient
 from random import uniform
-from common_enums import RobotName
+from com_bridge.common_enums import RobotName
 from com_bridge.common_methods import (
     clear_logs,
     get_robot_id,
