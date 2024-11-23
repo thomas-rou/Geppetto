@@ -110,9 +110,6 @@ class MissionServerGazebo(Node):
                 )
                 return
             clear_logs()
-            
-            self.logger.log_message(LogType.INFO, "Debugging BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
-            
             self.publish_initial_pose(msg)
             self._mission_status = RobotStatus.MISSION_ON_GOING
             robot_id = self.robot_id[-1] if self.robot_id else get_robot_id()
@@ -136,9 +133,7 @@ class MissionServerGazebo(Node):
             if self.initial_pos is None:
                 self.get_logger().error("Initial position is not set. Cannot navigate to home.")
                 return
-            goal_msg.pose.position.x = self.initial_pos["x"]
-            goal_msg.pose.position.y = self.initial_pos["y"]
-            goal_msg.pose.orientation.w = self.initial_pos["orientation"]["w"]
+            goal_msg.pose = self.initial_pos.pose
             self.base_publisher.publish(goal_msg)
             self.logger.log_message(LogType.INFO, "Navigating to base position.")
         except Exception as e:
