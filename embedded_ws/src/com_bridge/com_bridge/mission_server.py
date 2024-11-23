@@ -110,6 +110,9 @@ class MissionServerGazebo(Node):
                 )
                 return
             clear_logs()
+            
+            self.logger.log_message(LogType.INFO, "Debugging BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
+            
             self.publish_initial_pose(msg)
             self._mission_status = RobotStatus.MISSION_ON_GOING
             robot_id = self.robot_id[-1] if self.robot_id else get_robot_id()
@@ -130,19 +133,13 @@ class MissionServerGazebo(Node):
             goal_msg = PoseStamped()
             goal_msg.header.frame_id = 'map'
             goal_msg.header.stamp = self.get_clock().now().to_msg()
-            self.logger.log_message(LogType.INFO, "Debugging BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
             if self.initial_pos is None:
                 self.get_logger().error("Initial position is not set. Cannot navigate to home.")
                 return
-            self.logger.log_message(LogType.INFO, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ POS WE HAVE  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-            self.logger.log_message(LogType.INFO, str(self.initial_pos["x"]))
-            self.logger.log_message(LogType.INFO, str(self.initial_pos["y"]))
             goal_msg.pose.position.x = self.initial_pos["x"]
             goal_msg.pose.position.y = self.initial_pos["y"]
             goal_msg.pose.orientation.w = self.initial_pos["orientation"]["w"]
-            self.logger.log_message(LogType.INFO, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ WE ALMOST THERE BABYYYY  $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
             self.base_publisher.publish(goal_msg)
-            self.logger.log_message(LogType.INFO, "Debugging XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             self.logger.log_message(LogType.INFO, "Navigating to base position.")
         except Exception as e:
             self.logger.log_message(LogType.ERROR, f"Failed to navigate to home: {e}")
@@ -194,9 +191,6 @@ class MissionServerGazebo(Node):
 
     
     def publish_initial_pose(self, startCoordinates: StartMission):
-        self.get_logger().info(
-            "DID I DO ANYTHING 2*********************************************************************************************"
-        )
 
         initial_pose = PoseWithCovarianceStamped()
         
@@ -231,11 +225,10 @@ class MissionServerGazebo(Node):
         self.initial_pos = initial_pose
         self.logger.log_message(
             LogType.INFO,
-            f"UPDATED INITIAL POSITION: {self.initial_pos}"
+            f"Inital position has been set: {self.initial_pos}"
         )
         self.get_logger().info(f"Covariance: {initial_pose.pose.covariance}")
         self.first_pos_publisher.publish(initial_pose)
-        self.get_logger().info('INITALPOSE PUBLIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIISHED')
 
 
 def main(args=None):

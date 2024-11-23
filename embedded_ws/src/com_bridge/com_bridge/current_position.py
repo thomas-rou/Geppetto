@@ -4,7 +4,6 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from com_bridge.common_enums import GlobalConst
 from com_bridge.log import LoggerNode
 
-
 class CurrentPositionNode(Node):
 
     def __init__(self):
@@ -15,23 +14,11 @@ class CurrentPositionNode(Node):
             self.amcl_pose_callback,
             GlobalConst.QUEUE_SIZE
         )
-        self.firstPosSent = False
-        self.get_logger().info(
-            "DID I DO ANYTHING 1*********************************************************************************************"
-        )  
-        self.publish_initial_pose()
-
 
     def amcl_pose_callback(self, msg: PoseWithCovarianceStamped):
-        self.get_logger().info(
-            "DID I DO ANYTHING 4*********************************************************************************************"
-        )
-        if not self.firstPosSent :
             self.get_logger().info(
-                "DID I DO ANYTHING 5*********************************************************************************************"
+                "receiving current position info"
             )
-            self.firstPosSent = True
-            self.first_pos_publisher.publish(msg)
 
 def main(args=None):
     rclpy.init(args=args)
