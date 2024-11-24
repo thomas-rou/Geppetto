@@ -92,6 +92,13 @@ def generate_launch_description():
         ],
         output="screen",
     )
+    
+    update_node = Node(
+            package="com_bridge",
+            executable="update_code_node",
+            name="update_code_node",
+            output="screen",
+        )
 
     # slam_toolbox launch file
     slam_toolbox = IncludeLaunchDescription(
@@ -160,6 +167,7 @@ def generate_launch_description():
             bridge,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
+            update_node,
             map_merge
         ]
     )

@@ -26,6 +26,7 @@ setup(
             "mission_status_manager_gazebo = com_bridge.mission_status_manager_gazebo:main",
             "get_map_robot_2 = com_bridge.get_map_robot_2:main",
             "publish_initialpose = com_bridge.publish_initialpose:main",
+            "update_code_node = com_bridge.update_code:main",
         ],
     },
 )
