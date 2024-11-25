@@ -21,6 +21,7 @@ from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
 from com_bridge.log import LoggerNode
 import os
 import time
+import subprocess
 from rclpy.parameter import Parameter
 from action_msgs.msg import GoalStatusArray
 from geometry_msgs.msg import PoseWithCovarianceStamped
@@ -134,6 +135,8 @@ class MissionServerGazebo(Node):
                 self.get_logger().error("Initial position is not set. Cannot navigate to home.")
                 return
             goal_msg.pose = self.initial_pos.pose.pose
+            command = ["mpg123", "sounds/si_je_revenais_a_la_base.mp3"]
+            subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             self.base_publisher.publish(goal_msg)
             self.logger.log_message(LogType.INFO, "Navigating to base position.")
         except Exception as e:
@@ -210,12 +213,12 @@ class MissionServerGazebo(Node):
 
         
         initial_pose.pose.covariance = [float(x) for x in [
-            0.1, 0, 0, 0, 0, 0,
-            0, 0.1, 0, 0, 0, 0,
-            0, 0, 0.1, 0, 0, 0,
-            0, 0, 0, 0.1, 0, 0,
-            0, 0, 0, 0, 0.1, 0,
-            0, 0, 0, 0, 0, 0.1
+            0.02, 0, 0, 0, 0, 0,
+            0, 0.02, 0, 0, 0, 0,
+            0, 0, 0.01, 0, 0, 0,
+            0, 0, 0, 0.02, 0, 0,
+            0, 0, 0, 0, 0.02, 0,
+            0, 0, 0, 0, 0, 0.02
         ]]
         self.initial_pos = initial_pose
         self.logger.log_message(

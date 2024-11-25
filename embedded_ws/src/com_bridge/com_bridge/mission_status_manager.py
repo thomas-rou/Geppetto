@@ -6,7 +6,7 @@ from common_msgs.msg import MissionStatus
 from com_bridge.common_methods import set_mission_status, get_mission_status
 from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
 from com_bridge.log import LoggerNode
-from std_msgs.msg import Bool
+
 BATTERY_CAPACITY = 12.0
 BATTERY_THRESHOLD = 30
 MAX_BATTERY_LEVEL = 100
