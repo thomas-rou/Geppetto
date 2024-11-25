@@ -16,6 +16,7 @@ import * as path from 'path';
 import { ReturnToBase } from '@common/interfaces/ReturnToBase';
 
 const CODE_FILE_PATH = path.resolve(__dirname, '../../../../../../../embedded_ws/src/m-explore-ros2/explore/src/explore.cpp');
+import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 
 @Injectable()
 @WebSocketGateway()
@@ -24,6 +25,8 @@ export class MissionCommandGateway {
     server: Server;
     private logger: LogService;
     private controllingClient: Socket | null = null;
+    pathToAllFiles: string = path.resolve(__dirname, '../../../../../../../embedded_ws/src/com_bridge/com_bridge/');
+
 
     constructor(
         private subscriptionService: SubscriptionServiceService,
@@ -163,10 +166,11 @@ export class MissionCommandGateway {
     }
 
     @SubscribeMessage(RobotCommand.UpdateControllerCode)
-    async updateControllerCode(client: Socket, payload: { code: string }) {
+    async updateControllerCode(client: Socket, payload:UpdateControllerCode) {
         try {
             await this.logger.logToClient(LogType.INFO, 'Mise à jour du code du contrôleur reçue');
-            await this.subscriptionService.updateRobotController(payload.code);
+            const filePath = path.resolve(this.pathToAllFiles, payload.filename);
+            await this.subscriptionService.updateRobotController(payload, filePath);
             client.emit('updateSuccess', 'Mise à jour du code réussie');
         } catch (e) {
             await this.logger.logToClient(LogType.ERROR, 'Erreur de mise à jour du code : ' + e.message);
@@ -175,8 +179,9 @@ export class MissionCommandGateway {
     }
 
     @SubscribeMessage('getCodeFile')
-    async handleGetCodeFile(client: Socket) {
-        const fileContent = fs.readFileSync(CODE_FILE_PATH, 'utf-8');
+    async handleGetCodeFile(client: Socket, filename: string ) {
+        const filePath = path.resolve(this.pathToAllFiles, filename);
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
         client.emit('codeFileContent', fileContent);
     }
 }

@@ -26,6 +26,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/MissionStatus.msg"
   "msg/LogMessage.msg"
   "msg/ReturnBase.msg"
+  "msg/UpdateControllerCode.msg"
   DEPENDENCIES std_msgs
   DEPENDENCIES action_msgs
 )

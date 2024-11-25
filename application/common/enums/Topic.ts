@@ -12,4 +12,7 @@ export enum Topic {
     log_robot1 = '/robot_1/log',
     log_robot2 = '/robot_2/log',
     log_gazebo = '/gazebo/log',
+    update_code_robot1 = '/robot_1/update_code',
+    update_code_robot2 = '/robot_2/update_code',
+    update_code_gazebo = '/gazebo/update_code',
 }

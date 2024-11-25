@@ -1,6 +1,5 @@
 # com_bridge/com_serv.py
 
-from com_bridge.common_methods import set_mission_status
 from com_bridge.common_enums import GlobalConst, LogType
 import rclpy
 from rclpy.node import Node
@@ -26,8 +25,8 @@ class IdentifyNode(Node):
 
     def identification_callback(self, msg):
         self.logger.log_message(LogType.INFO, f'identification')
-        command = ["mpg123", "sounds/tp_pas_heure.mp3"]
-        subprocess.run(command)
+        command = ["mpg123", "xmas.mp3"]
+        subprocess.run(command, cwd=os.path.expanduser("~/geppetto/embedded_ws/sounds"))
 
     def destroy_node(self):
         super().destroy_node()

@@ -15,7 +15,7 @@ MAX_BATTERY_LEVEL = 100
 
 class MissionStatusManagerGazebo(Node):
     def __init__(self):
-        super().__init__("mission_manager_status_gazebo")
+        super().__init__("mission_status_manager_gazebo")
         self.declare_parameter("robot_id", "gazebo")
         self.battery_level = MAX_BATTERY_LEVEL
         self.robot_id = (
