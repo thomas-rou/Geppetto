@@ -50,7 +50,7 @@ class MissionServerGazebo(Node):
         self.start_mission_publisher = self.create_publisher(Bool, 'explore/resume', GlobalConst.QUEUE_SIZE)
         self.start_mission_publisher_limo1 = self.create_publisher(Bool, 'limo1/explore/resume', GlobalConst.QUEUE_SIZE)
         self.start_mission_publisher_limo2 = self.create_publisher(Bool, 'limo2/explore/resume', GlobalConst.QUEUE_SIZE)
-        self.base_publisher = self.create_publisher(PoseStamped, '/goal_pose', 10)
+        self.base_publisher = self.create_publisher(PoseStamped, '/goal_pose', GlobalConst.QUEUE_SIZE)
         self.first_pos_publisher = self.create_publisher(
             PoseWithCovarianceStamped, 
             '/initialpose', 
@@ -143,18 +143,19 @@ class MissionServerGazebo(Node):
             goal_msg.header.frame_id = 'map'
             goal_msg.header.stamp = self.get_clock().now().to_msg()
             if self.initial_pos is None:
-                self.get_logger().error("Initial position is not set. Cannot navigate to home.")
+                self.get_logger().error("Initial position is not set. Cannot navigate to base.")
                 return
             goal_msg.pose = self.initial_pos.pose.pose
-            command = ["mpg123", "sounds/si_je_revenais_a_la_base.mp3"]
-            subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            sound_file = "si_je_revenais_a_la_base.mp3"
+            sound_path = os.path.expanduser("~/geppetto/embedded_ws/sounds")
+            command = ["mpg123", sound_file]
+            subprocess.Popen(command, cwd=sound_path)
             self.base_publisher.publish(goal_msg)
             self.logger.log_message(LogType.INFO, "Navigating to base position.")
         except Exception as e:
-            self.logger.log_message(LogType.ERROR, f"Failed to navigate to home: {e}")
+            self.logger.log_message(LogType.ERROR, f"Failed to navigate to base: {e}")
 
     def return_to_base_callback(self, msg: ReturnBase):
-        self.get_logger().info('Received return to base signal.')
         self.stop_robot()
         self.returning_home = True
         time.sleep(1)
@@ -168,7 +169,7 @@ class MissionServerGazebo(Node):
         if self._mission_status == RobotStatus.WAITING:
             for status in msg.status_list:
                 if status.status == 4:
-                    self.get_logger().info("Robot came back to base. Wow!!")
+                    self.get_logger().info("Robot came back home. Wow!!")
                     return
                 else:
                     self.get_logger().info(f"Navigation status: {status.status}")
@@ -237,11 +238,6 @@ class MissionServerGazebo(Node):
             0, 0, 0, 0, 0, 0.02
         ]]
         self.initial_pos = initial_pose
-        self.logger.log_message(
-            LogType.INFO,
-            f"Inital position has been set: {self.initial_pos}"
-        )
-        self.get_logger().info(f"Covariance: {initial_pose.pose.covariance}")
         self.first_pos_publisher.publish(initial_pose)
 
 
