@@ -216,25 +216,27 @@ class MissionServerGazebo(Node):
             initial_pose.pose.pose.position.x = float(startCoordinates.mission_details.position1.x)
             initial_pose.pose.pose.position.y = float(startCoordinates.mission_details.position1.y)
             initial_pose.pose.pose.position.z = 0.0 
-            initial_pose.pose.pose.orientation.z = float(startCoordinates.mission_details.orientation1)
             initial_pose.pose.pose.orientation.w = float(startCoordinates.mission_details.orientation1)
+            initial_pose.pose.pose.orientation.z = 1 - float(startCoordinates.mission_details.orientation2)**2
+
         elif(get_robot_name() == RobotName.ROBOT_2) :
             initial_pose.pose.pose.position.x = float(startCoordinates.mission_details.position2.x)
             initial_pose.pose.pose.position.y = float(startCoordinates.mission_details.position2.y)
             initial_pose.pose.pose.position.z = 0.0 
-            initial_pose.pose.pose.orientation.z = float(startCoordinates.mission_details.orientation2)
             initial_pose.pose.pose.orientation.w = float(startCoordinates.mission_details.orientation2)
+            initial_pose.pose.pose.orientation.z = 1 - float(startCoordinates.mission_details.orientation2)**2
+
 
         initial_pose.pose.pose.orientation.x = 0.0
         initial_pose.pose.pose.orientation.y = 0.0
 
         
         initial_pose.pose.covariance = [float(x) for x in [
-            0.02, 0, 0, 0, 0, 0,
-            0, 0.02, 0, 0, 0, 0,
+            0.05, 0, 0, 0, 0, 0,
+            0, 0.05, 0, 0, 0, 0,
             0, 0, 0.01, 0, 0, 0,
             0, 0, 0, 0.02, 0, 0,
-            0, 0, 0, 0, 0.02, 0,
+            0, 0, 0, 0, 0.02, 0,  
             0, 0, 0, 0, 0, 0.02
         ]]
         self.initial_pos = initial_pose
