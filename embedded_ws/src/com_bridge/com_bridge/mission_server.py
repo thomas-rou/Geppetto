@@ -232,12 +232,12 @@ class MissionServerGazebo(Node):
 
         
         initial_pose.pose.covariance = [float(x) for x in [
-            0.05, 0, 0, 0, 0, 0,
-            0, 0.05, 0, 0, 0, 0,
-            0, 0, 0.01, 0, 0, 0,
-            0, 0, 0, 0.02, 0, 0,
-            0, 0, 0, 0, 0.02, 0,  
-            0, 0, 0, 0, 0, 0.02
+            0.1, 0, 0, 0, 0, 0,
+            0, 0.1, 0, 0, 0, 0,
+            0, 0, 0.1, 0, 0, 0,
+            0, 0, 0, 0.1, 0, 0,
+            0, 0, 0, 0, 0.1, 0,  
+            0, 0, 0, 0, 0, 0.1
         ]]
         self.initial_pos = initial_pose
         self.first_pos_publisher.publish(initial_pose)
