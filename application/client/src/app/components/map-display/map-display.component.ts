@@ -1,22 +1,7 @@
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
+import { OccupancyGrid } from '@common/interfaces/LiveMap';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
-
-interface MapMetaData {
-    width: number;
-    height: number;
-    resolution: number;
-    origin: { x: number; y: number; z: number };
-}
-
-interface OccupancyGrid {
-    header: {
-        stamp: { sec: number; nsec: number };
-        frame_id: string;
-    };
-    info: MapMetaData;
-    data: Int8Array;
-}
 
 @Component({
     selector: 'app-map-display',

@@ -1,4 +1,5 @@
 import { Mission, MissionDocument } from '@app/model/database/Mission';
+import { OccupancyGrid } from '@common/interfaces/LiveMap';
 import { LogMessage } from '@common/interfaces/LogMessage';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -67,6 +68,14 @@ export class MissionService {
         } catch (err) {
             this.logger.error('Failed to check mission status', err);
             throw new Error('Failed to check mission status');
+        }
+    }
+
+    async addMapToMission(missionId: string, map: OccupancyGrid): Promise<void> {
+        try {
+            await this.missionModel.updateOne({ id: missionId }, { map });
+        } catch (err) {
+            return Promise.reject(`Failed to add map to mission ${missionId}`);
         }
     }
     
