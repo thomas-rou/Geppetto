@@ -16,8 +16,9 @@
             <h2>
                 <span>Historique des Logs</span>
             </h2>
-            @for (mission of this.missionService.missions; track mission)
-                {<app-logs-display [mission]="mission"></app-logs-display>}
+            @for (mission of this.missionService.missions; track mission) {
+                <app-logs-display [mission]="mission"></app-logs-display>
+            <app-map-display [map]="mission.map"></app-map-display>}
             <!-- <div id="log-terminal" class="terminal" #logTerminal></div> -->
         </section>
     </main>
