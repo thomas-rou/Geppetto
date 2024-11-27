@@ -1,40 +1,30 @@
-import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, Input } from '@angular/core';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
+import { OccupancyGrid } from '@common/interfaces/LiveMap';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
-
-interface MapMetaData {
-    width: number;
-    height: number;
-    resolution: number;
-    origin: { x: number; y: number; z: number };
-}
-
-interface OccupancyGrid {
-    header: {
-        stamp: { sec: number; nsec: number };
-        frame_id: string;
-    };
-    info: MapMetaData;
-    data: Int8Array;
-}
 
 @Component({
     selector: 'app-map-display',
     standalone: true,
     templateUrl: './map-display.component.html',
     styleUrls: ['./map-display.component.scss'],
-    animations: [collapseExpandAnimation]
+    animations: [collapseExpandAnimation],
 })
 export class MapDisplayComponent implements OnInit {
     @ViewChild('mapCanvas', { static: true }) mapCanvas!: ElementRef<HTMLCanvasElement>;
+    @Input() map: OccupancyGrid;
     isCollapsed = true;
 
     constructor(private robotCommunicationService: RobotCommunicationService) {}
 
     ngOnInit(): void {
-        this.robotCommunicationService.onLiveMap().subscribe((occupancyGrid: OccupancyGrid) => {
-            this.drawMap(occupancyGrid);
-        });
+        if (this.map) {
+            this.drawMap(this.map);
+        } else {
+            this.robotCommunicationService.onLiveMap().subscribe((occupancyGrid: OccupancyGrid) => {
+                this.drawMap(occupancyGrid);
+            });
+        }
     }
 
     toggleCollapse() {
@@ -56,11 +46,9 @@ export class MapDisplayComponent implements OnInit {
                 const cellValue = occupancyGrid.data[index];
                 if (cellValue === -1) {
                     ctx.fillStyle = 'gray';
-                }
-                else if (cellValue === 0) {
+                } else if (cellValue === 0) {
                     ctx.fillStyle = 'white';
-                }
-                else {
+                } else {
                     ctx.fillStyle = 'black';
                 }
                 ctx.fillRect(x, y, 1, 1);
