@@ -3,12 +3,13 @@ import { MissionService } from '@app/services/mission/mission.service';
 import { ThemeService } from '@app/services/theme/theme.service';
 import { Mission } from '@common/interfaces/Mission';
 import { LogsDisplayComponent } from "@app/components/logs-display/logs-display.component";
+import { MapDisplayComponent } from "../../components/map-display/map-display.component";
 
 
 @Component({
     selector: 'app-logs-page',
     standalone: true,
-    imports: [LogsDisplayComponent],
+    imports: [LogsDisplayComponent, MapDisplayComponent],
     templateUrl: './logs-page.component.html',
     styleUrl: './logs-page.component.scss',
 })

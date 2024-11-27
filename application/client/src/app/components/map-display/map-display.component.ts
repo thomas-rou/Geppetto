@@ -1,5 +1,6 @@
-import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, Input } from '@angular/core';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
+import { OccupancyGrid } from '@common/interfaces/LiveMap';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
 import { RobotPose } from '@common/interfaces/RobotPose';
 import { OccupancyGrid, MapMetaData } from '@common/interfaces/LiveMap';
@@ -20,10 +21,11 @@ const OCCUPANCY_GRID_OCCUPIED_COLOR = 'black';
     standalone: true,
     templateUrl: './map-display.component.html',
     styleUrls: ['./map-display.component.scss'],
-    animations: [collapseExpandAnimation]
+    animations: [collapseExpandAnimation],
 })
 export class MapDisplayComponent implements OnInit {
     @ViewChild('mapCanvas', { static: true }) mapCanvas!: ElementRef<HTMLCanvasElement>;
+    @Input() map: OccupancyGrid;
     isCollapsed = true;
     private robotPoses: { [topic: string]: RobotPose[] } = {};
     private topicColors: { [key: string]: string } = {};
@@ -41,10 +43,14 @@ export class MapDisplayComponent implements OnInit {
     }
 
     private subscribeToLiveMap(): void {
-        this.robotCommunicationService.onLiveMap().subscribe((occupancyGrid: OccupancyGrid) => {
-            this.occupancyGridInfo = occupancyGrid.info;
-            this.drawMap(occupancyGrid);
-        });
+        if (this.map) {
+            this.drawMap(this.map);
+        } else {
+            this.robotCommunicationService.onLiveMap().subscribe((occupancyGrid: OccupancyGrid) => {
+                this.occupancyGridInfo = occupancyGrid.info;
+                this.drawMap(occupancyGrid);
+            });
+        }
     }
 
     private subscribeToRobotPositions(): void {

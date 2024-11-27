@@ -63,6 +63,7 @@ export class SubscriptionServiceService {
     async mapCallback(message) {
         const liveMap: OccupancyGrid = message.msg;
         this.server.emit('liveMap', liveMap);
+        if (this.missionService.missionId) await this.missionService.addMapToMission(this.missionService.missionId, [liveMap]);
     }
 
     async robotPoseCallback(message) {
