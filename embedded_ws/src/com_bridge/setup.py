@@ -27,7 +27,6 @@ setup(
             'get_map_robot_2 = com_bridge.get_map_robot_2:main',
             "publish_initialpose = com_bridge.publish_initialpose:main",
             "update_code_node = com_bridge.update_code:main",
-            'current_position_node = com_bridge.current_position:main',
             'low_battery = com_bridge.low_battery:main'
         ],
     },
