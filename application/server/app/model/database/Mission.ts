@@ -3,6 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
 import { MissionType } from '@common/enums/MissionType';
+import { OccupancyGrid } from '@common/interfaces/LiveMap';
 
 export type MissionDocument = Mission & Document;
 
@@ -15,6 +16,10 @@ export class Mission {
     @ApiProperty()
     @Prop({ required: true })
     logs: LogMessage[];
+
+    @ApiProperty()
+    @Prop({ required: false})
+    map: OccupancyGrid[];
 
     @ApiProperty()
     @Prop({ required: true })
