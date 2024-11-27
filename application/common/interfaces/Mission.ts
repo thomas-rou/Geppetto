@@ -4,5 +4,5 @@ import { OccupancyGrid } from '@common/interfaces/LiveMap';
 export interface Mission {
     id: string;
     logs: LogMessage[];
-    map: OccupancyGrid;
+    map: OccupancyGrid[];
 }

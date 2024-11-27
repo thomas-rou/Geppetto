@@ -17,8 +17,8 @@ export class Mission {
     logs: LogMessage[];
 
     @ApiProperty()
-    @Prop({ required: false })
-    map: OccupancyGrid
+    @Prop({ required: false})
+    map: OccupancyGrid[];
 }
 
 export const MissionSchema = SchemaFactory.createForClass(Mission);

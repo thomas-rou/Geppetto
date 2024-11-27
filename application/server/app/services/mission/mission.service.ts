@@ -71,7 +71,7 @@ export class MissionService {
         }
     }
 
-    async addMapToMission(missionId: string, map: OccupancyGrid): Promise<void> {
+    async addMapToMission(missionId: string, map: OccupancyGrid[]): Promise<void> {
         try {
             await this.missionModel.updateOne({ id: missionId }, { map });
         } catch (err) {
