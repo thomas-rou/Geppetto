@@ -9,6 +9,8 @@ import { Topic } from '@common/enums/Topic';
 import { TopicType } from '@common/enums/TopicType';
 import { RobotId } from '@common/enums/RobotId';
 import { BasicCommand } from '@common/interfaces/BasicCommand';
+import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
+
 
 @Injectable()
 export class RobotService {
@@ -23,6 +25,10 @@ export class RobotService {
     ) {
         this._robotIp = robotIp;
         this._robotNumber = robotNb;
+    }
+
+    isConnected() : boolean {
+        return this.ws && this.ws.readyState == WebSocket.OPEN
     }
 
     async connect() {
@@ -128,4 +134,10 @@ export class RobotService {
             timestamp: new Date().toISOString(),
         } as BasicCommand);
     }
+
+    async updateRobotCode(newCodeRequestObject:UpdateControllerCode) {
+        const topicName = this._robotNumber == RobotId.robot1 ? Topic.update_code_robot1 : this._robotNumber == RobotId.robot2 ? Topic.update_code_robot2 : Topic.update_code_gazebo;
+        await this.publishToTopic(topicName, TopicType.update_code, newCodeRequestObject);
+    }
+
 }
