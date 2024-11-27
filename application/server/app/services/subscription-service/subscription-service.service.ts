@@ -10,9 +10,7 @@ import { MissionService } from '../mission/mission.service';
 import { OccupancyGrid } from '@common/interfaces/LiveMap';
 import { RobotPose } from '@common/interfaces/RobotPose';
 import * as fs from 'fs';
-import * as path from 'path';
-
-const CODE_FILE_PATH = path.resolve(__dirname, '../../../../../../../embedded_ws/src/m-explore-ros2/explore/src/explore.cpp');
+import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 
 @Injectable()
 export class SubscriptionServiceService {
@@ -73,15 +71,26 @@ export class SubscriptionServiceService {
         this.server.emit('robotPose', robotPose);
     }
 
-    async updateRobotController(newCode: string): Promise<void> {
-        return new Promise((resolve, reject) => {
-            fs.writeFile(CODE_FILE_PATH, newCode, 'utf-8', (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
+    isAnyRobotConnected(): boolean {
+        return this.robot1.isConnected() || this.robot2.isConnected() || this.gazebo.isConnected();
+    }
+
+    async updateRobotController(payload: UpdateControllerCode, filePath: string): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            if (!this.isAnyRobotConnected()) {
+                reject({ message: 'No robot connected' });
+            } else {
+                if (this.robot1.isConnected()) await this.robot1.updateRobotCode(payload);
+                if (this.robot2.isConnected()) await this.robot2.updateRobotCode(payload);
+                if (this.gazebo.isConnected()) await this.gazebo.updateRobotCode(payload);
+                await fs.writeFile(filePath, payload.code, 'utf-8', (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
+            }
         });
     }
 }

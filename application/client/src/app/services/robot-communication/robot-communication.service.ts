@@ -210,11 +210,12 @@ export class RobotCommunicationService {
         this.socketService.send(RobotCommand.ReturnToBase, message);
     }
 
-    updateControllerCode(newCode: string): void {
+    updateControllerCode(newCode: string, filename: string): void {
         const message: UpdateControllerCode = {
             command: RobotCommand.UpdateControllerCode,
             code: newCode,
             timestamp: new Date().toISOString(),
+            filename: filename,
         };
         this.socketService.send(RobotCommand.UpdateControllerCode, message);
     }
