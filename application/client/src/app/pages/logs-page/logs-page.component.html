@@ -13,12 +13,16 @@
 
     <main>
         <section class="logs">
-            <h2>
-                <span>Historique des Logs</span>
-            </h2>
-            @for (mission of this.missionService.missions; track mission) {
-                <app-logs-display [mission]="mission"></app-logs-display>
-            <app-map-display [map]="mission.map[0]"></app-map-display>}
+            <h2>Historique des Logs</h2>
+            <div class="missions">
+                @for (mission of this.missionService.missions; track mission) {
+                    <div class="mission">
+                        <h3>Mission: {{mission.id}}</h3>
+                        <app-logs-display [mission]="mission"></app-logs-display>
+                        <app-map-display [map]="mission.map[0]"></app-map-display>
+                    </div>
+                }
+            </div>
             <!-- <div id="log-terminal" class="terminal" #logTerminal></div> -->
         </section>
     </main>
