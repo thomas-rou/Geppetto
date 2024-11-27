@@ -13,7 +13,17 @@
 
     <main>
         <section class="logs">
-            <h2>Historique des Logs</h2>
+            <h2>
+                <span>Historique des Logs</span>
+                <span>
+                    <button class="sort-button">
+                      Trier par :
+                    </button>
+                    <button class="sort-button">
+                      Ordre :
+                    </button>
+                </span>
+            </h2>
             <div class="missions">
                 @for (mission of this.missionService.missions; track mission) {
                     <div class="mission">
@@ -23,7 +33,6 @@
                     </div>
                 }
             </div>
-            <!-- <div id="log-terminal" class="terminal" #logTerminal></div> -->
         </section>
     </main>
 
