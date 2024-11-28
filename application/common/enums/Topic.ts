@@ -15,4 +15,8 @@ export enum Topic {
     update_code_robot1 = '/robot_1/update_code',
     update_code_robot2 = '/robot_2/update_code',
     update_code_gazebo = '/gazebo/update_code',
+    robot1_pose = '/robot_1/pose',
+    robot2_pose = '/robot_2/pose',
+    gazebo1_pose = '/limo1/pose',
+    gazebo2_pose = '/limo2/pose',
 }
