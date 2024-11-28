@@ -1,8 +1,13 @@
+export interface origin {
+    position: { x: number; y: number; z: number };
+    orientation: { x: number; y: number; z: number; w: number };
+}
+
 export interface MapMetaData {
     width: number;
     height: number;
     resolution: number;
-    origin: { x: number; y: number; z: number };
+    origin: origin;
 }
 
 export interface OccupancyGrid {
