@@ -10,7 +10,7 @@ Manual Launch of Gazebo simulation and it's services
 
 3. Launch needed nodes and services
    1. ros2 launch ros_gz_example_bringup online_async_launch.py
-   2. ros2 launch multirobot_map_merge map_merge.launch.py
+   2. ros2 launch ros_gz_example_bringup map_merge.launch.py
    3. ros2 run rviz2 rviz2 -d /opt/ros/humble/share/nav2_bringup/rviz/nav2_default_view.rviz
    4. source /opt/ros/humble/setup.bash && source install/setup.bash && ros2 launch ros_gz_example_bringup navigation_launch.py
    5. source /opt/ros/humble/setup.bash && source ../../embedded_ws/install/setup.bash && ros2 launch explore_lite explore.launch.py
