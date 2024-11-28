@@ -1,5 +1,5 @@
 import os
-from com_bridge.common_enums import RobotID
+from com_bridge.common_enums import RobotID, RobotName
 
 def set_mission_status(mission_status):
     with open('/tmp/.mission_status', 'w') as f:
@@ -19,9 +19,13 @@ def get_robot_id():
     return robot_id
 
 def get_robot_name():
-    return os.getenv('ROBOT')
+    env_robot_name = os.getenv('ROBOT')
+    if env_robot_name:
+        return env_robot_name
+    else:
+        return RobotName.GAZEBO
+
 
 def clear_logs():
     with open('/tmp/mission.log', 'w') as f:
         f.write('')
-    
