@@ -19,9 +19,9 @@ export class SubscriptionServiceService {
     public gazebo: RobotService;
     server: any;
     constructor(private missionService: MissionService) {
-        this.robot1 = new RobotService(process.env.ROBOT1_IP, RobotId.robot1);
-        this.robot2 = new RobotService(process.env.ROBOT2_IP, RobotId.robot2);
-        this.gazebo = new RobotService(process.env.GAZEBO_IP, RobotId.gazebo);
+        this.robot1 = new RobotService(process.env.ROBOT1_IP, RobotId.robot1, missionService);
+        this.robot2 = new RobotService(process.env.ROBOT2_IP, RobotId.robot2, missionService);
+        this.gazebo = new RobotService(process.env.GAZEBO_IP, RobotId.gazebo, missionService);
     }
 
     async subscribeToTopicRobot1(gateway: MissionCommandGateway) {

@@ -11,7 +11,8 @@ import { TopicType } from '@common/enums/TopicType';
 import { RobotId } from '@common/enums/RobotId';
 import { BasicCommand } from '@common/interfaces/BasicCommand';
 import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
-import { timeStamp } from 'console';
+import { timeStamp } from 'console';import { MissionService } from '../mission/mission.service';
+
 
 @Injectable()
 export class RobotService {
@@ -22,7 +23,8 @@ export class RobotService {
 
     constructor(
         @Inject('robotIp') robotIp: string,
-        @Inject('robotNb') robotNb: RobotId
+        @Inject('robotNb') robotNb: RobotId,
+        private missionService: MissionService
     ) {
         this._robotIp = robotIp;
         this._robotNumber = robotNb;
@@ -114,6 +116,8 @@ export class RobotService {
             },
             timestamp: new Date().toISOString(),
         } as StartMission);
+        await this.missionService.addRobotToMission(this.missionService.missionId, this._robotIp);
+
     }
 
     async stopMission() {
