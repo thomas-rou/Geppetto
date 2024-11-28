@@ -13,6 +13,6 @@ Manual Launch of Gazebo simulation and it's services
    2. ros2 launch ros_gz_example_bringup map_merge.launch.py
    3. ros2 run rviz2 rviz2 -d /opt/ros/humble/share/nav2_bringup/rviz/nav2_default_view.rviz
    4. source /opt/ros/humble/setup.bash && source install/setup.bash && ros2 launch ros_gz_example_bringup navigation_launch.py
-   5. source /opt/ros/humble/setup.bash && source ../../embedded_ws/install/setup.bash && ros2 launch explore_lite explore.launch.py
+   5. source /opt/ros/humble/setup.bash && source ../../embedded_ws/install/setup.bash && ros2 launch ros_gz_example_bringup explore.launch.py
    6. source /opt/ros/humble/setup.bash && source ../../embedded_ws/install/setup.bash && ros2 topic pub /explore/resume std_msgs/msg/Bool "{data: false}" --once
    7. colcon build --packages-select common_msgs && source ../../embedded_ws/install/setup.bash && ros2 run rosbridge_server rosbridge_websocket
