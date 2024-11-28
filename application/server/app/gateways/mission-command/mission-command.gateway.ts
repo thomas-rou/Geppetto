@@ -118,8 +118,8 @@ export class MissionCommandGateway {
         }
 
         await this.logger.logToClient(LogType.INFO, 'Return home command received from client');
-
-        //await this.subscriptionService.gazebo.returnToBase();
+        
+        await this.subscriptionService.gazebo.returnToBase();
         await this.subscriptionService.robot1.returnToBase();
         await this.subscriptionService.robot2.returnToBase();
 
