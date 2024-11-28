@@ -6,4 +6,5 @@ export enum TopicType {
     log_message = 'common_msgs/msg/LogMessage',
     map = 'nav_msgs/msg/OccupancyGrid',
     update_code = 'common_msgs/msg/UpdateControllerCode',
+    pose = 'geometry_msgs/msg/Pose',
 }
