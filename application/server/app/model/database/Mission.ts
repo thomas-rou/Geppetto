@@ -26,8 +26,8 @@ export class Mission {
     missionType: MissionType;
 
     @ApiProperty()
-    @Prop({ required: true })
-    missionDuration: number;
+    @Prop({ required: true, type: String })
+    missionDuration: string;
 
     @ApiProperty()
     @Prop({ required: true })

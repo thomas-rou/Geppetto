@@ -11,7 +11,16 @@ export class MissionService {
     constructor(@InjectModel(Mission.name) public missionModel: Model<MissionDocument>) {}
     private readonly logger = new Logger(MissionService.name);
     public missionId = '';
-    async createMission(mission: Mission = { id: new Date().toISOString().slice(0, -5), logs: [], missionType: MissionType.UNKNOWN, missionDuration: 0, traveledDistance: 0, robots: [] } as Mission): Promise<void> {
+    async createMission(
+        mission: Mission = {
+            id: new Date().toISOString().slice(0, -5),
+            logs: [],
+            missionType: MissionType.UNKNOWN,
+            missionDuration: " ",
+            traveledDistance: 0,
+            robots: [],
+        } as Mission,
+    ): Promise<void> {
         try {
             this.logger.log(`Creating mission ${mission.id}`);
             await this.missionModel.create(mission);
@@ -89,12 +98,13 @@ export class MissionService {
         }
     }
 
-    async updateMissionDuration(missionId: string, missionDuration: number): Promise<void> {
+    async updateMissionDuration(missionId: string, endTime: string): Promise<void> {
         try {
+            const missionDuration = this.calculateDuration(missionId, endTime);
             this.logger.log(`Updating mission ${missionId} duration to ${missionDuration}`);
             await this.missionModel.updateOne({ id: missionId }, { missionDuration });
         } catch (err) {
-            return Promise.reject(`Failed to update mission ${missionId} duration to ${missionDuration}`);
+            return Promise.reject(`Failed to update mission ${missionId} duration`);
         }
     }
 
@@ -123,5 +133,18 @@ export class MissionService {
         } catch (err) {
             return Promise.reject(`Failed to update mission ${missionId} robots to ${robots}`);
         }
+    }
+
+    private calculateDuration(startTime: string, endTime: string): string {
+        const dt1 = new Date(startTime);
+        const dt2 = new Date(endTime);
+
+        const durationMs = dt2.getTime() - dt1.getTime();
+
+        const seconds = Math.floor((durationMs / 1000) % 60);
+        const minutes = Math.floor((durationMs / (1000 * 60)) % 60);
+        const hours = Math.floor(durationMs / (1000 * 60 * 60));
+
+        return `Duration: ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
     }
 }
