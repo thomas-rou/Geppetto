@@ -106,6 +106,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     returnHome() {
         if (this.verifySocketConnection()) {
             this.robotService.returnToBase();
+            this.missionService.setIsMissionActive(false);
         }
     }
 

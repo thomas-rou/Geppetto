@@ -201,8 +201,8 @@ export class MissionCommandGateway {
 
     @SubscribeMessage(RobotCommand.InitiateP2P)
     async handleP2P(client: Socket) {
+        await this.logger.logToClient(LogType.INFO, 'Commande P2P reçue');
         await this.subscriptionService.robot1.launch_p2p(true);
         await this.subscriptionService.robot2.launch_p2p(true);
-        await this.logger.logToClient(LogType.INFO, 'Commande P2P reçue');
     }
 }
