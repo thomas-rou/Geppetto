@@ -32,7 +32,7 @@ class P2PNode(Node):
         self_robot_topic_pose = f'{self.robot_name}/pose'
         
         self.local_pose_subscriber = self.create_subscription(
-            P2P,
+            Pose,
             self_robot_topic_pose,
             self.local_pose_callback,
             10
@@ -45,8 +45,8 @@ class P2PNode(Node):
         self.other_distance = None
 
         self.local_pose_subscriber = self.create_subscription(
-            Bool,
-            "peer_to_peer_command",
+            P2P,
+            f"/{self.robot_name}/peer_to_peer_command",
             self.peer_to_peer_callback,
             10
         )
