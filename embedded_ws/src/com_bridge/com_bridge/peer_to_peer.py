@@ -59,7 +59,7 @@ class P2PNode(Node):
             Icon.INITIAL,
             AppIndicator3.IndicatorCategory.APPLICATION_STATUS,
         )
-        self.indicator.set_status(AppIndicator3.IndicatorStatus.HIDDEN)
+        self.indicator.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
         self.indicator.set_menu(Gtk.Menu())
     
     def peer_to_peer_callback(self, msg):
@@ -70,7 +70,7 @@ class P2PNode(Node):
             self.local_distance = None 
             self.other_distance = None
             self.p2p_activated = False
-            self.indicator.set_status(AppIndicator3.IndicatorStatus.HIDDEN)
+            self.indicator.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
     
 
     async def subscribe_to_other_robot_pose(self):
