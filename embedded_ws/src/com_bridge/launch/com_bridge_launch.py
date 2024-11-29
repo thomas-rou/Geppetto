@@ -35,5 +35,10 @@ def generate_launch_description():
                 executable="robot_pose",
                 name="robot_pose",
             ),
+            Node(
+                package="com_bridge",
+                executable="sensor_logger",
+                name="sensor_logger",
+            ),
         ]
     )

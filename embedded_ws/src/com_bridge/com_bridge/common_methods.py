@@ -25,7 +25,6 @@ def get_robot_name():
     else:
         return RobotName.GAZEBO
 
-
 def clear_logs():
     with open('/tmp/mission.log', 'w') as f:
         f.write('')
