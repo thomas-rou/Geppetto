@@ -125,7 +125,15 @@ class Robot(Entity):
             parameters=[{"robot_id": f"limo{self.index + 1}"}],
             output="screen",
         )
+        sensor_logger_node = Node(
+            package="com_bridge",
+            executable="sensor_logger",
+            name="sensor_logger",
+            parameters=[{"robot_id": f"limo{self.index + 1}"}],
+            output="screen",
+        )
 
         Robot.robot_state_publishers.append(battery_node)
         Robot.robot_state_publishers.append(mission_node)
         Robot.robot_state_publishers.append(robot_pose_node)
+        Robot.robot_state_publishers.append(sensor_logger_node)

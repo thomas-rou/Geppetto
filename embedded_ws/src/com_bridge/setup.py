@@ -29,6 +29,7 @@ setup(
             "update_code_node = com_bridge.update_code:main",
             'low_battery = com_bridge.low_battery:main'
             "robot_pose = com_bridge.robot_pose:main",
+            "sensor_logger = com_bridge.sensor_logger:main",
         ],
     },
 )
