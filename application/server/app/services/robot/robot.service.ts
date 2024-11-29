@@ -3,6 +3,7 @@ import { WebSocket } from 'ws';
 import { MessageOperation } from '@common/interfaces/MessageOperation';
 import { StartMission } from '@common/interfaces/StartMission';
 import { EndMission } from '@common/interfaces/EndMission';
+import { ReturnToBase } from '@common/interfaces/ReturnToBase';
 import { RobotCommand } from '@common/enums/RobotCommand';
 import { Operation } from '@common/enums/Operation';
 import { Topic } from '@common/enums/Topic';
@@ -11,6 +12,7 @@ import { RobotId } from '@common/enums/RobotId';
 import { BasicCommand } from '@common/interfaces/BasicCommand';
 import { P2PCommand } from '@common/interfaces/P2PCommand';
 import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
+import { timeStamp } from 'console';import { MissionService } from '../mission/mission.service';
 
 
 @Injectable()
@@ -22,7 +24,8 @@ export class RobotService {
 
     constructor(
         @Inject('robotIp') robotIp: string,
-        @Inject('robotNb') robotNb: RobotId
+        @Inject('robotNb') robotNb: RobotId,
+        private missionService: MissionService
     ) {
         this._robotIp = robotIp;
         this._robotNumber = robotNb;
@@ -114,6 +117,8 @@ export class RobotService {
             },
             timestamp: new Date().toISOString(),
         } as StartMission);
+        await this.missionService.addRobotToMission(this.missionService.missionId, this._robotIp);
+
     }
 
     async stopMission() {
@@ -121,6 +126,13 @@ export class RobotService {
             command: RobotCommand.EndMission,
             timestamp: new Date().toISOString(),
         } as EndMission);
+    }
+
+    async returnToBase() {
+        await this.publishToTopic(Topic.return_base, TopicType.return_base, {
+            command: RobotCommand.ReturnToBase,
+            timestamp: new Date().toISOString(),
+        } as ReturnToBase);
     }
 
     async identify() {
