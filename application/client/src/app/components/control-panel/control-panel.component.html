@@ -8,6 +8,7 @@
         <button id="stop-mission" (click)="stopMission()" [disabled]="!isMissionActive()">Arrêter la Mission</button>
         <button id="return-home" (click)="returnHome()" [disabled]="!isMissionActive()">Retour à la Maison</button>
         <button id="peer-to-peer" (click)="initiateP2P()" [disabled]="!isMissionActive()">P2P</button>
+        <button id="geofence" (click)="geofence()">Zone de Sécurité</button>
         <button id="update-software" (click)="updateSoftware()" [disabled]="!isCodeChanged()">Mettre à Jour</button>
     </div>
     <app-start-mission-popup
@@ -16,4 +17,9 @@
         (startSimulationMission)="onSimulationMissionStart()"
         (cancelMission)="onCancel()"
     ></app-start-mission-popup>
+    <app-geofence-popup
+        *ngIf="showGeoPopup && !isCollapsed"
+        (geofence)="handleGeofence($event)"
+        (cancelMission)="onCancel()"
+    ></app-geofence-popup>
 </section>

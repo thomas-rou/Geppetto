@@ -1,0 +1,33 @@
+<div class="popup-container" (click)="onCancel()">
+    <div class="popup-content" (click)="$event.stopPropagation()">
+        <h2>Définition de la Zone</h2>
+        <div class="robot">
+            <h3>Point en bas à droite:</h3>
+            <div class="input">
+                <label for="X1">X1:</label>
+                <input type="number" id="X1" [(ngModel)]="X1" />
+            </div>
+            <div class="input">
+                <label for="Y1">Y1:</label>
+                <input type="number" id="Y1" [(ngModel)]="Y1" />
+            </div>
+        </div>
+        
+        <div class="robot">
+            <h3>Point en haut à gauche:</h3>
+            <div class="input">
+                <label for="X2">X2:</label>
+                <input type="number" id="X2" [(ngModel)]="X2" />
+            </div>
+            <div class="input">
+                <label for="Y2">Y2:</label>
+                <input type="number" id="Y2" [(ngModel)]="Y2" />
+            </div>
+        </div>
+
+        <div class="actions">
+            <button (click)="onGeofence()" class="launch-btn">Définir la Zone</button>
+            <button (click)="onCancel()" class="cancel-btn">Annuler</button>
+        </div>
+    </div>
+</div>

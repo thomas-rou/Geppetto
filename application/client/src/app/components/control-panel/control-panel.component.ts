@@ -8,19 +8,22 @@ import { RobotId } from '@common/enums/RobotId';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
 import { MissionService } from '@app/services/mission/mission.service';
 import { MissionType } from '@app/enums/MissionType';
+import { GeofencePopupComponent } from "../geofence-popup/geofence-popup.component";
+import { GeofenceCoord } from '@common/types/GeofenceCoord';
 
 @Component({
     selector: 'app-control-panel',
     standalone: true,
     templateUrl: './control-panel.component.html',
     styleUrls: ['./control-panel.component.scss'],
-    imports: [CommonModule, StartMissionPopupComponent],
+    imports: [CommonModule, StartMissionPopupComponent, GeofencePopupComponent],
     animations: [collapseExpandAnimation],
 })
 export class ControlPanelComponent implements OnInit, OnDestroy {
     private subscriptions : Subscription[] = [];
     private socketConnected : boolean = false;
     showPopup : boolean = false;
+    showGeoPopup : boolean = false;
     isCollapsed : boolean = false;
 
     constructor(
@@ -42,6 +45,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     handleKeyDown(event: KeyboardEvent) {
         if (event.key === 'Escape') {
             this.showPopup = false;
+            this.showGeoPopup = false;
             document.body.classList.remove('no-scroll');
         }
     }
@@ -82,6 +86,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
 
     onCancel() {
         this.showPopup = false;
+        this.showGeoPopup = false;
         document.body.classList.remove('no-scroll');
     }
 
@@ -129,6 +134,19 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
 
     isCodeChanged() {
         return this.missionService.getIsCodeChanged();
+    }
+
+    geofence() {
+        if (this.verifySocketConnection()) {
+            this.showGeoPopup = true;
+            document.body.classList.add('no-scroll');
+        }
+    }
+
+    handleGeofence(coords: GeofenceCoord) {
+        this.showGeoPopup = false;
+        document.body.classList.remove('no-scroll');
+        this.robotService.setGeofence(coords);
     }
     
     isMissionActive() {

@@ -14,10 +14,10 @@ import { MissionService } from '@app/services/mission/mission.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ReturnToBase } from '@common/interfaces/ReturnToBase';
-
-const CODE_FILE_PATH = path.resolve(__dirname, '../../../../../../../embedded_ws/src/m-explore-ros2/explore/src/explore.cpp');
 import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 import { MissionType } from '@common/enums/MissionType';
+import { SetGeofence } from '@common/interfaces/SetGeofence';
+// import { GeofenceCoord } from '@common/types/GeofenceCoord';
 
 @Injectable()
 @WebSocketGateway()
@@ -204,5 +204,11 @@ export class MissionCommandGateway {
         await this.logger.logToClient(LogType.INFO, 'Commande P2P reçue');
         await this.subscriptionService.robot1.launch_p2p(true);
         await this.subscriptionService.robot2.launch_p2p(true);
+    }
+
+    @SubscribeMessage(RobotCommand.SetGeofence)
+    async handleGeofence(client: Socket, payload: SetGeofence) {
+        await this.logger.logToClient(LogType.INFO, 'Geofence reçue');
+        // jsp mon gate
     }
 }
