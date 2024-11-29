@@ -145,6 +145,6 @@ export class MissionService {
         const minutes = Math.floor((durationMs / (1000 * 60)) % 60);
         const hours = Math.floor(durationMs / (1000 * 60 * 60));
 
-        return `Duration: ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+        return `${hours} hours, ${minutes} minutes, ${seconds} seconds`;
     }
 }
