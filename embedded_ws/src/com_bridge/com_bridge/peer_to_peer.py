@@ -4,7 +4,7 @@ import asyncio
 import signal
 from rclpy.node import Node
 from dotmap import DotMap
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, Bool
 from com_bridge.common_methods import get_robot_name, get_other_robot_name, get_robot_ip
 from com_bridge.common_enums import Network
 from com_bridge.websocket_subscriber import WebSocketSubscriber  
@@ -43,14 +43,34 @@ class P2PNode(Node):
         self.local_distance = None 
         self.other_distance = None
 
+        self.local_pose_subscriber = self.create_subscription(
+            Bool,
+            "peer_to_peer_command",
+            self.peer_to_peer_callback,
+            10
+        )
+
+        self.p2p_activated = False
+
         # Icon manager
         self.indicator = AppIndicator3.Indicator.new(
             "dynamic_icon",
             Icon.INITIAL,
             AppIndicator3.IndicatorCategory.APPLICATION_STATUS,
         )
-        self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
+        self.indicator.set_status(AppIndicator3.IndicatorStatus.HIDDEN)
         self.indicator.set_menu(Gtk.Menu())
+    
+    def peer_to_peer_callback(self, msg):
+        if msg.data == True:
+            self.p2p_activated = True
+            self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
+        else:
+            self.local_distance = None 
+            self.other_distance = None
+            self.p2p_activated = False
+            self.indicator.set_status(AppIndicator3.IndicatorStatus.HIDDEN)
+    
 
     async def subscribe_to_other_robot_pose(self):
         """
@@ -83,6 +103,8 @@ class P2PNode(Node):
         """
         Handle pose updates from the local robot.
         """
+        if not self.p2p_activated:
+            return
         self.local_distance = calculate_cartesian_distance(msg)
         self.get_logger().info(f"Local robot distance: {self.local_distance}")
         self.compare_distances()
@@ -91,6 +113,8 @@ class P2PNode(Node):
         """
         Handle pose updates from the other robot.
         """
+        if not self.p2p_activated:
+            return
         msg = DotMap(msg)
         self.other_distance = calculate_cartesian_distance(msg)
         self.get_logger().info(f"Other robot distance: {self.other_distance}")
