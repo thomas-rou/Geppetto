@@ -10,6 +10,7 @@ import { Topic } from '@common/enums/Topic';
 import { TopicType } from '@common/enums/TopicType';
 import { RobotId } from '@common/enums/RobotId';
 import { BasicCommand } from '@common/interfaces/BasicCommand';
+import { P2PCommand } from '@common/interfaces/P2PCommand';
 import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 import { timeStamp } from 'console';import { MissionService } from '../mission/mission.service';
 
@@ -152,4 +153,12 @@ export class RobotService {
         await this.publishToTopic(topicName, TopicType.update_code, newCodeRequestObject);
     }
 
+    async launch_p2p(launch: boolean) {
+        const topicName = this._robotNumber == RobotId.robot1 ? Topic.peer_to_peer1 : Topic.peer_to_peer2;
+        await this.publishToTopic(topicName, TopicType.peer_to_peer, { 
+            command: RobotCommand.P2P,
+            launch: launch,
+            timestamp: new Date().toISOString(),
+        } as P2PCommand);
+    }
 }
