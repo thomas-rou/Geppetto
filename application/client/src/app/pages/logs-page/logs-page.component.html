@@ -30,7 +30,7 @@
             <div class="missions">
                 @for (mission of this.missionService.missions; track mission) {
                     <div class="mission">
-                        <h3>Mission: {{mission.id}}</h3>
+                        <h3>Date: {{mission.id}}, Durée: {{mission.missionDuration}}, Type : {{mission.missionType}}, Distance Parcourue: {{mission.traveledDistance}}, Robots: {{mission.robots}}</h3>
                         <app-logs-display [mission]="mission"></app-logs-display>
                         <app-map-display [map]="mission.map[0]"></app-map-display>
                     </div>

@@ -38,6 +38,11 @@ export class LogsPageComponent implements OnInit {
     sort() {
         switch (this.selectedOption) {
             case 'date':
+                this.missionService.missions.sort((a, b) => {
+                    const dateA = new Date(a.id).getTime();
+                    const dateB = new Date(b.id).getTime();
+                    return this.isAscending ? dateA - dateB : dateB - dateA;
+                });
                 break;
             case 'duration':
                 break;
@@ -46,11 +51,13 @@ export class LogsPageComponent implements OnInit {
             case 'distance':
                 break;
         }
+        this.missions = [...this.missionService.missions];
     }
 
     toggleSortOrder(): void {
         this.isAscending = !this.isAscending;
         this.sortOrder = this.isAscending ? 'asc' : 'desc';
+        this.sort();
     }
 
     addLogToTerminal(log: string, isMainLine: boolean) {
