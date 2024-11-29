@@ -192,7 +192,7 @@ export class MissionCommandGateway {
         }
     }
 
-    @SubscribeMessage('getCodeFile')
+    @SubscribeMessage(RobotCommand.GetCodeFile)
     async handleGetCodeFile(client: Socket, filename: string) {
         const filePath = path.resolve(this.pathToAllFiles, filename);
         const fileContent = fs.readFileSync(filePath, 'utf-8');
