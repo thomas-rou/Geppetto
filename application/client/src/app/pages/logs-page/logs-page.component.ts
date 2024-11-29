@@ -54,6 +54,11 @@ export class LogsPageComponent implements OnInit {
                 });
                 break;
             case 'distance':
+                this.missions.sort((a, b) => {
+                    const distanceA = a.traveledDistance;
+                    const distanceB = b.traveledDistance;
+                    return this.isAscending ? distanceA - distanceB : distanceB - distanceA;
+                });
                 break;
         }
     }
