@@ -10,7 +10,6 @@ from std_msgs.msg import Bool
 TIMER_PERIOD = 1.0
 BATTERY_THRESHOLD = 30.0
 DECREASE_BATTERY_LEVEL = 0.1
-BATTERY_THRESHOLD = 0
 MAX_BATTERY_LEVEL = 100
 
 class MissionStatusManagerGazebo(Node):
