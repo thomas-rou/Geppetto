@@ -117,8 +117,12 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
 
     updateSoftware() {
         if (this.verifySocketConnection()) {
-            this.robotService.updateControllerCode(this.missionService.getNewCode());
-            this.missionService.setInitialCode(this.missionService.getNewCode());
+            try {
+                this.robotService.updateControllerCode(this.missionService.getNewCode(), this.missionService.getFileName());
+                this.missionService.setInitialCode(this.missionService.getNewCode());
+            } catch (error) {
+                console.error('Error identifying robot', error);
+            }
         }
     }
 

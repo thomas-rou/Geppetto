@@ -59,7 +59,7 @@ void SlamGmapping::init() {
     got_map_ = false;
 
     throttle_scans_ = 1;
-    base_frame_ = "limo";
+    base_frame_ = "base_link";
     map_frame_ = "map";
     odom_frame_ = "odom";
     transform_publish_period_ = 0.05;
@@ -99,8 +99,8 @@ void SlamGmapping::init() {
 
 void SlamGmapping::startLiveSlam() {
     entropy_publisher_ = this->create_publisher<std_msgs::msg::Float64>("entropy", rclcpp::SystemDefaultsQoS());
-    sst_ = this->create_publisher<nav_msgs::msg::OccupancyGrid>("map", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable());
-    sstm_ = this->create_publisher<nav_msgs::msg::MapMetaData>("map_metadata", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable());
+    sst_ = this->create_publisher<nav_msgs::msg::OccupancyGrid>("map", rclcpp::SystemDefaultsQoS());
+    sstm_ = this->create_publisher<nav_msgs::msg::MapMetaData>("map_metadata", rclcpp::SystemDefaultsQoS());
     scan_filter_sub_ = std::make_shared<message_filters::Subscriber<sensor_msgs::msg::LaserScan>>
             (node_, "scan", rclcpp::SensorDataQoS().get_rmw_qos_profile());
 //    sub_ = this->create_subscription<sensor_msgs::msg::LaserScan>(

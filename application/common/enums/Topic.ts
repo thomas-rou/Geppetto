@@ -1,6 +1,7 @@
 export enum Topic {
     start_mission = '/start_mission_command',
     stop_mission = '/stop_mission_command',
+    return_base = '/return_to_base',
     identify_command1 = '/robot_1/identify_command',
     identify_command2 = '/robot_2/identify_command',
     mission_status1 = '/robot_1/mission_status',
@@ -11,6 +12,9 @@ export enum Topic {
     log_robot1 = '/robot_1/log',
     log_robot2 = '/robot_2/log',
     log_gazebo = '/gazebo/log',
+    update_code_robot1 = '/robot_1/update_code',
+    update_code_robot2 = '/robot_2/update_code',
+    update_code_gazebo = '/gazebo/update_code',
     robot1_pose = '/robot_1/pose',
     robot2_pose = '/robot_2/pose',
     gazebo1_pose = '/limo1/pose',

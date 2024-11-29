@@ -3,12 +3,16 @@ import { WebSocket } from 'ws';
 import { MessageOperation } from '@common/interfaces/MessageOperation';
 import { StartMission } from '@common/interfaces/StartMission';
 import { EndMission } from '@common/interfaces/EndMission';
+import { ReturnToBase } from '@common/interfaces/ReturnToBase';
 import { RobotCommand } from '@common/enums/RobotCommand';
 import { Operation } from '@common/enums/Operation';
 import { Topic } from '@common/enums/Topic';
 import { TopicType } from '@common/enums/TopicType';
 import { RobotId } from '@common/enums/RobotId';
 import { BasicCommand } from '@common/interfaces/BasicCommand';
+import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
+import { timeStamp } from 'console';import { MissionService } from '../mission/mission.service';
+
 
 @Injectable()
 export class RobotService {
@@ -19,10 +23,15 @@ export class RobotService {
 
     constructor(
         @Inject('robotIp') robotIp: string,
-        @Inject('robotNb') robotNb: RobotId
+        @Inject('robotNb') robotNb: RobotId,
+        private missionService: MissionService
     ) {
         this._robotIp = robotIp;
         this._robotNumber = robotNb;
+    }
+
+    isConnected() : boolean {
+        return this.ws && this.ws.readyState == WebSocket.OPEN
     }
 
     async connect() {
@@ -107,6 +116,8 @@ export class RobotService {
             },
             timestamp: new Date().toISOString(),
         } as StartMission);
+        await this.missionService.addRobotToMission(this.missionService.missionId, this._robotIp);
+
     }
 
     async stopMission() {
@@ -114,6 +125,13 @@ export class RobotService {
             command: RobotCommand.EndMission,
             timestamp: new Date().toISOString(),
         } as EndMission);
+    }
+
+    async returnToBase() {
+        await this.publishToTopic(Topic.return_base, TopicType.return_base, {
+            command: RobotCommand.ReturnToBase,
+            timestamp: new Date().toISOString(),
+        } as ReturnToBase);
     }
 
     async identify() {
@@ -128,4 +146,10 @@ export class RobotService {
             timestamp: new Date().toISOString(),
         } as BasicCommand);
     }
+
+    async updateRobotCode(newCodeRequestObject:UpdateControllerCode) {
+        const topicName = this._robotNumber == RobotId.robot1 ? Topic.update_code_robot1 : this._robotNumber == RobotId.robot2 ? Topic.update_code_robot2 : Topic.update_code_gazebo;
+        await this.publishToTopic(topicName, TopicType.update_code, newCodeRequestObject);
+    }
+
 }

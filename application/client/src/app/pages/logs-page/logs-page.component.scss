@@ -127,3 +127,24 @@ span:hover::before {
 h2 {
     cursor: default;
 }
+
+.missions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.mission {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    color: var(--color-text);
+    background-color: var(--color-background);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+    margin: 0;
+}

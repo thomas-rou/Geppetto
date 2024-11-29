@@ -150,7 +150,7 @@ def generate_launch_description():
             ),
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(
-                    os.path.join(launch_dir, "navigation_launch.py")
+                    os.path.join(map_merge_launch_dir, "navigation_launch.py")
                 ),
                 launch_arguments={
                     "namespace": namespace,
