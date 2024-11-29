@@ -4,19 +4,22 @@ import { ThemeService } from '@app/services/theme/theme.service';
 import { Mission } from '@common/interfaces/Mission';
 import { LogsDisplayComponent } from "@app/components/logs-display/logs-display.component";
 import { MapDisplayComponent } from "../../components/map-display/map-display.component";
-
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-logs-page',
     standalone: true,
-    imports: [LogsDisplayComponent, MapDisplayComponent],
+    imports: [LogsDisplayComponent, MapDisplayComponent, FormsModule],
     templateUrl: './logs-page.component.html',
     styleUrl: './logs-page.component.scss',
 })
 export class LogsPageComponent implements OnInit {
+    protected selectedOption: string;
     @ViewChild('logTerminal') logTerminal!: ElementRef;
     missions: Mission[] = [];
     mission: Mission;
+    isAscending = true;
+    sortOrder = 'asc';
 
     constructor(
         private themeService: ThemeService,
@@ -30,12 +33,24 @@ export class LogsPageComponent implements OnInit {
 
     async loadMissionLogs() {
         await this.missionService.handleMissionLogs();
-        this.missionService.missions.forEach((mission) => {
-            // this.addLogToTerminal(`Mission ID: ${mission.id}`, true);
-            // mission.logs.forEach((log) => {
-            //     this.addLogToTerminal(`  ${log.source} - ${log.log_type}: ${log.message}`, false);
-            // });
-        });
+    }
+
+    sort() {
+        switch (this.selectedOption) {
+            case 'date':
+                break;
+            case 'duration':
+                break;
+            case 'type':
+                break;
+            case 'distance':
+                break;
+        }
+    }
+
+    toggleSortOrder(): void {
+        this.isAscending = !this.isAscending;
+        this.sortOrder = this.isAscending ? 'asc' : 'desc';
     }
 
     addLogToTerminal(log: string, isMainLine: boolean) {

@@ -15,13 +15,16 @@
         <section class="logs">
             <h2>
                 <span>Historique des Logs</span>
-                <span>
-                    <button class="sort-button">
-                      Trier par :
+                <span class="actions">
+                    <button (click)="toggleSortOrder()" class="sort-button">
+                        {{ isAscending ? 'Ascendant' : 'Descendant' }}
                     </button>
-                    <button class="sort-button">
-                      Ordre :
-                    </button>
+                    <select class="dropdown" [(ngModel)]="selectedOption" (change)="sort()">
+                        <option value="date">Date</option>
+                        <option value="duration">Durée</option>
+                        <option value="type">Type</option>
+                        <option value="distance">Distance</option>
+                    </select>
                 </span>
             </h2>
             <div class="missions">
