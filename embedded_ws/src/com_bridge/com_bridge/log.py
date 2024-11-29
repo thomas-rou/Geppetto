@@ -12,7 +12,7 @@ class LoggerNode(Node):
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super(LoggerNode, cls).__new__(cls)
-            cls._instance._initialized = False 
+            cls._instance._initialized = False
         return cls._instance
 
     def __init__(self):
@@ -24,7 +24,7 @@ class LoggerNode(Node):
         self.log_publisher = self.create_publisher(
             LogMessage, f"{self.robot_name}/log", GlobalConst.LOG_QUEUE_SIZE
         )
-        self.log_message(LogType.INFO, 
+        self.log_message(LogType.INFO,
             f"Log node Launched waiting for messages in {self.robot_name}"
         )
         self._initialized = True
@@ -54,7 +54,6 @@ class LoggerNode(Node):
             f.write(log_message.source + "\t" + log_message.log_type + "\t" + log_message.date + "\t" + log_message.message + "\n")
         self.log_publisher.publish(log_message)
         self.native_log(log_type, message)
-        
 
 
 def main(args=None):

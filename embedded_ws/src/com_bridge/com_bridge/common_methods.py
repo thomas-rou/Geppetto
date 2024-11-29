@@ -43,8 +43,6 @@ def get_robot_ip(robot_name: str):
     else:
         raise ValueError(f"Unknown robot name: {robot_name}")
 
-
-
 def clear_logs():
     with open('/tmp/mission.log', 'w') as f:
         f.write('')
