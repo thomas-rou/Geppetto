@@ -5,6 +5,7 @@ import signal
 from rclpy.node import Node
 from dotmap import DotMap
 from geometry_msgs.msg import Pose, Bool
+from common_msgs.msg import P2P
 from com_bridge.common_methods import get_robot_name, get_other_robot_name, get_robot_ip
 from com_bridge.common_enums import Network
 from com_bridge.websocket_subscriber import WebSocketSubscriber  
@@ -31,7 +32,7 @@ class P2PNode(Node):
         self_robot_topic_pose = f'{self.robot_name}/pose'
         
         self.local_pose_subscriber = self.create_subscription(
-            Pose,
+            P2P,
             self_robot_topic_pose,
             self.local_pose_callback,
             10
@@ -62,7 +63,7 @@ class P2PNode(Node):
         self.indicator.set_menu(Gtk.Menu())
     
     def peer_to_peer_callback(self, msg):
-        if msg.data == True:
+        if msg.launch == True:
             self.p2p_activated = True
             self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
         else:
