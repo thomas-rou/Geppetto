@@ -14,7 +14,8 @@ import { FormsModule } from '@angular/forms';
     styleUrl: './logs-page.component.scss',
 })
 export class LogsPageComponent implements OnInit {
-    protected selectedOption: string;
+    protected sortOption: string;
+    protected selectedType: string;
     @ViewChild('logTerminal') logTerminal!: ElementRef;
     missions: Mission[] = [];
     mission: Mission;
@@ -33,19 +34,20 @@ export class LogsPageComponent implements OnInit {
 
     async loadMissionLogs() {
         await this.missionService.handleMissionLogs();
+        this.missions = this.missionService.missions;
     }
 
     sort() {
-        switch (this.selectedOption) {
+        switch (this.sortOption) {
             case 'date':
-                this.missionService.missions.sort((a, b) => {
+                this.missions.sort((a, b) => {
                     const dateA = new Date(a.id).getTime();
                     const dateB = new Date(b.id).getTime();
                     return this.isAscending ? dateA - dateB : dateB - dateA;
                 });
                 break;
             case 'duration':
-                this.missionService.missions.sort((a, b) => {
+                this.missions.sort((a, b) => {
                     const durationA = this.convertDurationToSeconds(a.missionDuration);
                     const durationB = this.convertDurationToSeconds(b.missionDuration);
                     return this.isAscending ? durationA - durationB : durationB - durationA;
@@ -54,7 +56,20 @@ export class LogsPageComponent implements OnInit {
             case 'distance':
                 break;
         }
-        this.missions = [...this.missionService.missions];
+    }
+
+    typeChange() {
+        switch (this.selectedType) {
+            case 'both':
+                this.missions = [...this.missionService.missions];
+                break;
+            case 'physical':
+                this.missions = this.missionService.missions.filter(mission => mission.missionType == 'Physical Robots');
+                break;
+            case 'simulation':
+                this.missions = this.missionService.missions.filter(mission => mission.missionType == 'Gazebo Simulation');
+                break;
+        }
     }
 
     convertDurationToSeconds(duration: string): number {

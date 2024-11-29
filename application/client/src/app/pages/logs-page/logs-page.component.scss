@@ -58,6 +58,9 @@ header {
         }
     }
 
+    h2 {
+        flex-direction: column;
+    }
 }
 
 main {
@@ -126,6 +129,7 @@ span:hover::before {
 
 h2 {
     cursor: default;
+    align-items: center;
 }
 
 .missions {
@@ -180,4 +184,15 @@ h3 {
     display: flex;
     align-items: center;
     gap: 5px;
+}
+
+.sort-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.sort-label {
+    font-style: italic;
+    font-size: 0.35em;
 }
