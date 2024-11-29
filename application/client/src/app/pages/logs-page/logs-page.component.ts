@@ -45,13 +45,26 @@ export class LogsPageComponent implements OnInit {
                 });
                 break;
             case 'duration':
-                break;
-            case 'type':
+                this.missionService.missions.sort((a, b) => {
+                    const durationA = this.convertDurationToSeconds(a.missionDuration);
+                    const durationB = this.convertDurationToSeconds(b.missionDuration);
+                    return this.isAscending ? durationA - durationB : durationB - durationA;
+                });
                 break;
             case 'distance':
                 break;
         }
         this.missions = [...this.missionService.missions];
+    }
+
+    convertDurationToSeconds(duration: string): number {
+        if (!duration) return 0;
+        const timeParts = duration.match(/(\d+)\s*hours?,\s*(\d+)\s*minutes?,\s*(\d+)\s*seconds?/);
+        if (!timeParts) return 0;
+        const hours = parseInt(timeParts[1], 10);
+        const minutes = parseInt(timeParts[2], 10);
+        const seconds = parseInt(timeParts[3], 10);
+        return (hours * 3600) + (minutes * 60) + seconds;
     }
 
     toggleSortOrder(): void {
