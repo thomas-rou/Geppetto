@@ -4,7 +4,7 @@ import asyncio
 import signal
 from rclpy.node import Node
 from dotmap import DotMap
-from geometry_msgs.msg import Pose, Bool
+from geometry_msgs.msg import Pose
 from common_msgs.msg import P2P
 from com_bridge.common_methods import get_robot_name, get_other_robot_name, get_robot_ip
 from com_bridge.common_enums import Network
