@@ -15,8 +15,24 @@
         <section class="logs">
             <h2>
                 <span>Historique des Logs</span>
+                <span>
+                    <button class="sort-button">
+                      Trier par :
+                    </button>
+                    <button class="sort-button">
+                      Ordre :
+                    </button>
+                </span>
             </h2>
-            <div id="log-terminal" class="terminal" #logTerminal></div>
+            <div class="missions">
+                @for (mission of this.missionService.missions; track mission) {
+                    <div class="mission">
+                        <h3>Mission: {{mission.id}}</h3>
+                        <app-logs-display [mission]="mission"></app-logs-display>
+                        <app-map-display [map]="mission.map[0]"></app-map-display>
+                    </div>
+                }
+            </div>
         </section>
     </main>
 

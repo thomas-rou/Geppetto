@@ -26,7 +26,15 @@ export class StatusDisplayComponent implements OnInit {
     ngOnInit(): void {
         this.robotService.onRobotPositions().subscribe((robotPose: RobotPose) => {
             if (robotPose.topic) {
-                this.robotPoses[robotPose.topic] = [robotPose];
+                const { x, y } = robotPose.position;
+                this.robotPoses[robotPose.topic] = [{
+                    ...robotPose,
+                    position: {
+                        ...robotPose.position,
+                        x: parseFloat(x.toFixed(2)),
+                        y: parseFloat(y.toFixed(2))
+                    }
+                }];
             }
         });
       }

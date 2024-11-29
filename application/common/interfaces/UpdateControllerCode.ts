@@ -4,4 +4,5 @@ import { BasicCommand } from '@common/interfaces/BasicCommand';
 export interface UpdateControllerCode extends BasicCommand {
     command: RobotCommand.UpdateControllerCode;
     code: string;
+    filename: string;
 }

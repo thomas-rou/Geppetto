@@ -27,6 +27,11 @@ def generate_launch_description():
             ),
             Node(
                 package="com_bridge",
+                executable="update_code_node",
+                name="update_code_node",
+            ),
+            Node(
+                package="com_bridge",
                 executable="robot_pose",
                 name="robot_pose",
             ),

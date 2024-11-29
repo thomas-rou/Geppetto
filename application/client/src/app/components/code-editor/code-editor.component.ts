@@ -7,7 +7,7 @@ import { SocketHandlerService } from '@app/services/socket-handler/socket-handle
 import { MissionService } from '@app/services/mission/mission.service';
 import { languages } from '@codemirror/language-data';
 import { ThemeService } from '@app/services/theme/theme.service';
-import { RobotCommand } from '@common/enums/RobotCommand';
+import { FileName } from '@app/enums/FileName';
 
 @Component({
   selector: 'app-code-editor',
@@ -26,6 +26,7 @@ export class CodeEditorComponent implements OnInit {
   isCollapsed : boolean = true;
   value : string = '';
   theme: Theme = 'dark';
+  selectedOption: string = 'physical';
 
   languages = languages;
 
@@ -44,7 +45,7 @@ export class CodeEditorComponent implements OnInit {
     this.socketService.on('codeFileError', (error: string) => {
       console.error('Error loading code file:', error);
     });
-    this.loadCodeFile();
+    this.loadCodeFile(this.missionService.getFileName());
 
     this.theme = this.themeService.getCurrentTheme();
     this.themeService.themeChanged.subscribe((newTheme: Theme) => {
@@ -52,12 +53,20 @@ export class CodeEditorComponent implements OnInit {
     });
   }
 
-  loadCodeFile() {
-    this.socketService.send(RobotCommand.GetCodeFile);
+  loadCodeFile(file: FileName) {
+    this.socketService.send('getCodeFile', file);
   }
 
   toggleCollapse() {
     this.isCollapsed = !this.isCollapsed;
+  }
+
+  onOptionChange(option: string) {
+    this.selectedOption = option;
+    const fileName = option === 'physical' ? FileName.Physical : FileName.Simulation;
+    this.missionService.setFileName(fileName);
+    this.loadCodeFile(this.missionService.getFileName());
+    this.missionService.setInitialCode(this.value);
   }
 
   onEditorChange(newValue: string) {
