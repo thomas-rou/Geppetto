@@ -111,10 +111,23 @@ input {
     flex-direction: column;
     justify-content: center;
     gap: 3px;
+    width: 100%;
 }
 
 .actions {
     width: 100%;
     display: flex;
     justify-content: space-between;
+}
+
+h3 {
+    text-align: left;
+}
+
+h4 {
+    margin: 0;
+    text-align: justify;
+    max-width: 260px;
+    font-style: italic;
+    font-size: x-small;
 }
