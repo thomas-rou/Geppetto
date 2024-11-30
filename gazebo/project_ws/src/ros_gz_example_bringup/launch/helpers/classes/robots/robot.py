@@ -108,28 +108,28 @@ class Robot(Entity):
             package="com_bridge",
             executable="mission_status_manager_gazebo",
             name="status",
-            parameters=[{"robot_id": {self.name}}],
+            parameters=[{"robot_id": self.name}],
             output="screen",
         )
         mission_node = Node(
             package="com_bridge",
             executable="mission_controller",
             name="mission_controller",
-            parameters=[{"robot_id": {self.name}}],
+            parameters=[{"robot_id": self.name}],
             output="screen",
         )
         robot_pose_node = Node(
             package="com_bridge",
             executable="robot_pose",
             name="robot_pose",
-            parameters=[{"robot_id": {self.name}}],
+            parameters=[{"robot_id": self.name}],
             output="screen",
         )
         sensor_logger_node = Node(
             package="com_bridge",
             executable="sensor_logger",
             name="sensor_logger",
-            parameters=[{"robot_id": {self.name}}],
+            parameters=[{"robot_id": self.name}],
             output="screen",
         )
 
