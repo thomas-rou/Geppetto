@@ -13,6 +13,9 @@ import { ClientCommand } from '@common/enums/ClientCommand';
 import { MissionService } from '@app/services/mission/mission.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import { ReturnToBase } from '@common/interfaces/ReturnToBase';
+
+const CODE_FILE_PATH = path.resolve(__dirname, '../../../../../../../embedded_ws/src/m-explore-ros2/explore/src/explore.cpp');
 import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 import { MissionType } from '@common/enums/MissionType';
 
@@ -119,6 +122,21 @@ export class MissionCommandGateway {
     @SubscribeMessage(RobotCommand.EndMission)
     async stopMissionFromRobots(client: Socket, payload: EndMission) {
         await this.handleMissionCommand(client, payload, 'stop');
+    }
+
+    @SubscribeMessage(RobotCommand.ReturnToBase)
+    async returnToBase(client:Socket, payload: ReturnToBase) {
+        if (!(await this.verifyPermissionToControl(client))) {
+            client.emit('commandError', 'The system is already being controlled');
+            return;
+        }
+
+        await this.logger.logToClient(LogType.INFO, 'Return home command received from client');
+                    
+        if (this.subscriptionService.gazebo.isConnected()) await this.subscriptionService.gazebo.returnToBase();
+        if (this.subscriptionService.robot1.isConnected()) await this.subscriptionService.robot1.returnToBase();
+        if (this.subscriptionService.robot2.isConnected()) await this.subscriptionService.robot2.returnToBase();
+
     }
 
     @SubscribeMessage(RobotCommand.IdentifyRobot)

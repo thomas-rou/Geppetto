@@ -58,6 +58,9 @@ header {
         }
     }
 
+    h2 {
+        flex-direction: column;
+    }
 }
 
 main {
@@ -126,6 +129,7 @@ span:hover::before {
 
 h2 {
     cursor: default;
+    align-items: center;
 }
 
 .missions {
@@ -147,4 +151,48 @@ h2 {
 
 h3 {
     margin: 0;
+}
+
+.dropdown {
+    padding: 10px 20px;
+    color: var(--color-text);
+    background-color: var(--color-background);
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.dropdown option {
+    color: var(--color-text);
+    background-color: var(--color-background);
+}
+
+.sort-button {
+    padding: 10px 20px;
+    color: var(--color-text);
+    background-color: var(--color-background);
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.sort-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.sort-label {
+    font-style: italic;
+    font-size: 0.35em;
 }
