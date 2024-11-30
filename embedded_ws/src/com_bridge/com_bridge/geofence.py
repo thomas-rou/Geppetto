@@ -45,31 +45,6 @@ class GeofenceNode(Node):
             GlobalConst.QUEUE_SIZE,
         )
 
-        self.goal_subscription = self.create_subscription(
-            PoseStamped,
-            "/limo1/goal_pose",
-            self.goal_callback,
-            GlobalConst.QUEUE_SIZE,
-        )
-
-    def goal_callback(self, msg: PoseStamped):
-        goal_x = msg.pose.position.x
-        goal_y = msg.pose.position.y
-
-        if self.is_outside_geofence(goal_x, goal_y):
-            self.get_logger().warn("Goal is outside the geofence. Intercepting...")
-
-            safe_goal_x, safe_goal_y = self.get_nearest_point_inside_geofence(
-                goal_x, goal_y
-            )
-
-            safe_goal = self.create_pose_stamped(safe_goal_x, safe_goal_y)
-
-            self.navigator.goToPose(safe_goal)
-            self.get_logger().info(
-                f"Redirecting robot to a safe goal at ({safe_goal_x}, {safe_goal_y}) inside the geofence."
-            )
-
     def pose_callback(self, msg):
         self.x = msg.position.x
         self.y = msg.position.y
@@ -123,24 +98,6 @@ class GeofenceNode(Node):
 
         self.navigator.goToPose(pose)
         self.get_logger().info(f"Returning to the geofence")
-
-    def create_pose_stamped(self, target_x: float, target_y: float):
-        pose_stamped = PoseStamped()
-        pose_stamped.header = Header()
-        pose_stamped.header.stamp = Time().to_msg()
-        pose_stamped.header.frame_id = "world"
-
-        pose_stamped.pose = Pose()
-        pose_stamped.pose.position = Point(x=target_x, y=target_y, z=0.0)
-        pose_stamped.pose.orientation = Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
-        return pose_stamped
-
-    def get_nearest_point_inside_geofence(self, goal_x: float, goal_y: float):
-        clamped_x = max(self.geofence_x_min, min(goal_x, self.geofence_x_max))
-        clamped_y = max(self.geofence_y_min, min(goal_y, self.geofence_y_max))
-
-        return clamped_x, clamped_y
-
 
 def main(args=None):
     rclpy.init(args=args)
