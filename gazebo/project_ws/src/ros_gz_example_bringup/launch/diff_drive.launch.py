@@ -50,7 +50,7 @@ boundary_walls = [
 ]
 # fmt: on
 
-# geofence = Geofence()
+geofence = Geofence()
 
 # Spawn random wall obstacles
 Wall.generate_random_wall_obstacles(N_WALL_OBSTACLES)

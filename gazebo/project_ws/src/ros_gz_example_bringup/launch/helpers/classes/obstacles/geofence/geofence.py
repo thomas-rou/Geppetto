@@ -27,7 +27,7 @@ class Geofence(Obstacle):
 
     def __init__(
         self,
-        pose: Pose = Pose(z=-WALL_THICKNESS / N_BOUNDARY_WALLS),
+        pose: Pose = Pose(z=-0.12),
         size: Size = Size(),
     ) -> None:
         self.name = "geofence"
