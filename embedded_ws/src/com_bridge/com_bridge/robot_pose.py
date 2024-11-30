@@ -35,7 +35,7 @@ class RobotPose(Node):
             GlobalConst.QUEUE_SIZE
         )
 
-        self.distance_traveled = 0
+        self.distance_traveled = 0.0
         self.distance_traveled_subscription = self.create_subscription(
             Path,
             path_topic,
@@ -51,7 +51,7 @@ class RobotPose(Node):
 
         self.timer = self.create_timer(TIMER_PERIOD, self.timer_callback)
 
-        self.logger.log_message(LogType.INFO, f"Robot position logger launched for {self.robot_name} and subscribed to {odom_topic}")
+        self.logger.log_message(LogType.INFO, f"Robot pose information node launched for {self.robot_name} and subscribed to {odom_topic}")
 
     def odom_callback(self, msg: Odometry) -> None:
         self.last_odometry_msg = msg
@@ -86,7 +86,6 @@ class RobotPose(Node):
         distance_traveled_msg = PathLength()
         distance_traveled_msg.path_length = self.distance_traveled
         self.distance_traveled_publisher.publish(distance_traveled_msg)
-        self.logger.log_message(LogType.INFO, f"Distance traveled by {self.robot_id} is {self.distance_traveled}")
 
     def should_publish(self) -> bool:
         return self.last_odometry_msg is not None
