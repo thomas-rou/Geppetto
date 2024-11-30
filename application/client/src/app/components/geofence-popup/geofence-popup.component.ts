@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GeofenceCoord } from '@common/types/GeofenceCoord';
+import { GeofenceService } from '@app/services/geofence/geofence.service';
 
 @Component({
   selector: 'app-geofence-popup',
@@ -19,17 +20,18 @@ export class GeofencePopupComponent {
   X2: number = 0;
   Y2: number = 0;
 
-  coords: GeofenceCoord;
+  constructor(private geofenceService: GeofenceService) {}
 
   onGeofence() {
-    this.coords = {
+    const coords: GeofenceCoord = {
       X1: this.X1,
-      Y1: this.X1,
-      X2: this.X1,
-      Y2: this.X1,
-    }
-    this.geofence.emit(this.coords);
-}
+      Y1: this.Y1,
+      X2: this.X2,
+      Y2: this.Y2,
+    };
+    this.geofenceService.setGeofence(coords);
+    this.geofence.emit(coords);
+  }
   
   onCancel() {
     this.cancelMission.emit();

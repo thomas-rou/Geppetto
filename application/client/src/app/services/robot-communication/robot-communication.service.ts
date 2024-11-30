@@ -62,7 +62,6 @@ export class RobotCommunicationService {
 
     handleConnect() {
         this.socketService.on('connect', () => {
-            console.log('WebSocket connection established');
             this.connectionStatusSubject.next(true);
         });
     }
@@ -106,7 +105,6 @@ export class RobotCommunicationService {
 
     handleDisconnect() {
         this.socketService.on('disconnect', () => {
-            console.log('WebSocket connection lost');
             this.connectionStatusSubject.next(false);
         });
     }
@@ -253,7 +251,6 @@ export class RobotCommunicationService {
             geofence_coordinates: coords,
             timestamp: new Date().toISOString(),
         };
-        console.log(message);
         this.socketService.send(RobotCommand.SetGeofence, message);
     }
 
