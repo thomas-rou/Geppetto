@@ -19,16 +19,18 @@ setup(
     license="TODO: License declaration",
     tests_require=["pytest"],
     entry_points={
-        'console_scripts': [
-            'mission_controller = com_bridge.mission_server:main',
-            'identify_robot = com_bridge.identify:main',
-            'mission_status_manager = com_bridge.mission_status_manager:main',
+        "console_scripts": [
+            "mission_controller = com_bridge.mission_server:main",
+            "identify_robot = com_bridge.identify:main",
+            "mission_status_manager = com_bridge.mission_status_manager:main",
             "mission_status_manager_gazebo = com_bridge.mission_status_manager_gazebo:main",
-            'get_map_robot_2 = com_bridge.get_map_robot_2:main',
+            "get_map_robot_2 = com_bridge.get_map_robot_2:main",
             "publish_initialpose = com_bridge.publish_initialpose:main",
             "update_code_node = com_bridge.update_code:main",
-            'current_position_node = com_bridge.current_position:main',
-            'low_battery = com_bridge.low_battery:main'
+            "low_battery = com_bridge.low_battery:main",
+            "robot_pose = com_bridge.robot_pose:main",
+            "peer_to_peer = com_bridge.peer_to_peer:main",
+            "sensor_logger = com_bridge.sensor_logger:main",
         ],
     },
 )

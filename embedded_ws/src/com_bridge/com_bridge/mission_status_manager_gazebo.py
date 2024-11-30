@@ -10,7 +10,6 @@ from std_msgs.msg import Bool
 TIMER_PERIOD = 1.0
 BATTERY_THRESHOLD = 30.0
 DECREASE_BATTERY_LEVEL = 0.1
-BATTERY_THRESHOLD = 0
 MAX_BATTERY_LEVEL = 100
 
 class MissionStatusManagerGazebo(Node):
@@ -22,7 +21,7 @@ class MissionStatusManagerGazebo(Node):
             self.get_parameter("robot_id").get_parameter_value().string_value
         )
         self.logger = LoggerNode()
-        self.logger.log_message(LogType.INFO, 
+        self.logger.log_message(LogType.INFO,
             f"Mission manager Launched waiting for messages in {self.robot_id}"
         )
         self.mission_status_publisher = self.create_publisher(
