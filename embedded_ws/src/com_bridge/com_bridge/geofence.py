@@ -99,6 +99,18 @@ class GeofenceNode(Node):
         self.navigator.goToPose(pose)
         self.get_logger().info(f"Returning to the geofence")
 
+    def create_pose_stamped(self, target_x: float, target_y: float):
+        pose_stamped = PoseStamped()
+        pose_stamped.header = Header()
+        pose_stamped.header.stamp = Time().to_msg()
+        pose_stamped.header.frame_id = "world"
+
+        pose_stamped.pose = Pose()
+        pose_stamped.pose.position = Point(x=target_x, y=target_y, z=0.0)
+        pose_stamped.pose.orientation = Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
+        return pose_stamped
+
+
 def main(args=None):
     rclpy.init(args=args)
     node = GeofenceNode()
