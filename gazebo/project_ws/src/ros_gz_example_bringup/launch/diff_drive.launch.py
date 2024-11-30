@@ -37,9 +37,9 @@ from helpers import *
 
 # Starter entities
 
-# robots = [
-#     Robot(name=name, pose=pose) for name, pose in zip(ROBOT_NAMES, ROBOT_STARTER_POSES)
-# ]
+robots = [
+    Robot(name=name, pose=pose) for name, pose in zip(ROBOT_NAMES, ROBOT_STARTER_POSES)
+]
 
 # fmt: off
 # boundary_walls = [
@@ -50,7 +50,7 @@ from helpers import *
 # ]
 # fmt: on
 
-geofence = Geofence()
+# geofence = Geofence()
 
 # Spawn random wall obstacles
 # Wall.generate_random_wall_obstacles(N_WALL_OBSTACLES)
@@ -101,13 +101,6 @@ def generate_launch_description():
             output="screen",
         )
 
-    # slam_toolbox launch file
-    slam_toolbox = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros_gz_bringup_dir, "launch", "slam_toolbox.py")
-        )
-    )
-
     # map_merge launch file
     map_merge = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -115,55 +108,8 @@ def generate_launch_description():
         )
     )
 
-    # explore lite robot 1
-    explore_robot1 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros_gz_bringup_dir, "launch", "explore.launch.py")
-        )
-    )
-
-    # explore lite robot 2
-    explore_robot2 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros_gz_bringup_dir, "launch", "explore.launch2.py")
-        )
-    )
-
-    # nav2 stack robot 1
-    navigation_robot1 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros_gz_bringup_dir, "launch", "navigation.launch.py")
-        )
-    )
-
-    # nav2 stack robot 2
-    navigation_robot2 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros_gz_bringup_dir, "launch", "navigation.launch2.py")
-        )
-    )
-
-    # rviz
-    rviz_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(
-                get_package_share_directory("nav2_bringup"), "launch", "rviz_launch.py"
-            )
-        ),
-        launch_arguments={
-            "namespace": "",
-            "use_namespace": "False",
-            "rviz_config": os.path.join(
-                ros_gz_bringup_dir,
-                "config",
-                "nav2_default_view.rviz",
-            ),
-        }.items(),
-    )
-
     return LaunchDescription(
         [
-            # rviz_cmd,
             gz_sim,
             bridge,
             *Robot.robot_state_publishers,
