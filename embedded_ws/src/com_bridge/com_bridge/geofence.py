@@ -4,6 +4,7 @@ from rclpy.node import Node
 from rclpy.time import Time
 from std_msgs.msg import Bool, Header
 from com_bridge.common_enums import GlobalConst
+from common_msgs.msg import GeofenceBounds
 from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
 from nav2_simple_commander.robot_navigator import BasicNavigator
 from time import sleep
@@ -12,7 +13,7 @@ TIME_TO_GATHER_TOUGHTS = 3
 GLOBAL_FRAME_ID = "world"
 
 
-class GeoFenceState(Enum):
+class GeofenceState(Enum):
     INSIDE = 0
     RETURN_TO_GEOFENCE = 1
     RETURNING = 2
@@ -27,22 +28,32 @@ class GeofenceNode(Node):
             self.get_parameter("robot_id").get_parameter_value().string_value
         )
 
-        self.navigator = BasicNavigator(namespace=self.robot_id)
-        self.get_logger().info("Geofence is up and running!")
-
-        self.geofence_x_min = -1.5
-        self.geofence_x_max = 1.5
-        self.geofence_y_min = -1.5
-        self.geofence_y_max = 1.5
-
         self.get_logger().info(
-            f"Geofence box is ({self.geofence_x_min}, {self.geofence_y_min}) ({self.geofence_x_max}, {self.geofence_y_max})"
+            f"Geofence node initialised for {self.robot_id}. Waiting for bounds!"
         )
 
-        self.state = GeoFenceState.INSIDE
+        self.navigator = BasicNavigator(namespace=self.robot_id)
+
+        self.is_geofence_active = False
+
+        self.state = GeofenceState.INSIDE
 
         self.exploration_publisher = self.create_publisher(
             Bool, f"/{self.robot_id}/explore/resume", GlobalConst.QUEUE_SIZE
+        )
+
+        self.geofence_subscription = self.create_subscription(
+            GeofenceBounds,
+            "/geofence/bounds",
+            self.geofence_bounds_callback,
+            GlobalConst.QUEUE_SIZE,
+        )
+
+        self.toggle_subscription = self.create_subscription(
+            Bool,
+            "/geofence/resume",
+            self.geofence_toggle_callback,
+            GlobalConst.QUEUE_SIZE,
         )
 
         self.pose_subscription = self.create_subscription(
@@ -52,31 +63,59 @@ class GeofenceNode(Node):
             GlobalConst.QUEUE_SIZE,
         )
 
+    def geofence_bounds_callback(self, msg: GeofenceBounds) -> None:
+        self.geofence_x_min = msg.x_min
+        self.geofence_x_max = msg.x_max
+        self.geofence_y_min = msg.y_min
+        self.geofence_y_max = msg.y_max
+
+        self.get_logger().info(
+            f"Updated geofence: x_min={self.geofence_x_min}, x_max={self.geofence_x_max}, y_min={self.geofence_y_min}, y_max={self.geofence_y_max}"
+        )
+        self.activate_geofence()
+
+    def geofence_toggle_callback(self, msg: Bool) -> None:
+        if msg.data:
+            self.activate_geofence()
+        else:
+            self.deactivate_geofence()
+
     def pose_callback(self, msg: Pose) -> None:
         self.x = msg.position.x
         self.y = msg.position.y
         self.check_state()
 
+    def activate_geofence(self) -> None:
+        self.is_geofence_active = True
+        self.get_logger().info("Geofence is up and running!")
+
+    def deactivate_geofence(self) -> None:
+        self.is_geofence_active = False
+        self.get_logger().info("Geofence has been taken down!")
+
     def check_state(self) -> None:
         match self.state:
-            case GeoFenceState.INSIDE:
+            case GeofenceState.INSIDE:
                 # Check if robot is outside the geofence
+                if not self.is_geofence_active:
+                    return
+
                 if self.is_outside_geofence(self.x, self.y):
                     self.get_logger().info("Robot is outside the geofence!")
-                    self.state = GeoFenceState.RETURN_TO_GEOFENCE
+                    self.state = GeofenceState.RETURN_TO_GEOFENCE
 
-            case GeoFenceState.RETURN_TO_GEOFENCE:
+            case GeofenceState.RETURN_TO_GEOFENCE:
                 self.pause_exploration()
                 self.return_to_geofence()
-                self.state = GeoFenceState.RETURNING
+                self.state = GeofenceState.RETURNING
 
-            case GeoFenceState.RETURNING:
+            case GeofenceState.RETURNING:
                 # Check if robot is inside the geofence
                 if not self.is_outside_geofence(self.x, self.y):
                     self.navigator.cancelTask()
                     self.get_logger().info("Robot is back inside the geofence!")
                     self.resume_exploration()
-                    self.state = GeoFenceState.INSIDE
+                    self.state = GeofenceState.INSIDE
 
     def is_outside_geofence(self, x: float, y: float) -> Bool:
         return (

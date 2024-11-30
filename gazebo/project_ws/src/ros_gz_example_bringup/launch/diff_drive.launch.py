@@ -42,18 +42,19 @@ robots = [
 ]
 
 # fmt: off
-# boundary_walls = [
-#     Wall(pose=Pose(y= MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # west wall
-#     Wall(pose=Pose(y=-MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # east wall
-#     Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # north wall
-#     Wall(pose=Pose(x=-MAP_WIDTH/2 + WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # south wall
-# ]
+boundary_walls = [
+    Wall(pose=Pose(y= MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # west wall
+    Wall(pose=Pose(y=-MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # east wall
+    Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # north wall
+    Wall(pose=Pose(x=-MAP_WIDTH/2 + WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # south wall
+]
 # fmt: on
 
 # geofence = Geofence()
 
 # Spawn random wall obstacles
-# Wall.generate_random_wall_obstacles(N_WALL_OBSTACLES)
+Wall.generate_random_wall_obstacles(N_WALL_OBSTACLES)
+
 
 def generate_launch_description():
     # Setup project paths
@@ -93,13 +94,13 @@ def generate_launch_description():
         ],
         output="screen",
     )
-    
+
     update_node = Node(
-            package="com_bridge",
-            executable="update_code_node",
-            name="update_code_node",
-            output="screen",
-        )
+        package="com_bridge",
+        executable="update_code_node",
+        name="update_code_node",
+        output="screen",
+    )
 
     # map_merge launch file
     map_merge = IncludeLaunchDescription(
@@ -112,9 +113,9 @@ def generate_launch_description():
         [
             gz_sim,
             bridge,
-            *Robot.robot_state_publishers,
+            *Robot.nodes,
             *Entity.spawned_entities_nodes,
             update_node,
-            map_merge
+            map_merge,
         ]
     )
