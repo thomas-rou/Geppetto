@@ -2,12 +2,14 @@ from enum import Enum
 import rclpy
 from rclpy.node import Node
 from rclpy.time import Time
-from std_msgs.msg import Header
+from std_msgs.msg import Bool, Header
+from com_bridge.common_enums import GlobalConst
 from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
 from nav2_simple_commander.robot_navigator import BasicNavigator
 from time import sleep
 import math
 
+TIME_TO_GATHER_TOUGHTS = 3
 
 class GeoFenceState(Enum):
     INSIDE = 0
@@ -22,19 +24,22 @@ class GeofenceNode(Node):
         self.get_logger().info("Geofence is up and running!")
 
         # Define your geofence (Example: 5x5 m area centered at (0, 0))
-        self.geofence_x_min = -2.5
-        self.geofence_x_max = 2.5
-        self.geofence_y_min = -2.5
-        self.geofence_y_max = 2.5
+        self.geofence_x_min = -0.5
+        self.geofence_x_max = 0.5
+        self.geofence_y_min = -0.5
+        self.geofence_y_max = 0.5
 
         self.state = GeoFenceState.INSIDE
 
+        self.exploration_publisher = self.create_publisher(
+            Bool, "limo1/explore/resume", GlobalConst.QUEUE_SIZE
+        )
         # Subscribe to the robot's pose
         self.pose_subscription = self.create_subscription(
             Pose,
             "/limo1/pose",  # Adjust topic to match your robot
             self.pose_callback,
-            10,
+            GlobalConst.QUEUE_SIZE,
         )
 
         # # Exploration pause service (modify with explore_lite)
@@ -63,6 +68,7 @@ class GeofenceNode(Node):
             case GeoFenceState.RETURNING:
                 # Check if robot is inside the geofence
                 if not self.is_outside_geofence():
+                    self.navigator.cancelTask()
                     self.get_logger().info("Robot is back inside the geofence!")
                     self.resume_exploration()
                     self.state = GeoFenceState.INSIDE
@@ -76,21 +82,27 @@ class GeofenceNode(Node):
         )
 
     def pause_exploration(self):
-        # Here, call a service or action to pause exploration (this depends on your implementation)
         self.get_logger().info("Pausing exploration...")
+        msg = Bool()
+        msg.data = False
+        self.exploration_publisher.publish(msg)
 
     def resume_exploration(self):
-        # Here, call a service or action to pause exploration (this depends on your implementation)
+        sleep(TIME_TO_GATHER_TOUGHTS)
         self.get_logger().info("Resuming exploration...")
+        msg = Bool()
+        msg.data = True
+        self.exploration_publisher.publish(msg)
 
     def return_to_geofence(self):
+        sleep(TIME_TO_GATHER_TOUGHTS)
         # Command the robot to move back inside the geofence, e.g., to a predefined point
-        pose = self.create_pose_stamped(0, 0)
+        pose = self.create_pose_stamped(0.0, 0.0)
 
         self.navigator.goToPose(pose)
-        self.get_logger().info(f"Returning to the geofence at INITIAL POSE")
+        self.get_logger().info(f"Returning to the geofence")
 
-    def create_pose_stamped(self, target_x, target_y):
+    def create_pose_stamped(self, target_x: float, target_y: float):
         # Create PoseStamped message
         pose_stamped = PoseStamped()
         pose_stamped.header = Header()
