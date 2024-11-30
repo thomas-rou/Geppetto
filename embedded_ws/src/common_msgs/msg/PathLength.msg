@@ -1,1 +1,1 @@
-int32 path_length
+float64 path_length
