@@ -6,13 +6,16 @@ from nav_msgs.msg import Odometry
 from com_bridge.log import LoggerNode
 from rclpy.executors import MultiThreadedExecutor
 from geometry_msgs.msg import Point, Quaternion, Pose
+from nav_msgs.msg import Path
+from common_msgs.msg import PathLength
+import numpy as np
 
 TIMER_PERIOD = 0.5
 
 class RobotPose(Node):
 
     def __init__(self):
-        super().__init__("sensor_logger")
+        super().__init__("robot_pose")
         self.logger = LoggerNode()
 
         self.declare_parameter("robot_id", "")
@@ -24,6 +27,7 @@ class RobotPose(Node):
         self.last_odometry_msg, self.prev_odometry_msg = None, None
 
         odom_topic = f"/{self.robot_id}/odom" if self.robot_name == RobotName.GAZEBO else "/odom"
+        path_topic = f"/{self.robot_id}/plan" if self.robot_name == RobotName.GAZEBO else "/path"
         self.robot_odom_subscription = self.create_subscription(
             Odometry,
             odom_topic,
@@ -31,8 +35,19 @@ class RobotPose(Node):
             GlobalConst.QUEUE_SIZE
         )
 
-        topic_name = f"{self.robot_id}/pose" if self.robot_name == RobotName.GAZEBO else f"{self.robot_name}/pose"
-        self.robot_pose_publisher = self.create_publisher(Pose, topic_name, GlobalConst.QUEUE_SIZE)
+        self.distance_traveled = 0
+        self.distance_traveled_subscription = self.create_subscription(
+            Path,
+            path_topic,
+            self.path_callback,
+            GlobalConst.QUEUE_SIZE,
+        )
+
+        robot_pose_topic = f"{self.robot_id}/pose" if self.robot_name == RobotName.GAZEBO else f"{self.robot_name}/pose"
+        distance_traveled_topic = f"{self.robot_id}/path_length" if self.robot_name == RobotName.GAZEBO else f"{self.robot_name}/path_length"
+
+        self.robot_pose_publisher = self.create_publisher(Pose, robot_pose_topic, GlobalConst.QUEUE_SIZE)
+        self.distance_traveled_publisher = self.create_publisher(PathLength, distance_traveled_topic, GlobalConst.QUEUE_SIZE)
 
         self.timer = self.create_timer(TIMER_PERIOD, self.timer_callback)
 
@@ -41,9 +56,18 @@ class RobotPose(Node):
     def odom_callback(self, msg: Odometry) -> None:
         self.last_odometry_msg = msg
 
+    def path_callback(self, msg: Path) -> None:
+        for i in range(len(msg.poses) - 1):
+            position_a = msg.poses[i].pose.position
+            position_b = msg.poses[i + 1].pose.position
+            self.distance_traveled += np.sqrt(
+                np.power((position_b.x - position_a.x), 2) + np.power((position_b.y - position_a.y), 2)
+            )
+
     def timer_callback(self) -> None:
         if self.should_publish():
             self.publish_pose()
+            self.publish_distance_traveled()
 
     def publish_pose(self) -> None:
         position = self.last_odometry_msg.pose.pose.position
@@ -58,20 +82,26 @@ class RobotPose(Node):
         self.robot_pose_publisher.publish(pose_msg)
         self.prev_odometry_msg = self.last_odometry_msg
 
+    def publish_distance_traveled(self) -> None:
+        distance_traveled_msg = PathLength()
+        distance_traveled_msg.path_length = self.distance_traveled
+        self.distance_traveled_publisher.publish(distance_traveled_msg)
+        self.logger.log_message(LogType.INFO, f"Distance traveled by {self.robot_id} is {self.distance_traveled}")
+
     def should_publish(self) -> bool:
         return self.last_odometry_msg is not None
 
 
 def main(args=None):
     rclpy.init(args=args)
-    sensor_logger = RobotPose()
+    robot_pose = RobotPose()
     executor = MultiThreadedExecutor()
-    executor.add_node(sensor_logger)
+    executor.add_node(robot_pose)
     try:
         executor.spin()
     finally:
         executor.shutdown()
-        sensor_logger.destroy_node()
+        robot_pose.destroy_node()
         rclpy.shutdown()
 
 
