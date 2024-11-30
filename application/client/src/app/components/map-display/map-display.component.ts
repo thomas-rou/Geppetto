@@ -76,7 +76,7 @@ export class MapDisplayComponent implements OnInit {
     }
 
     private drawMap(occupancyGrid: OccupancyGrid): void {
-        if (!this.occupancyGridInfo) return;
+        if (!this.occupancyGridInfo || !occupancyGrid.data) return;
         const canvas = this.mapCanvas.nativeElement;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
@@ -94,7 +94,7 @@ export class MapDisplayComponent implements OnInit {
     }
 
     private drawOccupancyGrid(ctx: CanvasRenderingContext2D, occupancyGrid: OccupancyGrid): void {
-        if (!this.occupancyGridInfo) return;
+        if (!this.occupancyGridInfo || !occupancyGrid.data) return;
         const { width, height } = this.occupancyGridInfo;
 
         for (let y = 0; y < height; y++) {
