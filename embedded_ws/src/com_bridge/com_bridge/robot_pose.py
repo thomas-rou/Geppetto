@@ -24,7 +24,7 @@ class RobotPose(Node):
         )
         self.robot_name = get_robot_name() or self.robot_id
 
-        self.last_odometry_msg, self.prev_odometry_msg = None, None
+        self.last_odometry_msg = None
 
         odom_topic = f"/{self.robot_id}/odom" if self.robot_name == RobotName.GAZEBO else "/odom"
         path_topic = f"/{self.robot_id}/plan" if self.robot_name == RobotName.GAZEBO else "/path"
@@ -36,6 +36,7 @@ class RobotPose(Node):
         )
 
         self.distance_traveled = 0.0
+        self.last_distance_traveled = 0.0
         self.distance_traveled_subscription = self.create_subscription(
             Path,
             path_topic,
@@ -79,10 +80,10 @@ class RobotPose(Node):
         pose_with_distance_msg.distance_traveled = self.distance_traveled
 
         self.pose_with_distance_publisher.publish(pose_with_distance_msg)
-        self.prev_odometry_msg = self.last_odometry_msg
+        self.last_distance_traveled = self.distance_traveled
 
     def should_publish(self) -> bool:
-        return self.last_odometry_msg is not None
+        return self.last_odometry_msg is not None and self.distance_traveled is not None
 
 
 def main(args=None):
