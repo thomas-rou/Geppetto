@@ -62,7 +62,7 @@ describe('SubscriptionServiceService', () => {
     expect(spyMissionStatus).toHaveBeenCalledWith(Topic.mission_status1, TopicType.mission_status, expect.any(Function));
     expect(spyLog).toHaveBeenCalledWith(Topic.log_robot1, TopicType.log_message, expect.any(Function));
     expect(spyMap).toHaveBeenCalledWith(Topic.physical_robot_map, TopicType.map, expect.any(Function));
-    expect(spyPose).toHaveBeenCalledWith(Topic.robot1_pose, TopicType.pose, expect.any(Function));
+    expect(spyPose).toHaveBeenCalledWith(Topic.robot1_pose_with_distance, TopicType.pose, expect.any(Function));
   });
 
   it('should subscribe to topics for robot2', async () => {
@@ -143,7 +143,7 @@ describe('SubscriptionServiceService', () => {
     service.server = { emit: jest.fn() };
     const spyEmit = jest.spyOn(service.server, 'emit');
 
-    service.robotPoseCallback(message);
+    service.robotPoseWithDistanceCallback(message);
 
     expect(spyEmit).toHaveBeenCalledWith('robotPose', { ...message.msg, topic: message.topic });
   });
