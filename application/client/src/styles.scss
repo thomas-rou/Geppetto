@@ -9,7 +9,7 @@
     box-shadow: none;
 }
 
-:root, [data-theme='dark-theme'], [data-theme='light-theme'] {
+:root, [data='dark'], [data='light'] {
     transition: all 0.3s ease-in-out;
 }
 
@@ -24,7 +24,7 @@
     --footer-text: #888;
 }
 
-[data-theme='light-theme'] {
+[data='light'] {
     --color-primary: #f8f9fa;
     --color-secondary: #d1e7dd00;
     --color-tertiary: #d7d7d7;
@@ -44,11 +44,11 @@
 --text-color: #cbcbcb;
 }
 
-[data-theme='light-theme'] {
---primary-color: #ffffff;
---secondary-color: #c8c8c8;
---tertiary-color: #b1b1b1;
---quaternary-color: #a3a3a3;
+[data='light'] {
+--primary-color: #dddddd;
+--secondary-color: #cdcdcd;
+--tertiary-color: #9a9a9a;
+--quaternary-color: #8a8a8a;
 --background-color: #b9b9b9;
 --text-color: #333333;
 }
@@ -100,4 +100,18 @@ h2 {
     100% {
         background-position: 0% 50%;
     }
+}
+
+body > app-root > app-main-page > div > main > app-code-editor > section > code-editor > div > div.cm-scroller {
+    &::-webkit-scrollbar {
+        display: none !important;
+    }
+}
+
+body > app-root > app-main-page > div > main > app-code-editor > section > code-editor > div > div.cm-panels.cm-panels-bottom {
+    display: none !important;
+}
+
+.no-scroll {
+    overflow: hidden;
 }

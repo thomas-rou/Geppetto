@@ -15,23 +15,23 @@ describe('ThemeService', () => {
 
     it('should toggle theme from dark to light', () => {
         service.toggleTheme();
-        expect(service.getCurrentTheme()).toBe('light-theme');
-        expect(document.documentElement.getAttribute('data-theme')).toBe('light-theme');
+        expect(service.getCurrentTheme()).toBe('light');
+        expect(document.documentElement.getAttribute('data')).toBe('light');
     });
 
     it('should toggle theme from light to dark', () => {
-        service.toggleTheme(); // First toggle to light
-        service.toggleTheme(); // Second toggle back to dark
-        expect(service.getCurrentTheme()).toBe('dark-theme');
-        expect(document.documentElement.getAttribute('data-theme')).toBe('dark-theme');
+        service.toggleTheme();
+        service.toggleTheme();
+        expect(service.getCurrentTheme()).toBe('dark');
+        expect(document.documentElement.getAttribute('data')).toBe('dark');
     });
 
     it('should return the current theme as dark-theme initially', () => {
-        expect(service.getCurrentTheme()).toBe('dark-theme');
+        expect(service.getCurrentTheme()).toBe('dark');
     });
 
     it('should return the current theme as light-theme after toggling', () => {
         service.toggleTheme();
-        expect(service.getCurrentTheme()).toBe('light-theme');
+        expect(service.getCurrentTheme()).toBe('light');
     });
 });

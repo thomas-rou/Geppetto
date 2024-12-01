@@ -16,7 +16,7 @@ import os
 import sys
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
@@ -25,8 +25,10 @@ from launch_ros.actions import Node
 current_dir = os.path.dirname(__file__)
 sys.path.append(current_dir)
 
+ros_gz_bringup_dir = get_package_share_directory("ros_gz_example_bringup")
+
 helpers_dir = os.path.join(
-    get_package_share_directory("ros_gz_example_bringup"),
+    ros_gz_bringup_dir,
     "helpers",
 )
 sys.path.append(helpers_dir)
@@ -35,14 +37,14 @@ from helpers import *
 
 # Starter entities
 
-# robots = [
-#     Robot(name=name, pose=pose) for name, pose in zip(ROBOT_NAMES, ROBOT_STARTER_POSES)
-# ]
+robots = [
+    Robot(name=name, pose=pose) for name, pose in zip(ROBOT_NAMES, ROBOT_STARTER_POSES)
+]
 
 # fmt: off
 boundary_walls = [
-    Wall(pose=Pose(y= MAP_WIDTH/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # west wall
-    Wall(pose=Pose(y=-MAP_WIDTH/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # east wall
+    Wall(pose=Pose(y= MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # west wall
+    Wall(pose=Pose(y=-MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # east wall
     Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # north wall
     Wall(pose=Pose(x=-MAP_WIDTH/2 + WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # south wall
 ]
@@ -65,7 +67,8 @@ def generate_launch_description():
                     "worlds",
                     "diff_drive.sdf",
                 ]
-            )
+            ).perform(None)
+            + " -r"
         }.items(),
     )
 
@@ -79,37 +82,92 @@ def generate_launch_description():
         parameters=[
             {
                 "config_file": os.path.join(
-                    get_package_share_directory("ros_gz_example_bringup"),
+                    ros_gz_bringup_dir,
                     "config",
                     "ros_gz_example_bridge.yaml",
                 ),
                 "qos_overrides./tf_static.publisher.durability": "transient_local",
+                "expand_gz_topic_names": True,
             }
         ],
         output="screen",
     )
     
-    battery_node = Node(
+    update_node = Node(
             package="com_bridge",
-            executable="mission_status_manager_gazebo",
-            name="status",
-            parameters=[{"robot_id": "robot_1"}],
+            executable="update_code_node",
+            name="update_code_node",
             output="screen",
         )
-    mission_node = Node(
-        package="com_bridge",
-        executable="mission_server_gazebo",
-        name="mission_server_gazebo",
-        output="screen",
+
+    # slam_toolbox launch file
+    slam_toolbox = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "slam_toolbox.py")
+        )
+    )
+
+    # map_merge launch file
+    map_merge = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "map_merge.launch.py")
+        )
+    )
+
+    # explore lite robot 1
+    explore_robot1 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "explore.launch.py")
+        )
+    )
+
+    # explore lite robot 2
+    explore_robot2 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "explore.launch2.py")
+        )
+    )
+
+    # nav2 stack robot 1
+    navigation_robot1 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "navigation.launch.py")
+        )
+    )
+
+    # nav2 stack robot 2
+    navigation_robot2 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "navigation.launch2.py")
+        )
+    )
+
+    # rviz
+    rviz_cmd = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory("nav2_bringup"), "launch", "rviz_launch.py"
+            )
+        ),
+        launch_arguments={
+            "namespace": "",
+            "use_namespace": "False",
+            "rviz_config": os.path.join(
+                ros_gz_bringup_dir,
+                "config",
+                "nav2_default_view.rviz",
+            ),
+        }.items(),
     )
 
     return LaunchDescription(
         [
+            # rviz_cmd,
             gz_sim,
             bridge,
-            mission_node,
-            battery_node,
             *Robot.robot_state_publishers,
             *Entity.spawned_entities_nodes,
+            update_node,
+            map_merge
         ]
     )

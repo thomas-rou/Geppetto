@@ -13,23 +13,15 @@ import { RobotManagementService } from '@app/services/robot-management/robot-man
 })
 export class StartMissionPopupComponent {
     @Output() startSimulationMission = new EventEmitter<{ robot1: Robot; robot2: Robot }>();
-
     @Output() startPhysicalMission = new EventEmitter<{ robot1: Robot; robot2: Robot }>();
-
     @Output() cancelMission = new EventEmitter<void>();
 
     robot1X: number = 0;
-
     robot1Y: number = 0;
-
     robot1Orientation: number = 0.0;
-
     robot2X: number = 0;
-
     robot2Y: number = 0;
-
     robot2Orientation: number = 0.0;
-
     selectedOption: string = 'simulation';
 
     constructor(private managementService: RobotManagementService) {}
