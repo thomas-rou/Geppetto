@@ -83,8 +83,6 @@ export class SubscriptionServiceService {
             topic: message.topic
         };
 
-        console.log('Received distance traveled:', distanceTraveled.distance_traveled);
-
         if (!this.lastKnownDistances) {
             this.lastKnownDistances = {};
         }
