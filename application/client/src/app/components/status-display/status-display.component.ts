@@ -4,7 +4,7 @@ import { RobotManagementService } from '@app/services/robot-management/robot-man
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { RobotId } from '@common/enums/RobotId';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
-import { RobotPose } from '@common/interfaces/RobotPose';
+import { RobotPose } from '@common/interfaces/RobotPoseWithDistance';
 
 @Component({
     selector: 'app-status-display',
