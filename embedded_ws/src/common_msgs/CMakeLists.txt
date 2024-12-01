@@ -28,6 +28,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/LogMessage.msg"
   "msg/ReturnBase.msg"
   "msg/UpdateControllerCode.msg"
+  "msg/P2P.msg"
   "msg/PoseWithDistance.msg"
   DEPENDENCIES std_msgs
   DEPENDENCIES action_msgs

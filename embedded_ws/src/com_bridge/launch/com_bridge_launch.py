@@ -37,6 +37,11 @@ def generate_launch_description():
             ),
             Node(
                 package="com_bridge",
+                executable="peer_to_peer",
+                name="peer_to_peer",
+            ),
+            Node(
+                package="com_bridge",
                 executable="sensor_logger",
                 name="sensor_logger",
             ),

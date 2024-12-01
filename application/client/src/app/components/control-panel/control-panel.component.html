@@ -7,6 +7,7 @@
         <button id="start-mission" (click)="startMission()" [disabled]="isMissionActive()">Lancer la Mission</button>
         <button id="stop-mission" (click)="stopMission()" [disabled]="!isMissionActive()">Arrêter la Mission</button>
         <button id="return-home" (click)="returnHome()" [disabled]="!isMissionActive()">Retour à la Maison</button>
+        <button id="peer-to-peer" (click)="initiateP2P()" [disabled]="!isMissionActive()">P2P</button>
         <button id="update-software" (click)="updateSoftware()" [disabled]="!isCodeChanged()">Mettre à Jour</button>
     </div>
     <app-start-mission-popup
