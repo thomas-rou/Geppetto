@@ -17,7 +17,7 @@ export class MissionService {
             logs: [],
             missionType: MissionType.UNKNOWN,
             missionDuration: " ",
-            traveledDistance: 0,
+            traveledDistance: 0.0,
             robots: [],
         } as Mission,
     ): Promise<void> {
