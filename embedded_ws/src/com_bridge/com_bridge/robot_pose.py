@@ -57,8 +57,6 @@ class RobotPose(Node):
 
         self.previous_position = current_position
         self.last_odometry_msg = msg
-        if delta_distance is not None and self.distance_traveled is not None:
-            self.logger.log_message(LogType.DEBUG, f"Delta distance: {delta_distance:.3f}, Total traveled: {self.distance_traveled:.3f}")
 
     def timer_callback(self) -> None:
         if self.should_publish():
