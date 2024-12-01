@@ -5,9 +5,9 @@ from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from com_bridge.log import LoggerNode
 from rclpy.executors import MultiThreadedExecutor
-from geometry_msgs.msg import Point, Quaternion, Pose
+from geometry_msgs.msg import Point, Quaternion
 from nav_msgs.msg import Path
-from common_msgs.msg import PathLength
+from common_msgs.msg import PoseWithDistance
 import numpy as np
 
 TIMER_PERIOD = 0.5
@@ -43,11 +43,9 @@ class RobotPose(Node):
             GlobalConst.QUEUE_SIZE,
         )
 
-        robot_pose_topic = f"{self.robot_id}/pose" if self.robot_name == RobotName.GAZEBO else f"{self.robot_name}/pose"
-        distance_traveled_topic = f"{self.robot_id}/path_length" if self.robot_name == RobotName.GAZEBO else f"{self.robot_name}/path_length"
+        pose_with_distance_topic = f"{self.robot_id}/pose_with_distance" if self.robot_name == RobotName.GAZEBO else f"{self.robot_name}/pose"
 
-        self.robot_pose_publisher = self.create_publisher(Pose, robot_pose_topic, GlobalConst.QUEUE_SIZE)
-        self.distance_traveled_publisher = self.create_publisher(PathLength, distance_traveled_topic, GlobalConst.QUEUE_SIZE)
+        self.pose_with_distance_publisher = self.create_publisher(PoseWithDistance, pose_with_distance_topic, GlobalConst.QUEUE_SIZE)
 
         self.timer = self.create_timer(TIMER_PERIOD, self.timer_callback)
 
@@ -66,26 +64,22 @@ class RobotPose(Node):
 
     def timer_callback(self) -> None:
         if self.should_publish():
-            self.publish_pose()
-            self.publish_distance_traveled()
+            self.publish_pose_with_distance()
 
-    def publish_pose(self) -> None:
+    def publish_pose_with_distance(self) -> None:
         position = self.last_odometry_msg.pose.pose.position
         orientation = self.last_odometry_msg.pose.pose.orientation
 
-        pose_msg = Pose()
-        pose_msg.position = Point(x=position.x, y=position.y, z=position.z)
-        pose_msg.orientation = Quaternion(
+        pose_with_distance_msg = PoseWithDistance()
+        pose_with_distance_msg.pose.position = Point(x=position.x, y=position.y, z=position.z)
+        pose_with_distance_msg.pose.orientation = Quaternion(
             x=orientation.x, y=orientation.y, z=orientation.z, w=orientation.w
         )
 
-        self.robot_pose_publisher.publish(pose_msg)
-        self.prev_odometry_msg = self.last_odometry_msg
+        pose_with_distance_msg.distance_traveled = self.distance_traveled
 
-    def publish_distance_traveled(self) -> None:
-        distance_traveled_msg = PathLength()
-        distance_traveled_msg.path_length = self.distance_traveled
-        self.distance_traveled_publisher.publish(distance_traveled_msg)
+        self.pose_with_distance_publisher.publish(pose_with_distance_msg)
+        self.prev_odometry_msg = self.last_odometry_msg
 
     def should_publish(self) -> bool:
         return self.last_odometry_msg is not None
