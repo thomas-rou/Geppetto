@@ -20,6 +20,7 @@ export class SubscriptionServiceService {
     server: any;
     private totalTraveledDistance: number;
     private lastKnownDistances: { [key: string]: number } = {};
+    private oldTraveledDistance: number;
 
     constructor(private missionService: MissionService) {
         this.robot1 = new RobotService(process.env.ROBOT1_IP, RobotId.robot1, missionService);
@@ -85,6 +86,7 @@ export class SubscriptionServiceService {
 
         if (!this.lastKnownDistances) {
             this.lastKnownDistances = {};
+            this.oldTraveledDistance = 0;
         }
 
         if (!this.lastKnownDistances.hasOwnProperty(distanceTraveled.topic)) {
@@ -98,8 +100,9 @@ export class SubscriptionServiceService {
         this.server.emit('distanceTraveled', distanceTraveled);
         this.server.emit('robotPoseWithDistance', robotPoseWithDistance);
 
-        if (this.missionService.missionId && this.totalTraveledDistance) {
+        if (this.missionService.missionId && this.totalTraveledDistance && this.totalTraveledDistance !== this.oldTraveledDistance) {
             await this.missionService.updateTraveledDistance(this.missionService.missionId, this.totalTraveledDistance);
+            this.oldTraveledDistance = this.totalTraveledDistance;
         }
     }
 
