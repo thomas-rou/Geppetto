@@ -110,7 +110,6 @@ export class MissionService {
 
     async updateTraveledDistance(missionId: string, traveledDistance: number): Promise<void> {
         try {
-            this.logger.log(`Updating mission ${missionId} traveled distance to ${traveledDistance}`);
             await this.missionModel.updateOne({ id: missionId }, { traveledDistance });
         } catch (err) {
             return Promise.reject(`Failed to update mission ${missionId} traveled distance to ${traveledDistance}`);
