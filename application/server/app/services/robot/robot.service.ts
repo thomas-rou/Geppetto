@@ -81,7 +81,7 @@ export class RobotService {
         }
         if (this._robotNumber != RobotId.gazebo) {
             await this.missionService.addRobotToMission(this.missionService.missionId, this._robotIp);
-        } else if (topicName.includes("pose_with_distance")) {
+        } else if (topicType == TopicType.pose_with_distance) {
             const robotIdMatch = topicName.match(/^\/([^\/]+)\//);
             if (robotIdMatch) {
                 const robotId = robotIdMatch[1];
