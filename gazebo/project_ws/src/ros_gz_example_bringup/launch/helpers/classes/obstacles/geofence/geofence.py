@@ -22,8 +22,8 @@ from helpers.classes.core.direction import Direction
 
 
 class Geofence(Obstacle):
-    real_world_size_x = 3
-    real_world_size_y = 3
+    real_world_size_x = 1
+    real_world_size_y = 1
 
     def __init__(
         self,
@@ -34,8 +34,7 @@ class Geofence(Obstacle):
 
         scale_x = size.x / Geofence.real_world_size_x
         scale_y = size.y / Geofence.real_world_size_x
-        # scale = Scale(scale_x, scale_y)
-        scale = Scale()
+        scale = Scale(scale_x, scale_y)
 
         self.build_entity(pose, size, scale)
         self.index = Obstacle.get_id()

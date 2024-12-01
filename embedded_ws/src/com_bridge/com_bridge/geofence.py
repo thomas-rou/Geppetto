@@ -1,4 +1,7 @@
 from enum import Enum
+import os
+import subprocess
+import sys
 import rclpy
 from rclpy.node import Node
 from rclpy.time import Time
@@ -8,10 +11,12 @@ from com_bridge.log import LoggerNode
 from common_msgs.msg import GeofenceBounds
 from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
 from nav2_simple_commander.robot_navigator import BasicNavigator
+from ament_index_python.packages import get_package_share_directory
 from time import sleep
 
 TIME_TO_GATHER_TOUGHTS = 3
 GLOBAL_FRAME_ID = "world"
+GEOFENCE_POSE_Z = -0.12
 
 
 class GeofenceState(Enum):
@@ -24,14 +29,13 @@ class GeofenceNode(Node):
     def __init__(self) -> None:
         super().__init__("geofence_node")
 
+        self.logger = LoggerNode()
+
         self.declare_parameter("robot_id", "unknown")
         self.robot_id = (
             self.get_parameter("robot_id").get_parameter_value().string_value
         )
 
-        self.get_logger().info(
-            f"Geofence node initialised for {self.robot_id}. Waiting for bounds!"
-        )
         self.logger.log_message(
             LogType.INFO,
             f"Geofence node initialised for {self.robot_id}. Waiting for bounds!",
@@ -75,13 +79,12 @@ class GeofenceNode(Node):
         self.geofence_y_min = msg.y_min
         self.geofence_y_max = msg.y_max
 
-        self.get_logger().info(
-            f"Updated geofence: x_min={self.geofence_x_min}, x_max={self.geofence_x_max}, y_min={self.geofence_y_min}, y_max={self.geofence_y_max}"
-        )
         self.logger.log_message(
             LogType.INFO,
             f"Updated geofence: x_min={self.geofence_x_min}, x_max={self.geofence_x_max}, y_min={self.geofence_y_min}, y_max={self.geofence_y_max}",
         )
+
+        self.spawn_geofence()
         self.activate_geofence()
 
     def geofence_toggle_callback(self, msg: Bool) -> None:
@@ -97,7 +100,6 @@ class GeofenceNode(Node):
 
     def activate_geofence(self) -> None:
         self.is_geofence_active = True
-        self.get_logger().info("Geofence is up and running!")
         self.logger.log_message(
             LogType.INFO,
             "Geofence is up and running!",
@@ -105,7 +107,6 @@ class GeofenceNode(Node):
 
     def deactivate_geofence(self) -> None:
         self.is_geofence_active = False
-        self.get_logger().info("Geofence has been taken down!")
         self.logger.log_message(
             LogType.INFO,
             "Geofence has been taken down!",
@@ -119,7 +120,6 @@ class GeofenceNode(Node):
                     return
 
                 if self.is_outside_geofence(self.x, self.y):
-                    self.get_logger().info("Robot is outside the geofence!")
                     self.logger.log_message(
                         LogType.INFO,
                         "Robot is outside the geofence!",
@@ -135,7 +135,6 @@ class GeofenceNode(Node):
                 # Check if robot is inside the geofence
                 if not self.is_outside_geofence(self.x, self.y):
                     self.navigator.cancelTask()
-                    self.get_logger().info("Robot is back inside the geofence!")
                     self.logger.log_message(
                         LogType.INFO,
                         "Robot is back inside the geofence!",
@@ -152,7 +151,6 @@ class GeofenceNode(Node):
         )
 
     def pause_exploration(self) -> None:
-        self.get_logger().info("Pausing exploration...")
         self.logger.log_message(
             LogType.INFO,
             "Pausing exploration...",
@@ -163,7 +161,6 @@ class GeofenceNode(Node):
 
     def resume_exploration(self) -> None:
         sleep(TIME_TO_GATHER_TOUGHTS)
-        self.get_logger().info("Resuming exploration...")
         self.logger.log_message(
             LogType.INFO,
             "Resuming exploration...",
@@ -177,7 +174,6 @@ class GeofenceNode(Node):
         pose = self.create_pose_stamped(*self.calculate_geofence_midpoint())
 
         self.navigator.goToPose(pose)
-        self.get_logger().info(f"Returning inside the geofence")
         self.logger.log_message(
             LogType.INFO,
             "Returning inside the geofence",
@@ -198,6 +194,72 @@ class GeofenceNode(Node):
         midpoint_x = (self.geofence_x_min + self.geofence_x_max) / 2
         midpoint_y = (self.geofence_y_min + self.geofence_y_max) / 2
         return midpoint_x, midpoint_y
+
+    def load_geofence_sdf(self) -> str:
+        try:
+            pkg_project_description = get_package_share_directory(
+                "ros_gz_example_description"
+            )
+
+            sdf_file = os.path.join(
+                pkg_project_description, "models", "geofence", "model.sdf"
+            )
+
+            if not os.path.isfile(sdf_file):
+                raise FileNotFoundError(f"Model file '{sdf_file}' not found.")
+
+            with open(sdf_file, "r") as infp:
+                entity_desc = infp.read()
+
+            return entity_desc
+
+        except FileNotFoundError as e:
+            print(f"Error: {e}")
+            sys.exit(1)
+        except Exception as e:
+            print(f"Cannot open model file: {e}")
+            sys.exit(1)
+
+    def spawn_geofence(self) -> None:
+        geofence_desc = self.load_geofence_sdf()
+
+        scale_x = abs(self.geofence_x_max - self.geofence_x_min)
+        scale_y = abs(self.geofence_y_max - self.geofence_y_min)
+
+        geofence_desc = geofence_desc.replace("{scale_x}", str(scale_x))
+        geofence_desc = geofence_desc.replace("{scale_y}", str(scale_y))
+
+        pose_x, pose_y = self.calculate_geofence_midpoint()
+
+        command = [
+            "ros2",
+            "run",
+            "ros_gz_sim",
+            "create",
+            "-name",
+            "geofence",
+            "-string",
+            geofence_desc,
+            "-x",
+            str(pose_x),
+            "-y",
+            str(pose_y),
+            "-z",
+            str(GEOFENCE_POSE_Z),
+        ]
+
+        try:
+            # Run the command
+            subprocess.run(command, check=True)
+            self.logger.log_message(
+                LogType.INFO,
+                f"Geofence  spawned successfully.",
+            )
+        except subprocess.CalledProcessError as e:
+            self.logger.log_message(
+                LogType.ERROR,
+                f"Failed to spawn geofence model: {e}",
+            )
 
 
 def main(args=None):
