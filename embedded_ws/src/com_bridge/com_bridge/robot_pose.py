@@ -6,7 +6,6 @@ from nav_msgs.msg import Odometry
 from com_bridge.log import LoggerNode
 from rclpy.executors import MultiThreadedExecutor
 from geometry_msgs.msg import Point, Quaternion
-from nav_msgs.msg import Path
 from common_msgs.msg import PoseWithDistance
 import numpy as np
 
@@ -25,23 +24,15 @@ class RobotPose(Node):
         self.robot_name = get_robot_name() or self.robot_id
 
         self.last_odometry_msg = None
+        self.previous_position = None
+        self.distance_traveled = 0.0
 
         odom_topic = f"/{self.robot_id}/odom" if self.robot_name == RobotName.GAZEBO else "/odom"
-        path_topic = f"/{self.robot_id}/plan" if self.robot_name == RobotName.GAZEBO else "/path"
         self.robot_odom_subscription = self.create_subscription(
             Odometry,
             odom_topic,
             self.odom_callback,
             GlobalConst.QUEUE_SIZE
-        )
-
-        self.distance_traveled = 0.0
-        self.last_distance_traveled = 0.0
-        self.distance_traveled_subscription = self.create_subscription(
-            Path,
-            path_topic,
-            self.path_callback,
-            GlobalConst.QUEUE_SIZE,
         )
 
         pose_with_distance_topic = f"{self.robot_id}/pose_with_distance" if self.robot_name == RobotName.GAZEBO else f"{self.robot_name}/pose"
@@ -53,15 +44,21 @@ class RobotPose(Node):
         self.logger.log_message(LogType.INFO, f"Robot pose information node launched for {self.robot_name} and subscribed to {odom_topic}")
 
     def odom_callback(self, msg: Odometry) -> None:
-        self.last_odometry_msg = msg
+        current_position = msg.pose.pose.position
+        delta_distance = None
 
-    def path_callback(self, msg: Path) -> None:
-        for i in range(len(msg.poses) - 1):
-            position_a = msg.poses[i].pose.position
-            position_b = msg.poses[i + 1].pose.position
-            self.distance_traveled += np.sqrt(
-                np.power((position_b.x - position_a.x), 2) + np.power((position_b.y - position_a.y), 2)
+        if self.previous_position is not None:
+            delta_distance = np.sqrt(
+                (current_position.x - self.previous_position.x)**2 +
+                (current_position.y - self.previous_position.y)**2
             )
+
+            self.distance_traveled += delta_distance
+
+        self.previous_position = current_position
+        self.last_odometry_msg = msg
+        if delta_distance is not None and self.distance_traveled is not None:
+            self.logger.log_message(LogType.DEBUG, f"Delta distance: {delta_distance:.3f}, Total traveled: {self.distance_traveled:.3f}")
 
     def timer_callback(self) -> None:
         if self.should_publish():
