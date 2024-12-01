@@ -118,8 +118,11 @@ export class MissionService {
 
     async addRobotToMission(missionId: string, robot: string): Promise<void> {
         try {
-            this.logger.log(`Adding robot ${robot} to mission ${missionId}`);
-            await this.missionModel.updateOne({ id: missionId }, { $push: { robots: robot } });
+            const mission = await this.missionModel.findOne({ id: missionId, 'robots.robotId': robot });
+            if (!mission) {
+                this.logger.log(`Adding robot ${robot} to mission ${missionId}`);
+                await this.missionModel.updateOne({ id: missionId }, { $push: { robots: robot } });
+            }
         } catch (err) {
             return Promise.reject(`Failed to add robot ${robot} to mission ${missionId}`);
         }
