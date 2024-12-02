@@ -109,10 +109,11 @@ export class MissionService {
     }
 
     async updateTraveledDistance(missionId: string, traveledDistance: number): Promise<void> {
+        const roundedDistance = Math.round(traveledDistance * 100) / 100;
         try {
-            await this.missionModel.updateOne({ id: missionId }, { traveledDistance });
+            await this.missionModel.updateOne({ id: missionId }, { traveledDistance: roundedDistance });
         } catch (err) {
-            return Promise.reject(`Failed to update mission ${missionId} traveled distance to ${traveledDistance}`);
+            return Promise.reject(`Failed to update mission ${missionId} traveled distance to ${roundedDistance}`);
         }
     }
 
