@@ -171,8 +171,8 @@ export class MapDisplayComponent implements OnInit {
         const { origin, resolution } = this.occupancyGridInfo;
         const canvasHeight = this.mapCanvas.nativeElement.height;
 
-        const bottomLeft = this.calculateRobotPosition({ x: this.geofence.X1, y: this.geofence.Y1 }, origin, resolution, canvasHeight);
-        const topRight = this.calculateRobotPosition({ x: this.geofence.X2, y: this.geofence.Y2 }, origin, resolution, canvasHeight);
+        const bottomLeft = this.calculateRobotPosition({ x: this.geofence.x_max, y: this.geofence.y_min }, origin, resolution, canvasHeight);
+        const topRight = this.calculateRobotPosition({ x: this.geofence.x_min, y: this.geofence.y_max }, origin, resolution, canvasHeight);
 
         ctx.strokeStyle = 'red';
         ctx.lineWidth = 2;

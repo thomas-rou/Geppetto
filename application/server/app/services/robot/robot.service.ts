@@ -164,8 +164,6 @@ export class RobotService {
     }
 
     async initiateFence(message: SetGeofence) {
-        await this.publishToTopic(Topic.geofence, TopicType.geofence, {
-            //TODO faire la lisaisoooooon entre les deux objets 
-        } as SetGeofence)
+        await this.publishToTopic(Topic.geofence, TopicType.geofence, message)
     }
 }

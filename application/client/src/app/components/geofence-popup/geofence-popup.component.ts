@@ -24,10 +24,10 @@ export class GeofencePopupComponent {
 
   onGeofence() {
     const coords: GeofenceCoord = {
-      X1: this.X1,
-      Y1: this.Y1,
-      X2: this.X2,
-      Y2: this.Y2,
+      x_max: this.X1,
+      y_min: this.Y1,
+      x_min: this.X2,
+      y_max: this.Y2,
     };
     this.geofenceService.setGeofence(coords);
     this.geofence.emit(coords);
