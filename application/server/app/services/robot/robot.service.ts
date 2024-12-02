@@ -4,14 +4,15 @@ import { MessageOperation } from '@common/interfaces/MessageOperation';
 import { StartMission } from '@common/interfaces/StartMission';
 import { EndMission } from '@common/interfaces/EndMission';
 import { ReturnToBase } from '@common/interfaces/ReturnToBase';
+import { SetGeofence } from '@common/interfaces/SetGeofence';
+import { BasicCommand } from '@common/interfaces/BasicCommand';
+import { P2PCommand } from '@common/interfaces/P2PCommand';
+import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 import { RobotCommand } from '@common/enums/RobotCommand';
 import { Operation } from '@common/enums/Operation';
 import { Topic } from '@common/enums/Topic';
 import { TopicType } from '@common/enums/TopicType';
 import { RobotId } from '@common/enums/RobotId';
-import { BasicCommand } from '@common/interfaces/BasicCommand';
-import { P2PCommand } from '@common/interfaces/P2PCommand';
-import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 import { timeStamp } from 'console';import { MissionService } from '../mission/mission.service';
 
 
@@ -160,5 +161,11 @@ export class RobotService {
             launch: launch,
             timestamp: new Date().toISOString(),
         } as P2PCommand);
+    }
+
+    async initiateFence(message: SetGeofence) {
+        await this.publishToTopic(Topic.geofence, TopicType.geofence, {
+            //TODO faire la lisaisoooooon entre les deux objets 
+        } as SetGeofence)
     }
 }

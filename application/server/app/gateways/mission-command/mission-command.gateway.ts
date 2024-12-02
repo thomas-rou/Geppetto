@@ -17,7 +17,6 @@ import { ReturnToBase } from '@common/interfaces/ReturnToBase';
 import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 import { MissionType } from '@common/enums/MissionType';
 import { SetGeofence } from '@common/interfaces/SetGeofence';
-// import { GeofenceCoord } from '@common/types/GeofenceCoord';
 
 @Injectable()
 @WebSocketGateway()
@@ -193,7 +192,7 @@ export class MissionCommandGateway {
     }
 
     @SubscribeMessage(RobotCommand.GetCodeFile)
-    async handleGetCodeFile(client: Socket, filename: string) {
+    async handleGetCodeFile(client: Socket, filename: string) {   
         const filePath = path.resolve(this.pathToAllFiles, filename);
         const fileContent = fs.readFileSync(filePath, 'utf-8');
         client.emit('codeFileContent', fileContent);
@@ -209,6 +208,9 @@ export class MissionCommandGateway {
     @SubscribeMessage(RobotCommand.SetGeofence)
     async handleGeofence(client: Socket, payload: SetGeofence) {
         await this.logger.logToClient(LogType.INFO, 'Geofence reçue');
-        // jsp mon gate
+        if (this.subscriptionService.gazebo.isConnected()) 
+            await this.subscriptionService.gazebo.initiateFence(payload);
+        else
+            client.emit('commandError', "Le client gazebo n'est pas connecté, on ne peut créer une géofence");
     }
 }

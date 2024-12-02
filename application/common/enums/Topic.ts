@@ -21,4 +21,5 @@ export enum Topic {
     robot2_pose = '/robot_2/pose',
     gazebo1_pose = '/limo1/pose',
     gazebo2_pose = '/limo2/pose',
+    geofence = '/geofence/bounds'
 }
