@@ -43,6 +43,7 @@ export class MapDisplayComponent implements OnInit {
 
     private subscribeToLiveMap(): void {
         if (this.map) {
+            this.occupancyGridInfo = this.map.info;
             this.drawMap(this.map);
         } else {
             this.robotCommunicationService.onLiveMap().subscribe((occupancyGrid: OccupancyGrid) => {
