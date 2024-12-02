@@ -68,7 +68,7 @@ class GeofenceNode(Node):
 
         self.pose_subscription = self.create_subscription(
             Pose,
-            f"/{self.robot_id}/pose",
+            f"/{self.robot_id}/pose_with_distance",
             self.pose_callback,
             GlobalConst.QUEUE_SIZE,
         )
