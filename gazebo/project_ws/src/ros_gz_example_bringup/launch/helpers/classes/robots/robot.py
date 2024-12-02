@@ -108,7 +108,7 @@ class Robot(Entity):
             package="com_bridge",
             executable="mission_status_manager_gazebo",
             name="status",
-            parameters=[{"robot_id": self.name}],
+            parameters=[{"robot_id": f"robot_{self.index + 1}"}],
             output="screen",
         )
         mission_node = Node(

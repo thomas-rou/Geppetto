@@ -100,7 +100,8 @@ export class MapDisplayComponent implements OnInit {
 
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
-                const index = y * width + x;
+                const flippedY = height - 1 - y;
+                const index = flippedY * width + x;
                 const cellValue = occupancyGrid.data[index];
                 ctx.fillStyle = this.getCellColor(cellValue);
                 ctx.fillRect(x, y, 1, 1);
