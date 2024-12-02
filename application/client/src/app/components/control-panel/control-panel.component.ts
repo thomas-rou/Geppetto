@@ -10,6 +10,7 @@ import { MissionService } from '@app/services/mission/mission.service';
 import { MissionType } from '@app/enums/MissionType';
 import { GeofencePopupComponent } from "../geofence-popup/geofence-popup.component";
 import { GeofenceCoord } from '@common/types/GeofenceCoord';
+import { GeofenceService } from '@app/services/geofence/geofence.service';
 
 @Component({
     selector: 'app-control-panel',
@@ -30,6 +31,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
         private robotService: RobotCommunicationService,
         private logsService: LogsService,
         private missionService: MissionService,
+        private geofenceService: GeofenceService
     ) {}
 
     ngOnInit(): void {
@@ -69,6 +71,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     onPhysicalMissionStart() {
         this.showPopup = false;
         document.body.classList.remove('no-scroll');
+        this.geofenceService.clearGeofence();
         this.robotService.startMissionRobot();
         this.missionService.setMissionType(MissionType.Physical);
         this.missionService.setIsMissionActive(true);
@@ -78,6 +81,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     onSimulationMissionStart() {
         this.showPopup = false;
         document.body.classList.remove('no-scroll');
+        this.geofenceService.clearGeofence();
         this.robotService.startMissionGazebo();
         this.missionService.setMissionType(MissionType.Simulation);
         this.missionService.setIsMissionActive(true);
@@ -151,6 +155,10 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     
     isMissionActive() {
         return this.missionService.getIsMissionActive();
+    }
+
+    isMissionSim() {
+        return this.missionService.getIsMissionActive() && this.missionService.getMissionType() == MissionType.Simulation;
     }
 
     ngOnDestroy(): void {

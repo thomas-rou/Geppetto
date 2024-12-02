@@ -13,4 +13,9 @@ export class GeofenceService {
   setGeofence(coords: GeofenceCoord) {
     this.geofenceSubject.next(coords);
   }
+
+  clearGeofence() {
+    this.geofenceSubject.next(null);
+    console.log('hi');
+  }
 }
