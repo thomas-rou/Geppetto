@@ -17,7 +17,7 @@ export class MissionService {
             logs: [],
             missionType: MissionType.UNKNOWN,
             missionDuration: " ",
-            traveledDistance: 0,
+            traveledDistance: 0.0,
             robots: [],
         } as Mission,
     ): Promise<void> {
@@ -109,18 +109,21 @@ export class MissionService {
     }
 
     async updateTraveledDistance(missionId: string, traveledDistance: number): Promise<void> {
+        const roundedDistance = Math.round(traveledDistance * 100) / 100;
         try {
-            this.logger.log(`Updating mission ${missionId} traveled distance to ${traveledDistance}`);
-            await this.missionModel.updateOne({ id: missionId }, { traveledDistance });
+            await this.missionModel.updateOne({ id: missionId }, { traveledDistance: roundedDistance });
         } catch (err) {
-            return Promise.reject(`Failed to update mission ${missionId} traveled distance to ${traveledDistance}`);
+            return Promise.reject(`Failed to update mission ${missionId} traveled distance to ${roundedDistance}`);
         }
     }
 
     async addRobotToMission(missionId: string, robot: string): Promise<void> {
         try {
-            this.logger.log(`Adding robot ${robot} to mission ${missionId}`);
-            await this.missionModel.updateOne({ id: missionId }, { $push: { robots: robot } });
+            const mission = await this.missionModel.findOne({ id: missionId, 'robots.robotId': robot });
+            if (!mission) {
+                this.logger.log(`Adding robot ${robot} to mission ${missionId}`);
+                await this.missionModel.updateOne({ id: missionId }, { $push: { robots: robot } });
+            }
         } catch (err) {
             return Promise.reject(`Failed to add robot ${robot} to mission ${missionId}`);
         }

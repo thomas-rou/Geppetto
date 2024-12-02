@@ -2,7 +2,7 @@ import { Component, ElementRef, ViewChild, OnInit, Input } from '@angular/core';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { OccupancyGrid, MapMetaData } from '@common/interfaces/LiveMap';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
-import { RobotPose } from '@common/interfaces/RobotPose';
+import { RobotPose } from '@common/interfaces/RobotPoseWithDistance';
 
 const ROBOT_RADIUS = 5;
 const ROBOT_START_ANGLE = 0;
