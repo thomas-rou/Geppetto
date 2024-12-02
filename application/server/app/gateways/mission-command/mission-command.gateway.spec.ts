@@ -10,6 +10,7 @@ import { RobotCommand } from '@common/enums/RobotCommand';
 import { ClientCommand } from '@common/enums/ClientCommand';
 import { StartMission } from '@common/interfaces/StartMission';
 import { MissionDetails } from '@common/interfaces/MissionDetails';
+import { MissionType } from '@common/enums/MissionType';
 import { EndMission } from '@common/interfaces/EndMission';
 import { IdentifyRobot } from '@common/interfaces/IdentifyRobot';
 import { Mission } from '@app/model/database/Mission';
@@ -25,6 +26,7 @@ describe('MissionCommandGateway', () => {
     server = { emit: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
+      imports: [MissionService],
       providers: [
         MissionCommandGateway,
         {
@@ -37,13 +39,13 @@ describe('MissionCommandGateway', () => {
             subscribeToTopicGazebo: jest.fn(),
           },
         },
-        {
-          provide: MissionService,
-          useValue: {
-            createMission: jest.fn(),
-            getAllMissions: jest.fn(),
-          },
-        },
+        // {
+        //   provide: MissionService,
+        //   useValue: {
+        //     createMission: jest.fn(),
+        //     getAllMissions: jest.fn(),
+        //   },
+        // },
         {
           provide: LogService,
           useValue: {
@@ -110,19 +112,29 @@ describe('MissionCommandGateway', () => {
     const client = { id: 'client1', emit: jest.fn() } as unknown as Socket;
     const missions: Mission[] = [
       {
-          id: '1',
-          logs: [
-              { source: 'system', log_type: 'info', date: new Date().toISOString(), message: 'Log entry 1' },
-              { source: 'system', log_type: 'info', date: new Date().toISOString(), message: 'Log entry 2' },
-          ],
+        id: '1',
+        logs: [
+          { source: 'system', log_type: 'info', date: new Date().toISOString(), message: 'Log entry 1' },
+          { source: 'system', log_type: 'info', date: new Date().toISOString(), message: 'Log entry 2' },
+        ],
+        map: [], // Add an empty map array, or populate it as necessary
+        missionType: MissionType.GAZEBO_SIMULATION, // Replace with an actual MissionType
+        missionDuration: '2h 30m', // Example duration
+        traveledDistance: 1500, // Example distance
+        robots: ['robot1', 'robot2'], // List of robots
       },
       {
-          id: '2',
-          logs: [
-              { source: 'system', log_type: 'info', date: new Date().toISOString(), message: 'Log entry 1' },
-          ],
+        id: '2',
+        logs: [
+          { source: 'system', log_type: 'info', date: new Date().toISOString(), message: 'Log entry 1' },
+        ],
+        map: [], // Add an empty map array, or populate it as necessary
+        missionType: MissionType.GAZEBO_SIMULATION, // Replace with an actual MissionType
+        missionDuration: '1h 0m', // Example duration
+        traveledDistance: 800, // Example distance
+        robots: ['robot1'], // List of robots
       },
-    ];
+    ];;
     jest.spyOn(missionService, 'getAllMissions').mockResolvedValue(missions);
     await gateway.getMissionLogs(client);
     expect(client.emit).toHaveBeenCalledWith(ClientCommand.MissionLogs, missions);

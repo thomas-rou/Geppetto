@@ -14,6 +14,7 @@ describe('SubscriptionServiceService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [RobotService],
       providers: [
         SubscriptionServiceService,
         {
@@ -22,13 +23,13 @@ describe('SubscriptionServiceService', () => {
             addLogToMission: jest.fn(),
             missionId: 'test-mission-id',
           },
-        },
-        {
-          provide: RobotService,
-          useValue: {
-            subscribeToTopic: jest.fn(),
-          },
-        },
+        }
+        // {
+        //   provide: RobotService,
+        //   useValue: {
+        //     subscribeToTopic: jest.fn(),
+        //   },
+        // },
       ],
     }).compile();
 
