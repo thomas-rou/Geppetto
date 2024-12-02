@@ -4,7 +4,7 @@
 cd "../../embedded_ws/" || exit 1
 
 # Run colcon build
-colcon build
+colcon build --packages-skip limo_base ydlidar_ros2_driver voice_control
 
 # Source the setup script
 source install/setup.sh
