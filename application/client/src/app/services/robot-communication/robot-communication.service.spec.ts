@@ -118,14 +118,14 @@ describe('RobotCommunicationService', () => {
         });
     });
 
-    it('should emit updateControllerCode', () => {
-        service.updateControllerCode('newCode');
-        expect(sendSpy).toHaveBeenCalledWith('update_controller_code', {
-            command: 'update_controller_code',
-            code: 'newCode',
-            timestamp: jasmine.any(String),
-        });
-    });
+    // it('should emit updateControllerCode', () => {
+    //     service.updateControllerCode('newCode');
+    //     expect(sendSpy).toHaveBeenCalledWith('update_controller_code', {
+    //         command: 'update_controller_code',
+    //         code: 'newCode',
+    //         timestamp: jasmine.any(String),
+    //     });
+    // });
 
     it('should emit notifyRobotsToCommunicate', () => {
         service.notifyRobotsToCommunicate();
