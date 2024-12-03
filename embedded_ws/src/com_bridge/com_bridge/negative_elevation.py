@@ -1,17 +1,21 @@
 import os
 import rclpy
 from rclpy.node import Node
+from geometry_msgs.msg import Twist
 from com_bridge.log import LoggerNode
 from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
 from sensor_msgs.msg import PointCloud2
 import sensor_msgs_py.point_cloud2 as pc2
 import numpy as np
 
+FALL_THRESHOLD = 0.5
+
 class NegativeElevation(Node):
     def __init__(self):
         super().__init__('negative_elevation')
         self.logger = LoggerNode()
         self.logger.log_message(LogType.INFO, f"Negative elevation node launched on {os.getenv('ROBOT')}")
+        self.vel_publisher = self.create_publisher(Twist, '/cmd_vel', 10)
 
         self.point_cloud_subscription = self.create_subscription(
             PointCloud2,
@@ -20,19 +24,21 @@ class NegativeElevation(Node):
             GlobalConst.QUEUE_SIZE
         )
         
-        self.fall_threshold = -0.5 
+        # max float value possible
+        self.min_elevation = 3.4028234663852886e+38
         
     def status_elevation_callback(self, point_cloud):
         try:
             pc_data = self.extract_points_from_cloud(point_cloud)
 
             negative_elevation = np.min(pc_data)
+            if negative_elevation < self.min_elevation:
+                self.min_elevation = negative_elevation
+                
+            if negative_elevation - self.min_elevation > FALL_THRESHOLD:
+                self.logger.log_message(LogType.INFO, "Robot elevation too low! Stopping robot.")
+                self.stop_robot()
             self.logger.log_message(LogType.INFO, f"Negative elevation: {negative_elevation}")
-
-            if negative_elevation < self.fall_threshold:
-                pass
-                # self.logger.log_message(LogType.INFO, "Robot elevation too low! Stopping robot.")
-                # self.stop_robot()
 
         except Exception as e:
             self.logger.log_message(LogType.INFO, "Failed to calculate negative elevation: "+str(e))
@@ -47,6 +53,11 @@ class NegativeElevation(Node):
 
     def stop_robot(self):
         self.logger.log_message(LogType.INFO, "Published stop command to robot.")
+        vel_msg = Twist()
+        vel_msg.linear.x = 0
+        vel_msg.linear.y = 0
+        vel_msg.angular.z = 0
+        self.vel_publisher.publish(vel_msg)
 
         
 def main(args=None):

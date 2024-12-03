@@ -45,10 +45,5 @@ def generate_launch_description():
                 executable="sensor_logger",
                 name="sensor_logger",
             ),
-            Node(
-                package="com_bridge",
-                executable="negative_elevation",
-                name="negative_elevation",
-            ),
         ]
     )
