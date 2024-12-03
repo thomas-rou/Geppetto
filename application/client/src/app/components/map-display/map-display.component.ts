@@ -138,13 +138,13 @@ export class MapDisplayComponent implements OnInit {
     }
 
     private drawRobot(ctx: CanvasRenderingContext2D, robot: RobotPose, color: string, origin: any, resolution: number, canvasHeight: number): void {
-        const { x, y } = this.calculateRobotPosition(robot.position, origin, resolution, canvasHeight);
+        const { x, y } = this.calculateMapRelativePosition(robot.position, origin, resolution, canvasHeight);
 
         this.drawRobotBody(ctx, x, y, color);
         this.drawRobotOrientation(ctx, x, y, robot.orientation);
     }
 
-    private calculateRobotPosition(
+    private calculateMapRelativePosition(
         position: { x: number; y: number },
         origin: any,
         resolution: number,
@@ -185,8 +185,8 @@ export class MapDisplayComponent implements OnInit {
         const { origin, resolution } = this.occupancyGridInfo;
         const canvasHeight = this.mapCanvas.nativeElement.height;
 
-        const bottomLeft = this.calculateRobotPosition({ x: this.geofence.x_max, y: this.geofence.y_min }, origin, resolution, canvasHeight);
-        const topRight = this.calculateRobotPosition({ x: this.geofence.x_min, y: this.geofence.y_max }, origin, resolution, canvasHeight);
+        const bottomLeft = this.calculateMapRelativePosition({ x: this.geofence.x_max, y: this.geofence.y_min }, origin, resolution, canvasHeight);
+        const topRight = this.calculateMapRelativePosition({ x: this.geofence.x_min, y: this.geofence.y_max }, origin, resolution, canvasHeight);
 
         ctx.strokeStyle = 'red';
         ctx.lineWidth = 2;

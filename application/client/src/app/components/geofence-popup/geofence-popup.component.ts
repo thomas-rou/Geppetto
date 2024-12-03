@@ -15,10 +15,10 @@ export class GeofencePopupComponent {
     @Output() geofence = new EventEmitter<GeofenceCoord>();
     @Output() cancelMission = new EventEmitter<void>();
 
-    x_min: number = 0;
-    y_min: number = 0;
-    x_max: number = 0;
-    y_max: number = 0;
+    private x_min: number = 0;
+    private y_min: number = 0;
+    private x_max: number = 0;
+    private y_max: number = 0;
 
     constructor(private geofenceService: GeofenceService) {}
 

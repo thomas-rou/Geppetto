@@ -13,11 +13,11 @@ const mockMission: Mission = {
     { source: 'system', log_type: 'info', date: new Date().toISOString(), message: 'Log entry 1' },
     { source: 'system', log_type: 'info', date: new Date().toISOString(), message: 'Log entry 2' },
   ],
-  map: [], // Add an empty map array, or populate it as necessary
-  missionType: MissionType.GAZEBO_SIMULATION, // Replace with an actual MissionType
-  missionDuration: '2h 30m', // Example duration
-  traveledDistance: 1500, // Example distance
-  robots: ['robot1', 'robot2'], // List of robots
+  map: [],
+  missionType: MissionType.GAZEBO_SIMULATION,
+  missionDuration: '2h 30m',
+  traveledDistance: 1500,
+  robots: ['robot1', 'robot2'],
 };
 
 describe('MissionService', () => {

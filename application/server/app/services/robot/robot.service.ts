@@ -177,11 +177,6 @@ export class RobotService {
     }
 
     async initiateFence(message: SetGeofence) {
-        console.log(message.geofence_coordinates.x_min);
-        console.log(message.geofence_coordinates.x_max);
-        console.log(message.geofence_coordinates.y_min);
-        console.log(message.geofence_coordinates.y_max);
-
         const geofenceMessage: GeofenceBounds = {
             command: message.command,
             timestamp: message.timestamp,
