@@ -6,6 +6,7 @@ import { WebSocket } from 'ws';
 import { Topic } from '@common/enums/Topic';
 import { TopicType } from '@common/enums/TopicType';
 import { RobotCommand } from '@common/enums/RobotCommand';
+import { MissionService } from '../mission/mission.service';
 
 jest.mock('ws');
 
@@ -16,6 +17,7 @@ describe('RobotService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [MissionService],
       providers: [
         RobotService,
         { provide: 'robotIp', useValue: '127.0.0.1' },

@@ -13,7 +13,10 @@ import { ClientCommand } from '@common/enums/ClientCommand';
 import { MissionService } from '@app/services/mission/mission.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import { ReturnToBase } from '@common/interfaces/ReturnToBase';
 import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
+import { MissionType } from '@common/enums/MissionType';
+import { SetGeofence } from '@common/interfaces/SetGeofence';
 
 @Injectable()
 @WebSocketGateway()
@@ -23,7 +26,6 @@ export class MissionCommandGateway {
     private logger: LogService;
     private controllingClient: Socket | null = null;
     pathToAllFiles: string = path.resolve(__dirname, '../../../../../../../embedded_ws/src/com_bridge/com_bridge/');
-
 
     constructor(
         private subscriptionService: SubscriptionServiceService,
@@ -76,14 +78,28 @@ export class MissionCommandGateway {
         try {
             if (targets.includes(RobotId.robot1) && targets.includes(RobotId.robot2)) {
                 await this.logger.logToClient(LogType.INFO, `${commands[command].log} for robots command received from client`);
-                if (command === 'start') await this.missionService.createMission();
+                if (command === 'start') {
+                    await this.missionService.createMission();
+                    await this.missionService.updateMissionType(this.missionService.missionId, MissionType.PHYSICAL_ROBOTS);
+                }
+                if (command === 'stop') {
+                    const endTime = new Date().toISOString().slice(0, -5)
+                    await this.missionService.updateMissionDuration(this.missionService.missionId, endTime);
+                }
                 await this.subscriptionService.robot1[commands[command].method]();
                 await this.subscriptionService.robot2[commands[command].method]();
                 if (command === 'start') await this.subscriptionService.subscribeToTopicRobots(this);
                 this.server.emit('missionStatus', `${commands[command].successMessage} for robots`);
             } else if (targets.includes(RobotId.gazebo)) {
                 await this.logger.logToClient(LogType.INFO, `${commands[command].log} for simulation command received from client`);
-                if (command === 'start') await this.missionService.createMission();
+                if (command === 'start') {
+                    await this.missionService.createMission();
+                    await this.missionService.updateMissionType(this.missionService.missionId, MissionType.GAZEBO_SIMULATION);
+                }
+                if (command === 'stop') {
+                    const endTime = new Date().toISOString().slice(0, -5)
+                    await this.missionService.updateMissionDuration(this.missionService.missionId, endTime);
+                }
                 await this.subscriptionService.gazebo[commands[command].method]();
                 if (command === 'start') await this.subscriptionService.subscribeToTopicGazebo(this);
                 this.server.emit('missionStatus', `${commands[command].successMessage} for the simulation`);
@@ -92,7 +108,7 @@ export class MissionCommandGateway {
                 this.server.emit('commandError', `Invalid ${command} mission command`);
             }
         } catch (e) {
-            await this.logger.logToClient(LogType.ERROR, `Error in ${command} MissionRobots: ${e.message}`);
+            await this.logger.logToClient(LogType.ERROR, `Error in ${command} MissionRobots: ${e}`);
             this.server.emit('commandError', `${e.message} please try again`);
         }
     }
@@ -105,6 +121,21 @@ export class MissionCommandGateway {
     @SubscribeMessage(RobotCommand.EndMission)
     async stopMissionFromRobots(client: Socket, payload: EndMission) {
         await this.handleMissionCommand(client, payload, 'stop');
+    }
+
+    @SubscribeMessage(RobotCommand.ReturnToBase)
+    async returnToBase(client:Socket, payload: ReturnToBase) {
+        if (!(await this.verifyPermissionToControl(client))) {
+            client.emit('commandError', 'The system is already being controlled');
+            return;
+        }
+
+        await this.logger.logToClient(LogType.INFO, 'Return home command received from client');
+
+        if (this.subscriptionService.gazebo.isConnected()) await this.subscriptionService.gazebo.returnToBase();
+        if (this.subscriptionService.robot1.isConnected()) await this.subscriptionService.robot1.returnToBase();
+        if (this.subscriptionService.robot2.isConnected()) await this.subscriptionService.robot2.returnToBase();
+
     }
 
     @SubscribeMessage(RobotCommand.IdentifyRobot)
@@ -148,7 +179,7 @@ export class MissionCommandGateway {
     }
 
     @SubscribeMessage(RobotCommand.UpdateControllerCode)
-    async updateControllerCode(client: Socket, payload:UpdateControllerCode) {
+    async updateControllerCode(client: Socket, payload: UpdateControllerCode) {
         try {
             await this.logger.logToClient(LogType.INFO, 'Mise à jour du code du contrôleur reçue');
             const filePath = path.resolve(this.pathToAllFiles, payload.filename);
@@ -160,10 +191,26 @@ export class MissionCommandGateway {
         }
     }
 
-    @SubscribeMessage('getCodeFile')
-    async handleGetCodeFile(client: Socket, filename: string ) {
+    @SubscribeMessage(RobotCommand.GetCodeFile)
+    async handleGetCodeFile(client: Socket, filename: string) {   
         const filePath = path.resolve(this.pathToAllFiles, filename);
         const fileContent = fs.readFileSync(filePath, 'utf-8');
         client.emit('codeFileContent', fileContent);
+    }
+
+    @SubscribeMessage(RobotCommand.InitiateP2P)
+    async handleP2P(client: Socket) {
+        await this.logger.logToClient(LogType.INFO, 'Commande P2P reçue');
+        await this.subscriptionService.robot1.launch_p2p(true);
+        await this.subscriptionService.robot2.launch_p2p(true);
+    }
+
+    @SubscribeMessage(RobotCommand.SetGeofence)
+    async handleGeofence(client: Socket, payload: SetGeofence) {
+        await this.logger.logToClient(LogType.INFO, 'Geofence reçue');
+        if (this.subscriptionService.gazebo.isConnected()) 
+            await this.subscriptionService.gazebo.initiateFence(payload);
+        else
+            client.emit('commandError', "Le client gazebo n'est pas connecté, imposible de créer une géofence");
     }
 }

@@ -15,6 +15,9 @@ import { RobotId } from '@common/enums/RobotId';
 import { RobotStatus } from '@common/interfaces/RobotStatus';
 import { LogMessage } from '@common/interfaces/LogMessage';
 import { OccupancyGrid } from '@common/interfaces/LiveMap';
+import { SetGeofence } from '@common/interfaces/SetGeofence';
+import { GeofenceCoord } from '@common/types/GeofenceCoord';
+import { RobotPose } from '@common/interfaces/RobotPoseWithDistance';
 
 @Injectable({
     providedIn: 'root',
@@ -26,6 +29,7 @@ export class RobotCommunicationService {
     private connectionStatusSubject = new Subject<boolean>();
     private logSubject = new Subject<string>();
     private liveMapSubject = new Subject<OccupancyGrid>();
+    private robotPoseSubject = new Subject<RobotPose>();
 
     constructor(
         public socketService: SocketHandlerService,
@@ -52,6 +56,7 @@ export class RobotCommunicationService {
             this.handleRobotStatus();
             this.handleLog();
             this.handleLiveMap();
+            this.handleRobotPose();
         }
     }
 
@@ -106,6 +111,13 @@ export class RobotCommunicationService {
         });
     }
 
+    handleRobotPose() {
+        this.socketService.on('robotPose', (message: RobotPose) => {
+            console.log('Received robot pose', message.position);
+            this.robotPoseSubject.next(message);
+        });
+    }
+
     onMissionStatus(): Observable<string> {
         return this.missionStatusSubject.asObservable();
     }
@@ -128,6 +140,10 @@ export class RobotCommunicationService {
 
     onLiveMap(): Observable<OccupancyGrid> {
         return this.liveMapSubject.asObservable();
+    }
+
+    onRobotPositions(): Observable<RobotPose> {
+        return this.robotPoseSubject.asObservable();
     }
 
     startMissionRobot(): void {
@@ -230,6 +246,15 @@ export class RobotCommunicationService {
             target,
         };
         this.socketService.send(RobotCommand.IdentifyRobot, message);
+    }
+
+    setGeofence(coords: GeofenceCoord): void {
+        const message: SetGeofence = {
+            command: RobotCommand.SetGeofence,
+            geofence_coordinates: coords,
+            timestamp: new Date().toISOString(),
+        };
+        this.socketService.send(RobotCommand.SetGeofence, message);
     }
 
     onMessage(eventName: string): Observable<unknown> {

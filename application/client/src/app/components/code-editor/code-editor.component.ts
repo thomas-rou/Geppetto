@@ -8,6 +8,7 @@ import { MissionService } from '@app/services/mission/mission.service';
 import { languages } from '@codemirror/language-data';
 import { ThemeService } from '@app/services/theme/theme.service';
 import { FileName } from '@app/enums/FileName';
+import { RobotCommand } from '@common/enums/RobotCommand';
 
 @Component({
   selector: 'app-code-editor',
@@ -54,7 +55,7 @@ export class CodeEditorComponent implements OnInit {
   }
 
   loadCodeFile(file: FileName) {
-    this.socketService.send('getCodeFile', file);
+    this.socketService.send(RobotCommand.GetCodeFile, file);
   }
 
   toggleCollapse() {

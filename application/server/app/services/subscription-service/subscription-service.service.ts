@@ -8,6 +8,7 @@ import { RobotId } from '@common/enums/RobotId';
 import { MissionCommandGateway } from '@app/gateways/mission-command/mission-command.gateway';
 import { MissionService } from '../mission/mission.service';
 import { OccupancyGrid } from '@common/interfaces/LiveMap';
+import { RobotPose, TraveledDistance ,RobotPoseWithDistance } from '@common/interfaces/RobotPoseWithDistance';
 import * as fs from 'fs';
 import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 
@@ -17,26 +18,34 @@ export class SubscriptionServiceService {
     public robot2: RobotService;
     public gazebo: RobotService;
     server: any;
+    private totalTraveledDistance: number;
+    private lastKnownDistances: { [key: string]: number } = {};
+    private oldTraveledDistance: number;
+
     constructor(private missionService: MissionService) {
-        this.robot1 = new RobotService(process.env.ROBOT1_IP, RobotId.robot1);
-        this.robot2 = new RobotService(process.env.ROBOT2_IP, RobotId.robot2);
-        this.gazebo = new RobotService(process.env.GAZEBO_IP, RobotId.gazebo);
+        this.robot1 = new RobotService(process.env.ROBOT1_IP, RobotId.robot1, missionService);
+        this.robot2 = new RobotService(process.env.ROBOT2_IP, RobotId.robot2, missionService);
+        this.gazebo = new RobotService(process.env.GAZEBO_IP, RobotId.gazebo, missionService);
     }
 
     async subscribeToTopicRobot1(gateway: MissionCommandGateway) {
         await this.robot1.subscribeToTopic(Topic.mission_status1, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
         await this.robot1.subscribeToTopic(Topic.log_robot1, TopicType.log_message, this.logCallback.bind(gateway));
         await this.robot1.subscribeToTopic(Topic.physical_robot_map, TopicType.map, this.mapCallback.bind(gateway));
+        await this.robot1.subscribeToTopic(Topic.robot1_pose_with_distance, TopicType.pose_with_distance, this.robotPoseWithDistanceCallback.bind(gateway));
     }
     async subscribeToTopicRobot2(gateway: MissionCommandGateway) {
         await this.robot2.subscribeToTopic(Topic.mission_status2, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
         await this.robot2.subscribeToTopic(Topic.log_robot2, TopicType.log_message, this.logCallback.bind(gateway));
+        await this.robot2.subscribeToTopic(Topic.robot2_pose_with_distance, TopicType.pose_with_distance, this.robotPoseWithDistanceCallback.bind(gateway));
     }
     async subscribeToTopicGazebo(gateway: MissionCommandGateway) {
         await this.gazebo.subscribeToTopic(Topic.mission_status1, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
         await this.gazebo.subscribeToTopic(Topic.mission_status2, TopicType.mission_status, this.missionStatusCallback.bind(gateway));
         await this.gazebo.subscribeToTopic(Topic.log_gazebo, TopicType.log_message, this.logCallback.bind(gateway));
         await this.gazebo.subscribeToTopic(Topic.map, TopicType.map, this.mapCallback.bind(gateway));
+        await this.gazebo.subscribeToTopic(Topic.gazebo1_pose_with_distance, TopicType.pose_with_distance, this.robotPoseWithDistanceCallback.bind(gateway));
+        await this.gazebo.subscribeToTopic(Topic.gazebo2_pose_with_distance, TopicType.pose_with_distance, this.robotPoseWithDistanceCallback.bind(gateway));
     }
 
     async subscribeToTopicRobots(gateway: MissionCommandGateway) {
@@ -54,9 +63,47 @@ export class SubscriptionServiceService {
         this.server.emit('log', logMessage);
         await this.missionService.addLogToMission(this.missionService.missionId, logMessage);
     }
+
     async mapCallback(message) {
         const liveMap: OccupancyGrid = message.msg;
         this.server.emit('liveMap', liveMap);
+        if (this.missionService.missionId) await this.missionService.addMapToMission(this.missionService.missionId, [liveMap]);
+    }
+
+    async robotPoseWithDistanceCallback(message) {
+        const robotPoseWithDistance: RobotPoseWithDistance = message.msg;
+
+        const robotPose: RobotPose = {
+            position: robotPoseWithDistance.pose.position,
+            orientation: robotPoseWithDistance.pose.orientation,
+            topic: message.topic
+        };
+
+        const distanceTraveled: TraveledDistance = {
+            distance_traveled: robotPoseWithDistance.distance_traveled,
+            topic: message.topic
+        };
+
+        if (!this.lastKnownDistances) {
+            this.lastKnownDistances = {};
+            this.oldTraveledDistance = 0;
+        }
+
+        if (!this.lastKnownDistances.hasOwnProperty(distanceTraveled.topic)) {
+            this.lastKnownDistances[distanceTraveled.topic] = 0;
+        }
+
+        this.lastKnownDistances[distanceTraveled.topic] = distanceTraveled.distance_traveled;
+        this.totalTraveledDistance = Object.values(this.lastKnownDistances).reduce((acc, distance) => acc + distance, 0);
+
+        this.server.emit('robotPose', robotPose);
+        this.server.emit('distanceTraveled', distanceTraveled);
+        this.server.emit('robotPoseWithDistance', robotPoseWithDistance);
+
+        if (this.missionService.missionId && this.totalTraveledDistance && this.totalTraveledDistance !== this.oldTraveledDistance) {
+            await this.missionService.updateTraveledDistance(this.missionService.missionId, this.totalTraveledDistance);
+            this.oldTraveledDistance = this.totalTraveledDistance;
+        }
     }
 
     isAnyRobotConnected(): boolean {
