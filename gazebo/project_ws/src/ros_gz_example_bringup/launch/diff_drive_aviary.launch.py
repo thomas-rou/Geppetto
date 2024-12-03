@@ -96,10 +96,5 @@ def generate_launch_description():
     )
 
     return LaunchDescription(
-        [
-            gz_sim,
-            bridge,
-            *Robot.robot_state_publishers,
-            *Entity.spawned_entities_nodes
-        ]
+        [gz_sim, bridge, *Robot.nodes, *Entity.spawned_entities_nodes]
     )

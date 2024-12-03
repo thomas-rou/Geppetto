@@ -50,6 +50,9 @@ boundary_walls = [
 ]
 # fmt: on
 
+# Spawn random wall obstacles
+Wall.generate_random_wall_obstacles(N_WALL_OBSTACLES)
+
 
 def generate_launch_description():
     # Setup project paths
@@ -72,9 +75,6 @@ def generate_launch_description():
         }.items(),
     )
 
-    # Spawn random wall obstacles
-    Wall.generate_random_wall_obstacles(N_WALL_OBSTACLES)
-
     # Bridge ROS topics and Gazebo messages for establishing communication
     bridge = Node(
         package="ros_gz_bridge",
@@ -92,19 +92,12 @@ def generate_launch_description():
         ],
         output="screen",
     )
-    
-    update_node = Node(
-            package="com_bridge",
-            executable="update_code_node",
-            name="update_code_node",
-            output="screen",
-        )
 
-    # slam_toolbox launch file
-    slam_toolbox = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros_gz_bringup_dir, "launch", "slam_toolbox.py")
-        )
+    update_node = Node(
+        package="com_bridge",
+        executable="update_code_node",
+        name="update_code_node",
+        output="screen",
     )
 
     # map_merge launch file
@@ -114,60 +107,13 @@ def generate_launch_description():
         )
     )
 
-    # explore lite robot 1
-    explore_robot1 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros_gz_bringup_dir, "launch", "explore.launch.py")
-        )
-    )
-
-    # explore lite robot 2
-    explore_robot2 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros_gz_bringup_dir, "launch", "explore.launch2.py")
-        )
-    )
-
-    # nav2 stack robot 1
-    navigation_robot1 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros_gz_bringup_dir, "launch", "navigation.launch.py")
-        )
-    )
-
-    # nav2 stack robot 2
-    navigation_robot2 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros_gz_bringup_dir, "launch", "navigation.launch2.py")
-        )
-    )
-
-    # rviz
-    rviz_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(
-                get_package_share_directory("nav2_bringup"), "launch", "rviz_launch.py"
-            )
-        ),
-        launch_arguments={
-            "namespace": "",
-            "use_namespace": "False",
-            "rviz_config": os.path.join(
-                ros_gz_bringup_dir,
-                "config",
-                "nav2_default_view.rviz",
-            ),
-        }.items(),
-    )
-
     return LaunchDescription(
         [
-            # rviz_cmd,
             gz_sim,
             bridge,
-            *Robot.robot_state_publishers,
+            *Robot.nodes,
             *Entity.spawned_entities_nodes,
             update_node,
-            map_merge
+            map_merge,
         ]
     )
