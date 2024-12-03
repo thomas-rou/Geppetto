@@ -8,7 +8,7 @@ from sensor_msgs.msg import PointCloud2
 import sensor_msgs_py.point_cloud2 as pc2
 import numpy as np
 
-FALL_THRESHOLD = 0.6
+FALL_THRESHOLD = 0.4
 MIN_ACCEPTABLE_ELEVATION = 0.3
 
 class NegativeElevation(Node):
