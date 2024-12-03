@@ -81,6 +81,15 @@ export class RobotService {
         } catch (error) {
             this.logger.error(`Subscription to ${this._robotIp} failed with error: ${error.message}`);
         }
+        if (this._robotNumber != RobotId.gazebo) {
+            await this.missionService.addRobotToMission(this.missionService.missionId, this._robotIp);
+        } else if (topicType == TopicType.pose_with_distance) {
+            const robotIdMatch = topicName.match(/^\/([^\/]+)\//);
+            if (robotIdMatch) {
+                const robotId = robotIdMatch[1];
+                await this.missionService.addRobotToMission(this.missionService.missionId, robotId);
+            }
+        }
     }
 
     async publishToTopic(topicName: Topic, topicType: TopicType, message: BasicCommand) {
@@ -118,8 +127,6 @@ export class RobotService {
             },
             timestamp: new Date().toISOString(),
         } as StartMission);
-        await this.missionService.addRobotToMission(this.missionService.missionId, this._robotIp);
-
     }
 
     async stopMission() {

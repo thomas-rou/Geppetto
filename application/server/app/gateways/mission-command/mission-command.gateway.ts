@@ -131,7 +131,7 @@ export class MissionCommandGateway {
         }
 
         await this.logger.logToClient(LogType.INFO, 'Return home command received from client');
-                    
+
         if (this.subscriptionService.gazebo.isConnected()) await this.subscriptionService.gazebo.returnToBase();
         if (this.subscriptionService.robot1.isConnected()) await this.subscriptionService.robot1.returnToBase();
         if (this.subscriptionService.robot2.isConnected()) await this.subscriptionService.robot2.returnToBase();

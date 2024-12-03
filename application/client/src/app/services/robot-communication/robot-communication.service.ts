@@ -15,7 +15,7 @@ import { RobotId } from '@common/enums/RobotId';
 import { RobotStatus } from '@common/interfaces/RobotStatus';
 import { LogMessage } from '@common/interfaces/LogMessage';
 import { OccupancyGrid } from '@common/interfaces/LiveMap';
-import { RobotPose } from '@common/interfaces/RobotPose';
+import { RobotPose } from '@common/interfaces/RobotPoseWithDistance';
 import { SetGeofence } from '@common/interfaces/SetGeofence';
 import { GeofenceCoord } from '@common/types/GeofenceCoord';
 
@@ -111,6 +111,7 @@ export class RobotCommunicationService {
 
     handleRobotPose() {
         this.socketService.on('robotPose', (message: RobotPose) => {
+            console.log('Received robot pose', message.position);
             this.robotPoseSubject.next(message);
         });
     }

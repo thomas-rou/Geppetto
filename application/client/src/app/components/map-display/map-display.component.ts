@@ -2,7 +2,7 @@ import { Component, ElementRef, ViewChild, OnInit, Input } from '@angular/core';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { OccupancyGrid, MapMetaData } from '@common/interfaces/LiveMap';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
-import { RobotPose } from '@common/interfaces/RobotPose';
+import { RobotPose } from '@common/interfaces/RobotPoseWithDistance';
 import { GeofenceService } from '@app/services/geofence/geofence.service';
 import { GeofenceCoord } from '@common/types/GeofenceCoord';
 
