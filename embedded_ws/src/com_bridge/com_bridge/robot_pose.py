@@ -35,7 +35,7 @@ class RobotPose(Node):
             GlobalConst.QUEUE_SIZE
         )
 
-        pose_with_distance_topic = f"{self.robot_id}/pose_with_distance" if self.robot_name == RobotName.GAZEBO else f"{self.robot_name}/pose"
+        pose_with_distance_topic = f"{self.robot_id}/pose_with_distance" if self.robot_name == RobotName.GAZEBO else f"{self.robot_name}/pose_with_distance"
 
         self.pose_with_distance_publisher = self.create_publisher(PoseWithDistance, pose_with_distance_topic, GlobalConst.QUEUE_SIZE)
 
