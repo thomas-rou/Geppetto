@@ -16,6 +16,5 @@ export class GeofenceService {
 
   clearGeofence() {
     this.geofenceSubject.next(null);
-    console.log('hi');
   }
 }
