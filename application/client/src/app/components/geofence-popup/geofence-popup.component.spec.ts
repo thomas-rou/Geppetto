@@ -48,15 +48,15 @@ describe('GeofencePopupComponent', () => {
   it('should emit geofence coordinates on onGeofence', () => {
     spyOn(component.geofence, 'emit');
 
-    component.X1 = 10;
-    component.Y1 = 20;
-    component.X2 = 30;
-    component.Y2 = 40;
+    component.x_min = 10;
+    component.y_min = 20;
+    component.x_max = 30;
+    component.y_max = 40;
 
     const expectedCoords: GeofenceCoord = {
-      x_max: 10,
+      x_min: 10,
       y_min: 20,
-      x_min: 30,
+      x_max: 30,
       y_max: 40,
     };
 
