@@ -41,7 +41,7 @@
   </library_effects>
   <library_images>
     <image id="geofence" name="geofence">
-      <init_from>geofence.png</init_from>
+      <init_from>../materials/textures/geofence.png</init_from>
     </image>
   </library_images>
   <library_materials>

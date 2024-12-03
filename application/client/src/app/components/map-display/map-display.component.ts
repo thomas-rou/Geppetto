@@ -2,9 +2,9 @@ import { Component, ElementRef, ViewChild, OnInit, Input } from '@angular/core';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { OccupancyGrid, MapMetaData } from '@common/interfaces/LiveMap';
 import { collapseExpandAnimation } from 'src/assets/CollapseExpand';
-import { RobotPose } from '@common/interfaces/RobotPoseWithDistance';
 import { GeofenceService } from '@app/services/geofence/geofence.service';
 import { GeofenceCoord } from '@common/types/GeofenceCoord';
+import { RobotPose } from '@common/interfaces/RobotPoseWithDistance';
 
 const ROBOT_RADIUS = 5;
 const ROBOT_START_ANGLE = 0;
@@ -35,7 +35,7 @@ export class MapDisplayComponent implements OnInit {
 
     constructor(
         private robotCommunicationService: RobotCommunicationService,
-        private geofenceService: GeofenceService
+        private geofenceService: GeofenceService,
     ) {}
 
     ngOnInit(): void {
@@ -100,7 +100,8 @@ export class MapDisplayComponent implements OnInit {
 
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
-                const index = y * width + x;
+                const flippedY = height - 1 - y;
+                const index = flippedY * width + x;
                 const cellValue = occupancyGrid.data[index];
                 ctx.fillStyle = this.getCellColor(cellValue);
                 ctx.fillRect(x, y, 1, 1);
@@ -110,9 +111,12 @@ export class MapDisplayComponent implements OnInit {
 
     private getCellColor(cellValue: number): string {
         switch (cellValue) {
-            case -1: return OCCUPANCY_GRID_UNKNOWN_COLOR;
-            case 0: return OCCUPANCY_GRID_FREE_COLOR;
-            default: return OCCUPANCY_GRID_OCCUPIED_COLOR;
+            case -1:
+                return OCCUPANCY_GRID_UNKNOWN_COLOR;
+            case 0:
+                return OCCUPANCY_GRID_FREE_COLOR;
+            default:
+                return OCCUPANCY_GRID_OCCUPIED_COLOR;
         }
     }
 
@@ -123,9 +127,9 @@ export class MapDisplayComponent implements OnInit {
 
         const { origin, resolution } = this.occupancyGridInfo;
 
-        Object.keys(this.robotPoses).forEach(topic => {
+        Object.keys(this.robotPoses).forEach((topic) => {
             const color = this.getColorForTopic(topic);
-            this.robotPoses[topic].forEach(robot => {
+            this.robotPoses[topic].forEach((robot) => {
                 if (robot && robot.position) {
                     this.drawRobot(ctx, robot, color, origin, resolution, canvas.height);
                 }
@@ -134,13 +138,18 @@ export class MapDisplayComponent implements OnInit {
     }
 
     private drawRobot(ctx: CanvasRenderingContext2D, robot: RobotPose, color: string, origin: any, resolution: number, canvasHeight: number): void {
-        const { x, y } = this.calculateRobotPosition(robot.position, origin, resolution, canvasHeight);
+        const { x, y } = this.calculateMapRelativePosition(robot.position, origin, resolution, canvasHeight);
 
         this.drawRobotBody(ctx, x, y, color);
         this.drawRobotOrientation(ctx, x, y, robot.orientation);
     }
 
-    private calculateRobotPosition(position: { x: number, y: number }, origin: any, resolution: number, canvasHeight: number): { x: number, y: number } {
+    private calculateMapRelativePosition(
+        position: { x: number; y: number },
+        origin: any,
+        resolution: number,
+        canvasHeight: number,
+    ): { x: number; y: number } {
         const x = (position.x - origin.position.x) / resolution;
         const y = canvasHeight - (position.y - origin.position.y) / resolution;
         return { x, y };
@@ -153,7 +162,12 @@ export class MapDisplayComponent implements OnInit {
         ctx.fill();
     }
 
-    private drawRobotOrientation(ctx: CanvasRenderingContext2D, x: number, y: number, orientation: { x: number, y: number, z: number, w: number }): void {
+    private drawRobotOrientation(
+        ctx: CanvasRenderingContext2D,
+        x: number,
+        y: number,
+        orientation: { x: number; y: number; z: number; w: number },
+    ): void {
         const angle = this.quaternionToAngle(orientation);
         ctx.beginPath();
         ctx.moveTo(x + (ROBOT_RADIUS / 3) * Math.cos(angle), y - (ROBOT_RADIUS / 3) * Math.sin(angle));
@@ -161,7 +175,7 @@ export class MapDisplayComponent implements OnInit {
         ctx.stroke();
     }
 
-    private quaternionToAngle(q: { x: number, y: number, z: number, w: number }): number {
+    private quaternionToAngle(q: { x: number; y: number; z: number; w: number }): number {
         return Math.atan2(2.0 * (q.w * q.z + q.x * q.y), 1.0 - 2.0 * (q.y * q.y + q.z * q.z));
     }
 
@@ -171,8 +185,8 @@ export class MapDisplayComponent implements OnInit {
         const { origin, resolution } = this.occupancyGridInfo;
         const canvasHeight = this.mapCanvas.nativeElement.height;
 
-        const bottomLeft = this.calculateRobotPosition({ x: this.geofence.x_max, y: this.geofence.y_min }, origin, resolution, canvasHeight);
-        const topRight = this.calculateRobotPosition({ x: this.geofence.x_min, y: this.geofence.y_max }, origin, resolution, canvasHeight);
+        const bottomLeft = this.calculateMapRelativePosition({ x: this.geofence.x_max, y: this.geofence.y_min }, origin, resolution, canvasHeight);
+        const topRight = this.calculateMapRelativePosition({ x: this.geofence.x_min, y: this.geofence.y_max }, origin, resolution, canvasHeight);
 
         ctx.strokeStyle = 'red';
         ctx.lineWidth = 2;

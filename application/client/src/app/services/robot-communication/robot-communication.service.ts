@@ -15,9 +15,9 @@ import { RobotId } from '@common/enums/RobotId';
 import { RobotStatus } from '@common/interfaces/RobotStatus';
 import { LogMessage } from '@common/interfaces/LogMessage';
 import { OccupancyGrid } from '@common/interfaces/LiveMap';
-import { RobotPose } from '@common/interfaces/RobotPoseWithDistance';
 import { SetGeofence } from '@common/interfaces/SetGeofence';
 import { GeofenceCoord } from '@common/types/GeofenceCoord';
+import { RobotPose } from '@common/interfaces/RobotPoseWithDistance';
 
 @Injectable({
     providedIn: 'root',
@@ -62,6 +62,7 @@ export class RobotCommunicationService {
 
     handleConnect() {
         this.socketService.on('connect', () => {
+            console.log('WebSocket connection established');
             this.connectionStatusSubject.next(true);
         });
     }
@@ -105,6 +106,7 @@ export class RobotCommunicationService {
 
     handleDisconnect() {
         this.socketService.on('disconnect', () => {
+            console.log('WebSocket connection lost');
             this.connectionStatusSubject.next(false);
         });
     }

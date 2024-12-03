@@ -211,6 +211,6 @@ export class MissionCommandGateway {
         if (this.subscriptionService.gazebo.isConnected()) 
             await this.subscriptionService.gazebo.initiateFence(payload);
         else
-            client.emit('commandError', "Le client gazebo n'est pas connecté, on ne peut créer une géofence");
+            client.emit('commandError', "Le client gazebo n'est pas connecté, imposible de créer une géofence");
     }
 }

@@ -17,9 +17,9 @@ export enum Topic {
     update_code_robot1 = '/robot_1/update_code',
     update_code_robot2 = '/robot_2/update_code',
     update_code_gazebo = '/gazebo/update_code',
+    geofence = '/geofence/bounds',
     robot1_pose_with_distance = '/robot_1/pose_with_distance',
     robot2_pose_with_distance = '/robot_2/pose_with_distance',
     gazebo1_pose_with_distance = '/limo1/pose_with_distance',
     gazebo2_pose_with_distance = '/limo2/pose_with_distance',
-    geofence = '/geofence/bounds'
 }
