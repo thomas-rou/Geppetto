@@ -38,6 +38,7 @@ class NegativeElevation(Node):
             elif abs(negative_elevation - self.min_elevation) > FALL_THRESHOLD:
                 self.logger.log_message(LogType.INFO, "Robot elevation too low! Stopping robot.")
                 self.stop_robot()
+                
             self.logger.log_message(LogType.INFO, f"Negative elevation: {negative_elevation}")
 
         except Exception as e:
@@ -52,11 +53,10 @@ class NegativeElevation(Node):
         return np.array(pc_data)
 
     def stop_robot(self):
-        self.logger.log_message(LogType.INFO, "Published stop command to robot.")
         vel_msg = Twist()
-        vel_msg.linear.x = 0
-        vel_msg.linear.y = 0
-        vel_msg.angular.z = 0
+        vel_msg.linear.x = 0.0
+        vel_msg.linear.y = 0.0
+        vel_msg.angular.z = 0.0
         self.vel_publisher.publish(vel_msg)
 
         
