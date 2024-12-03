@@ -26,6 +26,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "action/Mission.action"
   "msg/MissionStatus.msg"
   "msg/LogMessage.msg"
+  "msg/GeofenceBounds.msg"
   "msg/ReturnBase.msg"
   "msg/UpdateControllerCode.msg"
   "msg/P2P.msg"

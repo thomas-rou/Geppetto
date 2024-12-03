@@ -14,10 +14,9 @@ import { MissionService } from '@app/services/mission/mission.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ReturnToBase } from '@common/interfaces/ReturnToBase';
-
-const CODE_FILE_PATH = path.resolve(__dirname, '../../../../../../../embedded_ws/src/m-explore-ros2/explore/src/explore.cpp');
 import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 import { MissionType } from '@common/enums/MissionType';
+import { SetGeofence } from '@common/interfaces/SetGeofence';
 
 @Injectable()
 @WebSocketGateway()
@@ -193,7 +192,7 @@ export class MissionCommandGateway {
     }
 
     @SubscribeMessage(RobotCommand.GetCodeFile)
-    async handleGetCodeFile(client: Socket, filename: string) {
+    async handleGetCodeFile(client: Socket, filename: string) {   
         const filePath = path.resolve(this.pathToAllFiles, filename);
         const fileContent = fs.readFileSync(filePath, 'utf-8');
         client.emit('codeFileContent', fileContent);
@@ -204,5 +203,14 @@ export class MissionCommandGateway {
         await this.logger.logToClient(LogType.INFO, 'Commande P2P reçue');
         await this.subscriptionService.robot1.launch_p2p(true);
         await this.subscriptionService.robot2.launch_p2p(true);
+    }
+
+    @SubscribeMessage(RobotCommand.SetGeofence)
+    async handleGeofence(client: Socket, payload: SetGeofence) {
+        await this.logger.logToClient(LogType.INFO, 'Geofence reçue');
+        if (this.subscriptionService.gazebo.isConnected()) 
+            await this.subscriptionService.gazebo.initiateFence(payload);
+        else
+            client.emit('commandError', "Le client gazebo n'est pas connecté, imposible de créer une géofence");
     }
 }

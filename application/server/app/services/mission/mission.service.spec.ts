@@ -4,8 +4,21 @@ import { MissionService } from './mission.service';
 import { MissionDocument } from '@app/model/database/Mission';
 import { Model } from 'mongoose';
 import { LogMessage } from '@common/interfaces/LogMessage';
+import { MissionType } from '@common/enums/MissionType';
+import { Mission } from '@app/model/database/Mission';
 
-const mission = { id: 'test-id', logs: [] };
+const mockMission: Mission = {
+  id: 'test-id',
+  logs: [
+    { source: 'system', log_type: 'info', date: new Date().toISOString(), message: 'Log entry 1' },
+    { source: 'system', log_type: 'info', date: new Date().toISOString(), message: 'Log entry 2' },
+  ],
+  map: [],
+  missionType: MissionType.GAZEBO_SIMULATION,
+  missionDuration: '2h 30m',
+  traveledDistance: 1500,
+  robots: ['robot1', 'robot2'],
+};
 
 describe('MissionService', () => {
   let service: MissionService;
@@ -34,9 +47,10 @@ describe('MissionService', () => {
   });
 
   it('should create a mission', async () => {
-    await service.createMission(mission);
-    expect(model.create).toHaveBeenCalledWith(mission);
-    expect(service.missionId).toBe(mission.id);
+
+    await service.createMission(mockMission);
+    expect(model.create).toHaveBeenCalledWith(mockMission);
+    expect(service.missionId).toBe(mockMission.id);
   });
 
   it('should add a log to a mission', async () => {
@@ -101,7 +115,7 @@ describe('MissionService Error Handling', () => {
   });
 
   it('should handle error when creating a mission', async () => {
-    await expect(service.createMission(mission)).rejects.toEqual('Failed to create mission test-id');
+    await expect(service.createMission(mockMission)).rejects.toEqual('Failed to create mission test-id');
   });
 
   it('should handle error when adding a log to a mission', async () => {
