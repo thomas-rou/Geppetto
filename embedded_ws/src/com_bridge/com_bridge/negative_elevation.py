@@ -4,7 +4,7 @@ from rclpy.node import Node
 from com_bridge.log import LoggerNode
 from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
 from sensor_msgs.msg import PointCloud2
-import sensor_msgs.point_cloud2 as pc2
+import sensor_msgs_py.point_cloud2 as pc2
 import numpy as np
 
 class NegativeElevation(Node):
