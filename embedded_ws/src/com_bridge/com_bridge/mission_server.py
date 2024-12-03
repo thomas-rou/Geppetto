@@ -15,7 +15,7 @@ from com_bridge.common_methods import (
     get_robot_id,
     set_mission_status,
     get_mission_status,
-    get_robot_name
+    get_robot_name,
 )
 from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
 from com_bridge.log import LoggerNode
@@ -26,7 +26,6 @@ from rclpy.parameter import Parameter
 from action_msgs.msg import GoalStatusArray
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from action_msgs.srv import CancelGoal
-
 
 
 CALLBACK_PERIOD = 2.0
@@ -44,19 +43,24 @@ class MissionServerGazebo(Node):
             LogType.INFO,
             f"Server Launched waiting for messages in {os.getenv('ROBOT')}",
         )
+
         self.returning_home = False
         self.initial_pos = None
         self.action_client = ActionClient(self, NavigateToPose, "navigate_to_pose")
-        self.start_mission_publisher = self.create_publisher(Bool, 'explore/resume', GlobalConst.QUEUE_SIZE)
-        self.start_mission_publisher_limo1 = self.create_publisher(Bool, 'limo1/explore/resume', GlobalConst.QUEUE_SIZE)
-        self.start_mission_publisher_limo2 = self.create_publisher(Bool, 'limo2/explore/resume', GlobalConst.QUEUE_SIZE)
-        self.base_publisher = self.create_publisher(PoseStamped, '/goal_pose', GlobalConst.QUEUE_SIZE)
-        self.first_pos_publisher = self.create_publisher(
-            PoseWithCovarianceStamped, 
-            '/initialpose', 
-            GlobalConst.QUEUE_SIZE
+
+        self.start_mission_publisher = self.create_publisher(
+            Bool, f"{self.robot_id}/explore/resume", GlobalConst.QUEUE_SIZE
         )
-        
+
+        self.base_publisher = self.create_publisher(
+            PoseStamped, f"{self.robot_id}/goal_pose", GlobalConst.QUEUE_SIZE
+        )
+
+        self.first_pos_publisher = self.create_publisher(
+            PoseWithCovarianceStamped,
+            f"{self.robot_id}/initialpose",
+            GlobalConst.QUEUE_SIZE,
+        )
 
         # Subscription pour démarrer et arrêter les missions
         self.start_mission_subscription = self.create_subscription(
@@ -74,22 +78,22 @@ class MissionServerGazebo(Node):
         )
 
         self.return_base_subscription = self.create_subscription(
-            ReturnBase, 
-            'return_to_base',
-            self.return_to_base_callback, 
-            GlobalConst.QUEUE_SIZE
+            ReturnBase,
+            "return_to_base",
+            self.return_to_base_callback,
+            GlobalConst.QUEUE_SIZE,
         )
 
         self.nav2_status_subscription = self.create_subscription(
-            GoalStatusArray, 
-            '/navigate_to_pose/_action/status', 
-            self.nav2_status_callback, 
-            GlobalConst.QUEUE_SIZE
+            GoalStatusArray,
+            f"{self.robot_id}/navigate_to_pose/_action/status",
+            self.nav2_status_callback,
+            GlobalConst.QUEUE_SIZE,
         )
         time.sleep(2)
 
         self.mission_mouvements = self.create_publisher(
-            Twist, "cmd_vel", GlobalConst.QUEUE_SIZE
+            Twist, f"{self.robot_id}/cmd_vel", GlobalConst.QUEUE_SIZE
         )
 
     @property
@@ -124,32 +128,44 @@ class MissionServerGazebo(Node):
             msg = Bool()
             msg.data = True
             if get_robot_name() == "gazebo":
-                command = ["ros2", "launch", "ros_gz_example_bringup", "explore.launch.py"]
-                subprocess.Popen(command)
-                command = ["ros2", "launch", "ros_gz_example_bringup", "explore.launch2.py"]
-                subprocess.Popen(command)
-                
+                if self.robot_id == "limo1":
+                    explore = "explore.launch.py"
+                else:
+                    explore = "explore.launch2.py"
+
+                self.subprocess = [
+                    "ros2",
+                    "launch",
+                    "ros_gz_example_bringup",
+                    explore,
+                ]
+
+                subprocess.Popen(self.subprocess)
+
             else:
                 self.start_mission_publisher.publish(msg)
                 command = ["ros2", "launch", "explore_lite", "explore.launch.py"]
                 subprocess.Popen(command)
-            
+
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")
 
     def navigate_to_home(self):
         try:
             goal_msg = PoseStamped()
-            goal_msg.header.frame_id = 'map'
+            goal_msg.header.frame_id = "map"
             goal_msg.header.stamp = self.get_clock().now().to_msg()
-            if self.initial_pos is None:
-                self.get_logger().error("Initial position is not set. Cannot navigate to base.")
-                return
             goal_msg.pose = self.initial_pos.pose.pose
-            sound_file = "si_je_revenais_a_la_base.mp3"
-            sound_path = os.path.expanduser("~/geppetto/embedded_ws/sounds")
-            command = ["mpg123", sound_file]
-            subprocess.Popen(command, cwd=sound_path)
+            if self.initial_pos is None:
+                self.get_logger().error(
+                    "Initial position is not set. Cannot navigate to base."
+                )
+                return
+            if not get_robot_name() == "gazebo":
+                sound_file = "si_je_revenais_a_la_base.mp3"
+                sound_path = os.path.expanduser("~/geppetto/embedded_ws/sounds")
+                command = ["mpg123", sound_file]
+                subprocess.Popen(command, cwd=sound_path)
             self.base_publisher.publish(goal_msg)
             self.logger.log_message(LogType.INFO, "Navigating to base position.")
         except Exception as e:
@@ -162,8 +178,6 @@ class MissionServerGazebo(Node):
         self.navigate_to_home()
         self._mission_status = RobotStatus.WAITING
         returning_home = False
-        
-
 
     def nav2_status_callback(self, msg: GoalStatusArray):
         if self._mission_status == RobotStatus.WAITING:
@@ -190,11 +204,7 @@ class MissionServerGazebo(Node):
         if self.mission_active:
             msg = Bool()
             msg.data = False
-            if get_robot_name() == "gazebo":
-                self.start_mission_publisher_limo1.publish(msg)
-                self.start_mission_publisher_limo2.publish(msg)
-            else:
-                self.start_mission_publisher.publish(msg)
+            self.start_mission_publisher.publish(msg)
             twist_msg = Twist()
             twist_msg.linear.x = 0.0
             twist_msg.linear.y = 0.0
@@ -204,43 +214,97 @@ class MissionServerGazebo(Node):
             twist_msg.angular.z = 0.0
             self.mission_mouvements.publish(twist_msg)
 
-    
     def publish_initial_pose(self, startCoordinates: StartMission):
 
         initial_pose = PoseWithCovarianceStamped()
-        
+
         initial_pose.header.stamp = self.get_clock().now().to_msg()
-        initial_pose.header.frame_id = 'map'
-        
-        if(get_robot_name() == RobotName.ROBOT_1) : 
-            initial_pose.pose.pose.position.x = float(startCoordinates.mission_details.position1.x)
-            initial_pose.pose.pose.position.y = float(startCoordinates.mission_details.position1.y)
-            initial_pose.pose.pose.position.z = 0.0 
-            initial_pose.pose.pose.orientation.w = float(startCoordinates.mission_details.orientation1)
-            initial_pose.pose.pose.orientation.z = 1 - float(startCoordinates.mission_details.orientation2)**2
+        initial_pose.header.frame_id = "map"
 
-        elif(get_robot_name() == RobotName.ROBOT_2) :
-            initial_pose.pose.pose.position.x = float(startCoordinates.mission_details.position2.x)
-            initial_pose.pose.pose.position.y = float(startCoordinates.mission_details.position2.y)
-            initial_pose.pose.pose.position.z = 0.0 
-            initial_pose.pose.pose.orientation.w = float(startCoordinates.mission_details.orientation2)
-            initial_pose.pose.pose.orientation.z = 1 - float(startCoordinates.mission_details.orientation2)**2
+        if get_robot_name() == RobotName.ROBOT_1:
+            initial_pose.pose.pose.position.x = float(
+                startCoordinates.mission_details.position1.x
+            )
+            initial_pose.pose.pose.position.y = float(
+                startCoordinates.mission_details.position1.y
+            )
+            initial_pose.pose.pose.position.z = 0.0
+            initial_pose.pose.pose.orientation.w = float(
+                startCoordinates.mission_details.orientation1
+            )
+            initial_pose.pose.pose.orientation.z = (
+                1 - float(startCoordinates.mission_details.orientation2) ** 2
+            )
 
+        elif get_robot_name() == RobotName.ROBOT_2:
+            initial_pose.pose.pose.position.x = float(
+                startCoordinates.mission_details.position2.x
+            )
+            initial_pose.pose.pose.position.y = float(
+                startCoordinates.mission_details.position2.y
+            )
+            initial_pose.pose.pose.position.z = 0.0
+            initial_pose.pose.pose.orientation.w = float(
+                startCoordinates.mission_details.orientation2
+            )
+            initial_pose.pose.pose.orientation.z = (
+                1 - float(startCoordinates.mission_details.orientation2) ** 2
+            )
 
         initial_pose.pose.pose.orientation.x = 0.0
         initial_pose.pose.pose.orientation.y = 0.0
 
-        
-        initial_pose.pose.covariance = [float(x) for x in [
-            0.1, 0, 0, 0, 0, 0,
-            0, 0.1, 0, 0, 0, 0,
-            0, 0, 0.1, 0, 0, 0,
-            0, 0, 0, 0.1, 0, 0,
-            0, 0, 0, 0, 0.1, 0,  
-            0, 0, 0, 0, 0, 0.1
-        ]]
+        initial_pose.pose.covariance = [
+            float(x)
+            for x in [
+                0.1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0.1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0.1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0.1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0.1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0.1,
+            ]
+        ]
         self.initial_pos = initial_pose
         self.first_pos_publisher.publish(initial_pose)
+
+    def on_shutdown(self):
+        if self.self.subprocess.poll() is None:
+            self.self.subprocess.terminate()
+            try:
+                self.self.subprocess.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                self.self.subprocess.kill()
 
 
 def main(args=None):
@@ -251,6 +315,7 @@ def main(args=None):
     try:
         executor.spin()
     finally:
+        mission_server.on_shutdown()
         executor.shutdown()
         mission_server.destroy_node()
         rclpy.shutdown()

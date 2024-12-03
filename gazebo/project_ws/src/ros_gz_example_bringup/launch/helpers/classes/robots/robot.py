@@ -64,7 +64,7 @@ class Robot(Entity):
         )
 
         Robot.nodes.append(robot_state_publisher)
-        Robot.nodes.append(initial_pose_publisher)
+        # Robot.nodes.append(initial_pose_publisher)
 
     def spawn_robot(self) -> Node:
         if Robot.check_spawn_kill(self):
