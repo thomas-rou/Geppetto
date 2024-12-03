@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { RobotManagementService } from '@app/services/robot-management/robot-management.service';
 import { RobotCommunicationService } from '@app/services/robot-communication/robot-communication.service';
 import { Robot } from '@app/classes/robot/robot';
@@ -13,7 +14,7 @@ describe('StatusDisplayComponent', () => {
     let robotManagementService: jasmine.SpyObj<RobotManagementService>;
 
     beforeEach(() => {
-        const robotCommunicationSpy = jasmine.createSpyObj('RobotCommunicationService', ['identifyRobot']);
+        const robotCommunicationSpy = jasmine.createSpyObj('RobotCommunicationService', ['identifyRobot', 'onRobotPositions']);
         const robotManagementSpy = jasmine.createSpyObj('RobotManagementService', [], {
             robot1: { id: '1', name: 'Robot 1', status: RobotState.WAITING, battery: 100, position: { x: 0, y: 0 }, orientation: 0.0 } as Robot,
             robot2: { id: '2', name: 'Robot 2', status: RobotState.WAITING, battery: 100, position: { x: 0, y: 0 }, orientation: 0.0 } as Robot,
@@ -55,5 +56,27 @@ describe('StatusDisplayComponent', () => {
         component.isCollapsed = false;
         component.toggleCollapse();
         expect(component.isCollapsed).toBeTrue();
+    });
+
+    it('should update robotPoses with the correct topic and position', () => {
+        const robotPose = {
+            position: { x: 1, y: 1, z: 1 },
+            orientation: { x: 1, y: 1, z: 1, w: 1 },
+            topic: 'robot1',
+        };
+
+        robotCommunicationService.onRobotPositions.and.returnValue(of(robotPose));
+
+        component.robotPoses = {};
+        component.ngOnInit();
+
+        expect(component.robotPoses['robot1']).toEqual([{
+            ...robotPose,
+            position: {
+                ...robotPose.position,
+                x: parseFloat(robotPose.position.x.toFixed(2)),
+                y: parseFloat(robotPose.position.y.toFixed(2))
+            }
+        }]);
     });
 });
