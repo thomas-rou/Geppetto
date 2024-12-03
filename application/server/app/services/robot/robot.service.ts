@@ -5,6 +5,7 @@ import { StartMission } from '@common/interfaces/StartMission';
 import { EndMission } from '@common/interfaces/EndMission';
 import { ReturnToBase } from '@common/interfaces/ReturnToBase';
 import { SetGeofence } from '@common/interfaces/SetGeofence';
+import { GeofenceBounds } from '@common/interfaces/GeofenceBounds';
 import { BasicCommand } from '@common/interfaces/BasicCommand';
 import { P2PCommand } from '@common/interfaces/P2PCommand';
 import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
@@ -13,8 +14,8 @@ import { Operation } from '@common/enums/Operation';
 import { Topic } from '@common/enums/Topic';
 import { TopicType } from '@common/enums/TopicType';
 import { RobotId } from '@common/enums/RobotId';
-import { timeStamp } from 'console';import { MissionService } from '../mission/mission.service';
-
+import { timeStamp } from 'console';
+import { MissionService } from '../mission/mission.service';
 
 @Injectable()
 export class RobotService {
@@ -26,14 +27,14 @@ export class RobotService {
     constructor(
         @Inject('robotIp') robotIp: string,
         @Inject('robotNb') robotNb: RobotId,
-        private missionService: MissionService
+        private missionService: MissionService,
     ) {
         this._robotIp = robotIp;
         this._robotNumber = robotNb;
     }
 
-    isConnected() : boolean {
-        return this.ws && this.ws.readyState == WebSocket.OPEN
+    isConnected(): boolean {
+        return this.ws && this.ws.readyState == WebSocket.OPEN;
     }
 
     async connect() {
@@ -156,14 +157,19 @@ export class RobotService {
         } as BasicCommand);
     }
 
-    async updateRobotCode(newCodeRequestObject:UpdateControllerCode) {
-        const topicName = this._robotNumber == RobotId.robot1 ? Topic.update_code_robot1 : this._robotNumber == RobotId.robot2 ? Topic.update_code_robot2 : Topic.update_code_gazebo;
+    async updateRobotCode(newCodeRequestObject: UpdateControllerCode) {
+        const topicName =
+            this._robotNumber == RobotId.robot1
+                ? Topic.update_code_robot1
+                : this._robotNumber == RobotId.robot2
+                ? Topic.update_code_robot2
+                : Topic.update_code_gazebo;
         await this.publishToTopic(topicName, TopicType.update_code, newCodeRequestObject);
     }
 
     async launch_p2p(launch: boolean) {
         const topicName = this._robotNumber == RobotId.robot1 ? Topic.peer_to_peer1 : Topic.peer_to_peer2;
-        await this.publishToTopic(topicName, TopicType.peer_to_peer, { 
+        await this.publishToTopic(topicName, TopicType.peer_to_peer, {
             command: RobotCommand.P2P,
             launch: launch,
             timestamp: new Date().toISOString(),
@@ -171,6 +177,19 @@ export class RobotService {
     }
 
     async initiateFence(message: SetGeofence) {
-        await this.publishToTopic(Topic.geofence, TopicType.geofence, message)
+        console.log(message.geofence_coordinates.x_min);
+        console.log(message.geofence_coordinates.x_max);
+        console.log(message.geofence_coordinates.y_min);
+        console.log(message.geofence_coordinates.y_max);
+
+        const geofenceMessage: GeofenceBounds = {
+            command: message.command,
+            timestamp: message.timestamp,
+            x_min: message.geofence_coordinates.x_min,
+            x_max: message.geofence_coordinates.x_max,
+            y_min: message.geofence_coordinates.y_min,
+            y_max: message.geofence_coordinates.y_max,
+        };
+        await this.publishToTopic(Topic.geofence, TopicType.geofence, geofenceMessage);
     }
 }
