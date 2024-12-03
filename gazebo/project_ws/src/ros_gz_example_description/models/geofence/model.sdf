@@ -7,7 +7,7 @@
                 <geometry>
                     <mesh>
                         <uri>package://ros_gz_example_description/models/geofence/meshes/geofence.dae</uri>
-                        <scale>1 1 1</scale>
+                        <scale>{scale_x} {scale_y} 1</scale>
                     </mesh>
                 </geometry>
             </visual>
