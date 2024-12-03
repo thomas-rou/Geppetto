@@ -9,6 +9,7 @@ import sensor_msgs_py.point_cloud2 as pc2
 import numpy as np
 
 FALL_THRESHOLD = 0.5
+MIN_ACCEPTABLE_ELEVATION = 0.3
 
 class NegativeElevation(Node):
     def __init__(self):
@@ -32,7 +33,7 @@ class NegativeElevation(Node):
             pc_data = self.extract_points_from_cloud(point_cloud)
 
             negative_elevation = np.min(pc_data)
-            if negative_elevation < self.min_elevation:
+            if negative_elevation < self.min_elevation and negative_elevation > MIN_ACCEPTABLE_ELEVATION:
                 self.min_elevation = negative_elevation
                 
             elif abs(negative_elevation - self.min_elevation) > FALL_THRESHOLD:
