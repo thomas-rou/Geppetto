@@ -8,7 +8,7 @@ from sensor_msgs.msg import PointCloud2
 import sensor_msgs_py.point_cloud2 as pc2
 import numpy as np
 
-FALL_THRESHOLD = 0.5
+FALL_THRESHOLD = 0.8
 MIN_ACCEPTABLE_ELEVATION = 0.3
 
 class NegativeElevation(Node):
@@ -35,12 +35,13 @@ class NegativeElevation(Node):
             negative_elevation = np.min(pc_data)
             if negative_elevation < self.min_elevation and negative_elevation > MIN_ACCEPTABLE_ELEVATION:
                 self.min_elevation = negative_elevation
+                self.logger.log_message(LogType.INFO, f"Going forward!")
+                self.go_forward()
                 
             elif abs(negative_elevation - self.min_elevation) > FALL_THRESHOLD:
                 self.logger.log_message(LogType.INFO, "Robot elevation too low! Stopping robot.")
                 self.stop_robot()
                 
-            self.logger.log_message(LogType.INFO, f"Negative elevation: {negative_elevation}")
 
         except Exception as e:
             self.logger.log_message(LogType.INFO, "Failed to calculate negative elevation: "+str(e))
@@ -56,6 +57,13 @@ class NegativeElevation(Node):
     def stop_robot(self):
         vel_msg = Twist()
         vel_msg.linear.x = 0.0
+        vel_msg.linear.y = 0.0
+        vel_msg.angular.z = 0.0
+        self.vel_publisher.publish(vel_msg)
+        
+    def go_forward(self):
+        vel_msg = Twist()
+        vel_msg.linear.x = 0.1
         vel_msg.linear.y = 0.0
         vel_msg.angular.z = 0.0
         self.vel_publisher.publish(vel_msg)
