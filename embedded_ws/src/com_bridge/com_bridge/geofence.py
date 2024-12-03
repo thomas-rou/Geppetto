@@ -222,6 +222,8 @@ class GeofenceNode(Node):
             sys.exit(1)
 
     def spawn_geofence(self) -> None:
+        self.removeGeofence()
+
         geofence_desc = self.load_geofence_sdf()
 
         scale_x = abs(self.geofence_x_max - self.geofence_x_min) / GEOFENCE_SCALE
@@ -250,7 +252,6 @@ class GeofenceNode(Node):
         ]
 
         try:
-            # Run the command
             subprocess.run(command, check=True)
             self.logger.log_message(
                 LogType.INFO,
@@ -260,6 +261,34 @@ class GeofenceNode(Node):
             self.logger.log_message(
                 LogType.ERROR,
                 f"Failed to spawn geofence model: {e}",
+            )
+
+    def removeGeofence(self):
+        command = [
+            "ign",
+            "service",
+            "-s",
+            "/world/demo/remove",
+            "--reqtype",
+            "ignition.msgs.Entity",
+            "--reptype",
+            "ignition.msgs.Boolean",
+            "--req",
+            "type: 2 name: 'geofence'",
+            "--timeout",
+            "100",
+        ]
+
+        try:
+            subprocess.run(command, check=True)
+            self.logger.log_message(
+                LogType.INFO,
+                f"Geofence removed successfully for {self.robot_id}.",
+            )
+        except subprocess.CalledProcessError as e:
+            self.logger.log_message(
+                LogType.ERROR,
+                f"Failed to remove geofence model: {e}",
             )
 
 
