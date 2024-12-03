@@ -3,7 +3,7 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from com_bridge.log import LoggerNode
-from com_bridge.common_enums import GlobalConst, LogType, RobotStatus
+from com_bridge.common_enums import GlobalConst, LogType
 from sensor_msgs.msg import PointCloud2
 import sensor_msgs_py.point_cloud2 as pc2
 import numpy as np
@@ -16,7 +16,7 @@ class NegativeElevation(Node):
         super().__init__('negative_elevation')
         self.logger = LoggerNode()
         self.logger.log_message(LogType.INFO, f"Negative elevation node launched on {os.getenv('ROBOT')}")
-        self.vel_publisher = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.vel_publisher = self.create_publisher(Twist, '/cmd_vel', GlobalConst.QUEUE_SIZE)
 
         self.point_cloud_subscription = self.create_subscription(
             PointCloud2,
@@ -33,7 +33,6 @@ class NegativeElevation(Node):
             pc_data = self.extract_points_from_cloud(point_cloud)
 
             negative_elevation = np.min(pc_data)
-            self.logger.log_message(LogType.INFO, f"Negative elevation: {negative_elevation}")
             if negative_elevation < self.min_elevation and negative_elevation > MIN_ACCEPTABLE_ELEVATION:
                 self.min_elevation = negative_elevation
                 self.logger.log_message(LogType.INFO, f"Robot elevation ok! Going forward!")
