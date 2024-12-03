@@ -8,7 +8,7 @@ from rclpy.time import Time
 from std_msgs.msg import Bool, Header
 from com_bridge.common_enums import GlobalConst, LogType
 from com_bridge.log import LoggerNode
-from common_msgs.msg import GeofenceBounds
+from common_msgs.msg import GeofenceBounds, PoseWithDistance
 from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
 from nav2_simple_commander.robot_navigator import BasicNavigator
 from ament_index_python.packages import get_package_share_directory
@@ -17,6 +17,7 @@ from time import sleep
 TIME_TO_GATHER_TOUGHTS = 3
 GLOBAL_FRAME_ID = "world"
 GEOFENCE_POSE_Z = -0.12
+GEOFENCE_SCALE = 2
 
 
 class GeofenceState(Enum):
@@ -67,7 +68,7 @@ class GeofenceNode(Node):
         )
 
         self.pose_subscription = self.create_subscription(
-            Pose,
+            PoseWithDistance,
             f"/{self.robot_id}/pose_with_distance",
             self.pose_callback,
             GlobalConst.QUEUE_SIZE,
@@ -81,7 +82,7 @@ class GeofenceNode(Node):
 
         self.logger.log_message(
             LogType.INFO,
-            f"Updated geofence: x_min={self.geofence_x_min}, x_max={self.geofence_x_max}, y_min={self.geofence_y_min}, y_max={self.geofence_y_max}",
+            f"Updated geofence for {self.robot_id}: x_min={self.geofence_x_min}, x_max={self.geofence_x_max}, y_min={self.geofence_y_min}, y_max={self.geofence_y_max}",
         )
 
         self.spawn_geofence()
@@ -93,23 +94,23 @@ class GeofenceNode(Node):
         else:
             self.deactivate_geofence()
 
-    def pose_callback(self, msg: Pose) -> None:
-        self.x = msg.position.x
-        self.y = msg.position.y
+    def pose_callback(self, msg: PoseWithDistance) -> None:
+        self.x = msg.pose.position.x
+        self.y = msg.pose.position.y
         self.check_state()
 
     def activate_geofence(self) -> None:
         self.is_geofence_active = True
         self.logger.log_message(
             LogType.INFO,
-            "Geofence is up and running!",
+            f"Geofence is up and running for {self.robot_id}!",
         )
 
     def deactivate_geofence(self) -> None:
         self.is_geofence_active = False
         self.logger.log_message(
             LogType.INFO,
-            "Geofence has been taken down!",
+            f"Geofence has been taken down for {self.robot_id}!",
         )
 
     def check_state(self) -> None:
@@ -122,7 +123,7 @@ class GeofenceNode(Node):
                 if self.is_outside_geofence(self.x, self.y):
                     self.logger.log_message(
                         LogType.INFO,
-                        "Robot is outside the geofence!",
+                        f"Robot {self.robot_id} is outside the geofence!",
                     )
                     self.state = GeofenceState.RETURN_TO_GEOFENCE
 
@@ -137,7 +138,7 @@ class GeofenceNode(Node):
                     self.navigator.cancelTask()
                     self.logger.log_message(
                         LogType.INFO,
-                        "Robot is back inside the geofence!",
+                        f"Robot {self.robot_id} is back inside the geofence!",
                     )
                     self.resume_exploration()
                     self.state = GeofenceState.INSIDE
@@ -153,7 +154,7 @@ class GeofenceNode(Node):
     def pause_exploration(self) -> None:
         self.logger.log_message(
             LogType.INFO,
-            "Pausing exploration...",
+            f"Pausing exploration for {self.robot_id}.",
         )
         msg = Bool()
         msg.data = False
@@ -163,7 +164,7 @@ class GeofenceNode(Node):
         sleep(TIME_TO_GATHER_TOUGHTS)
         self.logger.log_message(
             LogType.INFO,
-            "Resuming exploration...",
+            f"Resuming exploration for {self.robot_id}.",
         )
         msg = Bool()
         msg.data = True
@@ -176,7 +177,7 @@ class GeofenceNode(Node):
         self.navigator.goToPose(pose)
         self.logger.log_message(
             LogType.INFO,
-            "Returning inside the geofence",
+            f"Returning {self.robot_id} inside the geofence",
         )
 
     def create_pose_stamped(self, target_x: float, target_y: float) -> PoseStamped:
@@ -223,8 +224,8 @@ class GeofenceNode(Node):
     def spawn_geofence(self) -> None:
         geofence_desc = self.load_geofence_sdf()
 
-        scale_x = abs(self.geofence_x_max - self.geofence_x_min)
-        scale_y = abs(self.geofence_y_max - self.geofence_y_min)
+        scale_x = abs(self.geofence_x_max - self.geofence_x_min) / GEOFENCE_SCALE
+        scale_y = abs(self.geofence_y_max - self.geofence_y_min) / GEOFENCE_SCALE
 
         geofence_desc = geofence_desc.replace("{scale_x}", str(scale_x))
         geofence_desc = geofence_desc.replace("{scale_y}", str(scale_y))
@@ -253,7 +254,7 @@ class GeofenceNode(Node):
             subprocess.run(command, check=True)
             self.logger.log_message(
                 LogType.INFO,
-                f"Geofence  spawned successfully.",
+                f"Geofence spawned successfully for {self.robot_id}.",
             )
         except subprocess.CalledProcessError as e:
             self.logger.log_message(
