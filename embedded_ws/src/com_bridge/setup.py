@@ -32,6 +32,7 @@ setup(
             "robot_pose = com_bridge.robot_pose:main",
             "peer_to_peer = com_bridge.peer_to_peer:main",
             "sensor_logger = com_bridge.sensor_logger:main",
+            "negative_elevation = com_bridge.negative_elevation:main",
         ],
     },
 )
