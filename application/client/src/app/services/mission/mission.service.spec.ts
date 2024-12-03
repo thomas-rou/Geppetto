@@ -26,8 +26,6 @@ describe('MissionService', () => {
     expect(service).toBeTruthy();
   });
 
-
-
   it('should send mission logs request', () => {
     service.getMissionLogs();
     expect(socketServiceSpy.send).toHaveBeenCalledWith(ClientCommand.MissionLogs);
@@ -41,5 +39,43 @@ describe('MissionService', () => {
   it('should set mission type', () => {
     service.setMissionType(MissionType.Simulation);
     expect(service.getMissionType()).toBe(MissionType.Simulation);
+  });
+
+  it('should connect if socket is not alive', async () => {
+    socketServiceSpy.isSocketAlive.and.returnValue(false);
+    socketServiceSpy.connect.and.callThrough();
+    spyOn(service, 'handleMissionLogs').and.returnValue(Promise.resolve());
+
+    await service.connect();
+
+    expect(socketServiceSpy.connect).toHaveBeenCalled();
+    expect(service.handleMissionLogs).toHaveBeenCalled();
+  });
+
+  it('should not connect if socket is alive', async () => {
+    socketServiceSpy.isSocketAlive.and.returnValue(true);
+    spyOn(service, 'handleMissionLogs');
+
+    await service.connect();
+
+    expect(socketServiceSpy.connect).not.toHaveBeenCalled();
+    expect(service.handleMissionLogs).not.toHaveBeenCalled();
+  });
+
+  it('should get mission logs', () => {
+    service.getMissionLogs();
+    expect(socketServiceSpy.send).toHaveBeenCalledWith(ClientCommand.MissionLogs);
+  });
+
+  it('should get new code', () => {
+    const testCode = 'testCode';
+    service.setNewCode(testCode);
+    expect(service.getNewCode()).toBe(testCode);
+  });
+
+  it('should set new code', () => {
+    const testCode = 'newTestCode';
+    service.setNewCode(testCode);
+    expect(service.getNewCode()).toBe(testCode);
   });
 });
