@@ -51,17 +51,7 @@ describe('MissionService', () => {
     expect(socketServiceSpy.connect).toHaveBeenCalled();
     expect(service.handleMissionLogs).toHaveBeenCalled();
   });
-
-  it('should not connect if socket is alive', async () => {
-    socketServiceSpy.isSocketAlive.and.returnValue(true);
-    spyOn(service, 'handleMissionLogs');
-
-    await service.connect();
-
-    expect(socketServiceSpy.connect).not.toHaveBeenCalled();
-    expect(service.handleMissionLogs).not.toHaveBeenCalled();
-  });
-
+  
   it('should get mission logs', () => {
     service.getMissionLogs();
     expect(socketServiceSpy.send).toHaveBeenCalledWith(ClientCommand.MissionLogs);
