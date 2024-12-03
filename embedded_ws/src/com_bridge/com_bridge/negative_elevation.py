@@ -35,7 +35,7 @@ class NegativeElevation(Node):
             if negative_elevation < self.min_elevation:
                 self.min_elevation = negative_elevation
                 
-            if negative_elevation - self.min_elevation > FALL_THRESHOLD:
+            elif abs(negative_elevation - self.min_elevation) > FALL_THRESHOLD:
                 self.logger.log_message(LogType.INFO, "Robot elevation too low! Stopping robot.")
                 self.stop_robot()
             self.logger.log_message(LogType.INFO, f"Negative elevation: {negative_elevation}")
