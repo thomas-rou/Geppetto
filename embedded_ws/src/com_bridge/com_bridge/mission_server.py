@@ -26,6 +26,7 @@ from rclpy.parameter import Parameter
 from action_msgs.msg import GoalStatusArray
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from action_msgs.srv import CancelGoal
+from std_srvs.srv import Empty
 
 
 
@@ -52,11 +53,12 @@ class MissionServerGazebo(Node):
         self.start_mission_publisher_limo2 = self.create_publisher(Bool, 'limo2/explore/resume', GlobalConst.QUEUE_SIZE)
         self.base_publisher = self.create_publisher(PoseStamped, '/goal_pose', GlobalConst.QUEUE_SIZE)
         self.first_pos_publisher = self.create_publisher(
-            PoseWithCovarianceStamped, 
-            '/initialpose', 
+            PoseWithCovarianceStamped,
+            '/initialpose',
             GlobalConst.QUEUE_SIZE
         )
-        
+
+        self.reset_distance_client = self.create_client(Empty, 'reset_distance_traveled')
 
         # Subscription pour démarrer et arrêter les missions
         self.start_mission_subscription = self.create_subscription(
@@ -74,16 +76,16 @@ class MissionServerGazebo(Node):
         )
 
         self.return_base_subscription = self.create_subscription(
-            ReturnBase, 
+            ReturnBase,
             'return_to_base',
-            self.return_to_base_callback, 
+            self.return_to_base_callback,
             GlobalConst.QUEUE_SIZE
         )
 
         self.nav2_status_subscription = self.create_subscription(
-            GoalStatusArray, 
-            '/navigate_to_pose/_action/status', 
-            self.nav2_status_callback, 
+            GoalStatusArray,
+            '/navigate_to_pose/_action/status',
+            self.nav2_status_callback,
             GlobalConst.QUEUE_SIZE
         )
         time.sleep(2)
@@ -121,6 +123,13 @@ class MissionServerGazebo(Node):
             self.logger.log_message(
                 LogType.INFO, f"Received new mission for robot {robot_id}"
             )
+
+            if self.reset_distance_client.wait_for_service(timeout_sec=1.0):
+                request = Empty.Request()
+                self.reset_distance_client.call_async(request)
+            else:
+                self.logger.log_message(LogType.ERROR, "Reset distance service not available.")
+
             msg = Bool()
             msg.data = True
             if get_robot_name() == "gazebo":
@@ -128,12 +137,12 @@ class MissionServerGazebo(Node):
                 subprocess.Popen(command)
                 command = ["ros2", "launch", "ros_gz_example_bringup", "explore.launch2.py"]
                 subprocess.Popen(command)
-                
+
             else:
                 self.start_mission_publisher.publish(msg)
                 command = ["ros2", "launch", "explore_lite", "explore.launch.py"]
                 subprocess.Popen(command)
-            
+
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")
 
@@ -162,7 +171,7 @@ class MissionServerGazebo(Node):
         self.navigate_to_home()
         self._mission_status = RobotStatus.WAITING
         returning_home = False
-        
+
 
 
     def nav2_status_callback(self, msg: GoalStatusArray):
@@ -204,25 +213,25 @@ class MissionServerGazebo(Node):
             twist_msg.angular.z = 0.0
             self.mission_mouvements.publish(twist_msg)
 
-    
+
     def publish_initial_pose(self, startCoordinates: StartMission):
 
         initial_pose = PoseWithCovarianceStamped()
-        
+
         initial_pose.header.stamp = self.get_clock().now().to_msg()
         initial_pose.header.frame_id = 'map'
-        
-        if(get_robot_name() == RobotName.ROBOT_1) : 
+
+        if(get_robot_name() == RobotName.ROBOT_1) :
             initial_pose.pose.pose.position.x = float(startCoordinates.mission_details.position1.x)
             initial_pose.pose.pose.position.y = float(startCoordinates.mission_details.position1.y)
-            initial_pose.pose.pose.position.z = 0.0 
+            initial_pose.pose.pose.position.z = 0.0
             initial_pose.pose.pose.orientation.w = float(startCoordinates.mission_details.orientation1)
             initial_pose.pose.pose.orientation.z = 1 - float(startCoordinates.mission_details.orientation2)**2
 
         elif(get_robot_name() == RobotName.ROBOT_2) :
             initial_pose.pose.pose.position.x = float(startCoordinates.mission_details.position2.x)
             initial_pose.pose.pose.position.y = float(startCoordinates.mission_details.position2.y)
-            initial_pose.pose.pose.position.z = 0.0 
+            initial_pose.pose.pose.position.z = 0.0
             initial_pose.pose.pose.orientation.w = float(startCoordinates.mission_details.orientation2)
             initial_pose.pose.pose.orientation.z = 1 - float(startCoordinates.mission_details.orientation2)**2
 
@@ -230,13 +239,13 @@ class MissionServerGazebo(Node):
         initial_pose.pose.pose.orientation.x = 0.0
         initial_pose.pose.pose.orientation.y = 0.0
 
-        
+
         initial_pose.pose.covariance = [float(x) for x in [
             0.1, 0, 0, 0, 0, 0,
             0, 0.1, 0, 0, 0, 0,
             0, 0, 0.1, 0, 0, 0,
             0, 0, 0, 0.1, 0, 0,
-            0, 0, 0, 0, 0.1, 0,  
+            0, 0, 0, 0, 0.1, 0,
             0, 0, 0, 0, 0, 0.1
         ]]
         self.initial_pos = initial_pose

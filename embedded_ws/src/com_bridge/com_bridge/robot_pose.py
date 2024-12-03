@@ -8,6 +8,7 @@ from rclpy.executors import MultiThreadedExecutor
 from geometry_msgs.msg import Point, Quaternion
 from common_msgs.msg import PoseWithDistance
 import numpy as np
+from std_srvs.srv import Empty
 
 TIMER_PERIOD = 0.5
 
@@ -42,6 +43,8 @@ class RobotPose(Node):
         self.timer = self.create_timer(TIMER_PERIOD, self.timer_callback)
 
         self.logger.log_message(LogType.INFO, f"Robot pose information node launched for {self.robot_name} and subscribed to {odom_topic}")
+
+        self.reset_distance_service = self.create_service(Empty, 'reset_distance_traveled', self.handle_reset_distance_traveled)
 
     def odom_callback(self, msg: Odometry) -> None:
         current_position = msg.pose.pose.position
@@ -79,6 +82,13 @@ class RobotPose(Node):
 
     def should_publish(self) -> bool:
         return self.last_odometry_msg is not None and self.distance_traveled is not None
+
+    def handle_reset_distance_traveled(self, request, response):
+        self.distance_traveled = 0.0
+        self.previous_position = None
+        self.last_odometry_msg = None
+        self.logger.log_message(LogType.INFO, f"{self.robot_name} traveled distance has been reset.")
+        return response
 
 
 def main(args=None):
