@@ -6,7 +6,7 @@ from launch_ros.actions import Node
 
 class Robot(Entity):
     _id = 0
-    robot_state_publishers = []
+    nodes = []
 
     def __init__(
         self,
@@ -63,8 +63,8 @@ class Robot(Entity):
             ],
         )
 
-        Robot.robot_state_publishers.append(robot_state_publisher)
-        Robot.robot_state_publishers.append(initial_pose_publisher)
+        Robot.nodes.append(robot_state_publisher)
+        Robot.nodes.append(initial_pose_publisher)
 
     def spawn_robot(self) -> Node:
         if Robot.check_spawn_kill(self):
@@ -108,32 +108,39 @@ class Robot(Entity):
             package="com_bridge",
             executable="mission_status_manager_gazebo",
             name="status",
-            parameters=[{"robot_id": f"limo{self.index + 1}"}],
+            parameters=[{"robot_id": f"robot_{self.index + 1}"}],
             output="screen",
         )
         mission_node = Node(
             package="com_bridge",
             executable="mission_controller",
             name="mission_controller",
-            parameters=[{"robot_id": f"limo{self.index + 1}"}],
+            parameters=[{"robot_id": self.name}],
             output="screen",
         )
         robot_pose_node = Node(
             package="com_bridge",
             executable="robot_pose",
             name="robot_pose",
-            parameters=[{"robot_id": f"limo{self.index + 1}"}],
+            parameters=[{"robot_id": self.name}],
             output="screen",
         )
         sensor_logger_node = Node(
             package="com_bridge",
             executable="sensor_logger",
             name="sensor_logger",
-            parameters=[{"robot_id": f"limo{self.index + 1}"}],
+            parameters=[{"robot_id": self.name}],
+            output="screen",
+        )
+        geofence_node = Node(
+            package="com_bridge",
+            executable="geofence",
+            name="geofence",
+            parameters=[{"robot_id": self.name}],
             output="screen",
         )
 
-        Robot.robot_state_publishers.append(battery_node)
-        Robot.robot_state_publishers.append(mission_node)
-        Robot.robot_state_publishers.append(robot_pose_node)
-        Robot.robot_state_publishers.append(sensor_logger_node)
+        Robot.nodes.append(battery_node)
+        Robot.nodes.append(mission_node)
+        Robot.nodes.append(robot_pose_node)
+        Robot.nodes.append(geofence_node)
