@@ -115,7 +115,7 @@ class Robot(Entity):
             package="com_bridge",
             executable="mission_controller",
             name="mission_controller",
-            parameters=[{"robot_id": self.name}],
+            parameters=[{"robot_id": self.name, "y": self.pose.y}],
             output="screen",
         )
         robot_pose_node = Node(
@@ -144,3 +144,4 @@ class Robot(Entity):
         Robot.nodes.append(mission_node)
         Robot.nodes.append(robot_pose_node)
         Robot.nodes.append(geofence_node)
+        # Robot.nodes.append(sensor_logger_node)
