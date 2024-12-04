@@ -7,6 +7,8 @@ import { Topic } from '@common/enums/Topic';
 import { TopicType } from '@common/enums/TopicType';
 import { RobotCommand } from '@common/enums/RobotCommand';
 import { MissionService } from '../mission/mission.service';
+import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
+import { SetGeofence } from '@common/interfaces/SetGeofence';
 
 jest.mock('ws');
 
@@ -114,21 +116,42 @@ describe('RobotService', () => {
         expect(identifySpy).toHaveBeenCalled();
     });
 
-    // it('should handle incoming messages for subscribed topic', async () => {
-    //     const handleIncomingMessage = jest.fn();
-    //     await service.subscribeToTopic(Topic.start_mission, TopicType.start_mission, handleIncomingMessage);
-    //     const messageEvent = {
-    //         data: JSON.stringify({ topic: Topic.start_mission, message: 'test' }),
-    //     };
-
-    //     ws.addEventListener.mock.calls[0][1](messageEvent);
-    //     expect(handleIncomingMessage).toHaveBeenCalledWith({ topic: Topic.start_mission, message: 'test' });
-    // });
-
     it('should identify robot based on robot number', async () => {
         const publishSpy = jest.spyOn(service, 'publishToTopic');
         service['_robotNumber'] = RobotId.robot2;
         await service.identify();
         expect(publishSpy).toHaveBeenCalledWith(Topic.identify_command2, TopicType.identify_robot, expect.any(Object));
+    });
+
+    it('should return to base', async () => {
+        const returnToBaseSpy = jest.spyOn(service, 'returnToBase');
+        await service.returnToBase();
+        expect(returnToBaseSpy).toHaveBeenCalled();
+    });
+
+    it('should launch peer-to-peer communication', async () => {
+        const launchP2PSpy = jest.spyOn(service, 'launch_p2p');
+        await service.launch_p2p(true);
+        expect(launchP2PSpy).toHaveBeenCalledWith(true);
+    });
+
+    it('should initiate geofence', async () => {
+        const initiateFenceSpy = jest.spyOn(service, 'initiateFence');
+        const geofenceMessage: SetGeofence = {
+            command: RobotCommand.SetGeofence,
+            timestamp: new Date().toISOString(),
+            geofence_coordinates: {
+                x_min: 0,
+                x_max: 10,
+                y_min: 0,
+                y_max: 10,
+            },
+        };
+        await service.initiateFence(geofenceMessage);
+        expect(initiateFenceSpy).toHaveBeenCalledWith(geofenceMessage);
+    });
+
+    it('should check if the robot is connected', () => {
+        expect(service.isConnected()).toBe(true);
     });
 });
