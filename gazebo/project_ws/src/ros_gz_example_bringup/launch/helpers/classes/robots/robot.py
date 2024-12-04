@@ -144,3 +144,4 @@ class Robot(Entity):
         Robot.nodes.append(mission_node)
         Robot.nodes.append(robot_pose_node)
         Robot.nodes.append(geofence_node)
+        Robot.nodes.append(sensor_logger_node)

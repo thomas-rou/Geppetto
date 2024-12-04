@@ -1,4 +1,3 @@
-// geofence.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { GeofenceCoord } from '@common/types/GeofenceCoord';
