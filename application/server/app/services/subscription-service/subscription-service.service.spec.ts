@@ -7,6 +7,7 @@ import { Topic } from '@common/enums/Topic';
 import { TopicType } from '@common/enums/TopicType';
 import { RobotId } from '@common/enums/RobotId';
 import { RobotCommand } from '@common/enums/RobotCommand';
+import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 
 describe('SubscriptionServiceService', () => {
     let service: SubscriptionServiceService;
@@ -32,6 +33,9 @@ describe('SubscriptionServiceService', () => {
                         updateRobotController: jest.fn(),
                         robotNb: 2,
                         robotIp: '192.168.1.100',
+                        isConnected: jest.fn().mockReturnValue(true),
+                        subscribeToTopic: jest.fn(),
+                        updateRobotCode: jest.fn(),
                     },
                 },
             ],
@@ -51,9 +55,9 @@ describe('SubscriptionServiceService', () => {
             });
         });
 
-        service.robot1 = { subscribeToTopic: jest.fn() } as any;
-        service.robot2 = { subscribeToTopic: jest.fn() } as any;
-        service.gazebo = { subscribeToTopic: jest.fn() } as any;
+        service.robot1 = module.get<RobotService>(RobotService);
+        service.robot2 = module.get<RobotService>(RobotService);
+        service.gazebo = module.get<RobotService>(RobotService);
     });
 
     it('should be defined', () => {
@@ -124,11 +128,32 @@ describe('SubscriptionServiceService', () => {
         expect(missionService.addLogToMission).toHaveBeenCalledWith('test-mission-id', message.msg);
     });
 
-    it('should handle map callback', () => {
+    it('should handle map callback', async () => {
         const message = { msg: { data: 'map data' } };
         service.server = { emit: jest.fn() };
-        service.mapCallback(message);
+        await service.mapCallback(message);
         expect(service.server.emit).toHaveBeenCalledWith('liveMap', message.msg);
+        expect(missionService.addMapToMission).toHaveBeenCalledWith('test-mission-id', [message.msg]);
+    });
+
+    it('should handle robot pose with distance callback', async () => {
+        const message = { msg: { pose: { position: {}, orientation: {} }, distance_traveled: 100 }, topic: 'robot1_pose_with_distance' };
+        service.server = { emit: jest.fn() };
+        await service.robotPoseWithDistanceCallback(message);
+        expect(service.server.emit).toHaveBeenCalledWith('robotPose', { position: {}, orientation: {}, topic: 'robot1_pose_with_distance' });
+        expect(service.server.emit).toHaveBeenCalledWith('distanceTraveled', { distance_traveled: 100, topic: 'robot1_pose_with_distance' });
+        expect(service.server.emit).toHaveBeenCalledWith('robotPoseWithDistance', message.msg);
+        expect(missionService.updateTraveledDistance).toHaveBeenCalledWith('test-mission-id', 100);
+    });
+
+    it('should check if any robot is connected', () => {
+        expect(service.isAnyRobotConnected()).toBe(true);
+    });
+
+    it('should update robot controller successfully', async () => {
+        const payload: UpdateControllerCode = { command: RobotCommand.UpdateControllerCode, code: 'new code', filename: 'file.ts', timestamp: 'now' };
+        const filePath = 'path/to/file.ts';
+        await expect(service.updateRobotController(payload, filePath)).resolves.toBeUndefined();
     });
 
     it('should mock updateRobotController and reject if invalid data or path is provided', async () => {
