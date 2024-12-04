@@ -8,5 +8,6 @@ export enum RobotCommand {
     GetCodeFile = 'getCodeFile',
     UpdateControllerCode = 'update_controller_code',
     InitiateP2P = 'P2P',
+    SetGeofence = 'set_geofence',
     FindFurthestRobot = 'find_furthest'
 }

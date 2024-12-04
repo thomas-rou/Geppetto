@@ -4,16 +4,18 @@ import { MessageOperation } from '@common/interfaces/MessageOperation';
 import { StartMission } from '@common/interfaces/StartMission';
 import { EndMission } from '@common/interfaces/EndMission';
 import { ReturnToBase } from '@common/interfaces/ReturnToBase';
+import { SetGeofence } from '@common/interfaces/SetGeofence';
+import { GeofenceBounds } from '@common/interfaces/GeofenceBounds';
+import { BasicCommand } from '@common/interfaces/BasicCommand';
+import { P2PCommand } from '@common/interfaces/P2PCommand';
+import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 import { RobotCommand } from '@common/enums/RobotCommand';
 import { Operation } from '@common/enums/Operation';
 import { Topic } from '@common/enums/Topic';
 import { TopicType } from '@common/enums/TopicType';
 import { RobotId } from '@common/enums/RobotId';
-import { BasicCommand } from '@common/interfaces/BasicCommand';
-import { P2PCommand } from '@common/interfaces/P2PCommand';
-import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
-import { timeStamp } from 'console';import { MissionService } from '../mission/mission.service';
-
+import { timeStamp } from 'console';
+import { MissionService } from '../mission/mission.service';
 
 @Injectable()
 export class RobotService {
@@ -25,14 +27,14 @@ export class RobotService {
     constructor(
         @Inject('robotIp') robotIp: string,
         @Inject('robotNb') robotNb: RobotId,
-        private missionService: MissionService
+        private missionService: MissionService,
     ) {
         this._robotIp = robotIp;
         this._robotNumber = robotNb;
     }
 
-    isConnected() : boolean {
-        return this.ws && this.ws.readyState == WebSocket.OPEN
+    isConnected(): boolean {
+        return this.ws && this.ws.readyState == WebSocket.OPEN;
     }
 
     async connect() {
@@ -80,6 +82,15 @@ export class RobotService {
         } catch (error) {
             this.logger.error(`Subscription to ${this._robotIp} failed with error: ${error.message}`);
         }
+        if (this._robotNumber != RobotId.gazebo) {
+            await this.missionService.addRobotToMission(this.missionService.missionId, this._robotIp);
+        } else if (topicType == TopicType.pose_with_distance) {
+            const robotIdMatch = topicName.match(/^\/([^\/]+)\//);
+            if (robotIdMatch) {
+                const robotId = robotIdMatch[1];
+                await this.missionService.addRobotToMission(this.missionService.missionId, robotId);
+            }
+        }
     }
 
     async publishToTopic(topicName: Topic, topicType: TopicType, message: BasicCommand) {
@@ -117,8 +128,6 @@ export class RobotService {
             },
             timestamp: new Date().toISOString(),
         } as StartMission);
-        await this.missionService.addRobotToMission(this.missionService.missionId, this._robotIp);
-
     }
 
     async stopMission() {
@@ -148,17 +157,34 @@ export class RobotService {
         } as BasicCommand);
     }
 
-    async updateRobotCode(newCodeRequestObject:UpdateControllerCode) {
-        const topicName = this._robotNumber == RobotId.robot1 ? Topic.update_code_robot1 : this._robotNumber == RobotId.robot2 ? Topic.update_code_robot2 : Topic.update_code_gazebo;
+    async updateRobotCode(newCodeRequestObject: UpdateControllerCode) {
+        const topicName =
+            this._robotNumber == RobotId.robot1
+                ? Topic.update_code_robot1
+                : this._robotNumber == RobotId.robot2
+                ? Topic.update_code_robot2
+                : Topic.update_code_gazebo;
         await this.publishToTopic(topicName, TopicType.update_code, newCodeRequestObject);
     }
 
     async launch_p2p(launch: boolean) {
         const topicName = this._robotNumber == RobotId.robot1 ? Topic.peer_to_peer1 : Topic.peer_to_peer2;
-        await this.publishToTopic(topicName, TopicType.peer_to_peer, { 
+        await this.publishToTopic(topicName, TopicType.peer_to_peer, {
             command: RobotCommand.P2P,
             launch: launch,
             timestamp: new Date().toISOString(),
         } as P2PCommand);
+    }
+
+    async initiateFence(message: SetGeofence) {
+        const geofenceMessage: GeofenceBounds = {
+            command: message.command,
+            timestamp: message.timestamp,
+            x_min: message.geofence_coordinates.x_min,
+            x_max: message.geofence_coordinates.x_max,
+            y_min: message.geofence_coordinates.y_min,
+            y_max: message.geofence_coordinates.y_max,
+        };
+        await this.publishToTopic(Topic.geofence, TopicType.geofence, geofenceMessage);
     }
 }

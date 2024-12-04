@@ -26,11 +26,13 @@ setup(
             "mission_status_manager_gazebo = com_bridge.mission_status_manager_gazebo:main",
             "get_map_robot_2 = com_bridge.get_map_robot_2:main",
             "publish_initialpose = com_bridge.publish_initialpose:main",
+            "geofence = com_bridge.geofence:main",
             "update_code_node = com_bridge.update_code:main",
             "low_battery = com_bridge.low_battery:main",
             "robot_pose = com_bridge.robot_pose:main",
             "peer_to_peer = com_bridge.peer_to_peer:main",
             "sensor_logger = com_bridge.sensor_logger:main",
+            "negative_elevation = com_bridge.negative_elevation:main",
         ],
     },
 )

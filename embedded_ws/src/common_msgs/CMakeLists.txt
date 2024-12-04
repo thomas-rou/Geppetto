@@ -14,6 +14,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(action_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
@@ -25,11 +26,14 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "action/Mission.action"
   "msg/MissionStatus.msg"
   "msg/LogMessage.msg"
+  "msg/GeofenceBounds.msg"
   "msg/ReturnBase.msg"
   "msg/UpdateControllerCode.msg"
   "msg/P2P.msg"
+  "msg/PoseWithDistance.msg"
   DEPENDENCIES std_msgs
   DEPENDENCIES action_msgs
+  DEPENDENCIES geometry_msgs
 )
 
 if(BUILD_TESTING)

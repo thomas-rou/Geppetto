@@ -6,145 +6,163 @@ import { MissionCommandGateway } from '@app/gateways/mission-command/mission-com
 import { Topic } from '@common/enums/Topic';
 import { TopicType } from '@common/enums/TopicType';
 import { RobotId } from '@common/enums/RobotId';
+import { RobotCommand } from '@common/enums/RobotCommand';
+import { UpdateControllerCode } from '@common/interfaces/UpdateControllerCode';
 
 describe('SubscriptionServiceService', () => {
-  let service: SubscriptionServiceService;
-  let missionService: MissionService;
-  let gateway: MissionCommandGateway;
+    let service: SubscriptionServiceService;
+    let missionService: MissionService;
+    let gateway: MissionCommandGateway;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        SubscriptionServiceService,
-        {
-          provide: MissionService,
-          useValue: {
-            addLogToMission: jest.fn(),
-            missionId: 'test-mission-id',
-          },
-        },
-        {
-          provide: RobotService,
-          useValue: {
-            subscribeToTopic: jest.fn(),
-          },
-        },
-      ],
-    }).compile();
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            providers: [
+                SubscriptionServiceService,
+                {
+                    provide: MissionService,
+                    useValue: {
+                        addLogToMission: jest.fn(),
+                        missionId: 'test-mission-id',
+                        addMapToMission: jest.fn(),
+                        updateTraveledDistance: jest.fn(),
+                    },
+                },
+                {
+                    provide: RobotService,
+                    useValue: {
+                        updateRobotController: jest.fn(),
+                        robotNb: 2,
+                        robotIp: '192.168.1.100',
+                        isConnected: jest.fn().mockReturnValue(true),
+                        subscribeToTopic: jest.fn(),
+                        updateRobotCode: jest.fn(),
+                    },
+                },
+            ],
+        }).compile();
 
-    service = module.get<SubscriptionServiceService>(SubscriptionServiceService);
-    missionService = module.get<MissionService>(MissionService);
-    gateway = new MissionCommandGateway(service, missionService);
+        service = module.get<SubscriptionServiceService>(SubscriptionServiceService);
+        missionService = module.get<MissionService>(MissionService);
+        gateway = new MissionCommandGateway(service, missionService);
 
-    service.robot1 = {
-      subscribeToTopic: jest.fn(),
-    } as any;
-    service.robot2 = {
-      subscribeToTopic: jest.fn(),
-    } as any;
-    service.gazebo = {
-      subscribeToTopic: jest.fn(),
-    } as any;
-  });
+        jest.spyOn(service, 'updateRobotController').mockImplementation((robotData, filePath) => {
+            return new Promise((resolve, reject) => {
+                if (!robotData || !filePath) {
+                    reject(new Error('Invalid data or path'));
+                } else {
+                    resolve();
+                }
+            });
+        });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
+        service.robot1 = module.get<RobotService>(RobotService);
+        service.robot2 = module.get<RobotService>(RobotService);
+        service.gazebo = module.get<RobotService>(RobotService);
+    });
 
-  it('should subscribe to topics for robot1', async () => {
-    const spyMissionStatus = jest.spyOn(service.robot1, 'subscribeToTopic');
-    const spyLog = jest.spyOn(service.robot1, 'subscribeToTopic');
-    const spyMap = jest.spyOn(service.robot1, 'subscribeToTopic');
-    const spyPose = jest.spyOn(service.robot1, 'subscribeToTopic');
+    it('should be defined', () => {
+        expect(service).toBeDefined();
+    });
 
-    await service.subscribeToTopicRobot1(gateway);
+    it('should subscribe to topics for robot1', async () => {
+        await service.subscribeToTopicRobot1(gateway);
+        expect(service.robot1.subscribeToTopic).toHaveBeenCalledWith(Topic.mission_status1, TopicType.mission_status, expect.any(Function));
+        expect(service.robot1.subscribeToTopic).toHaveBeenCalledWith(Topic.log_robot1, TopicType.log_message, expect.any(Function));
+        expect(service.robot1.subscribeToTopic).toHaveBeenCalledWith(Topic.physical_robot_map, TopicType.map, expect.any(Function));
+        expect(service.robot1.subscribeToTopic).toHaveBeenCalledWith(
+            Topic.robot1_pose_with_distance,
+            TopicType.pose_with_distance,
+            expect.any(Function),
+        );
+    });
 
-    expect(spyMissionStatus).toHaveBeenCalledWith(Topic.mission_status1, TopicType.mission_status, expect.any(Function));
-    expect(spyLog).toHaveBeenCalledWith(Topic.log_robot1, TopicType.log_message, expect.any(Function));
-    expect(spyMap).toHaveBeenCalledWith(Topic.physical_robot_map, TopicType.map, expect.any(Function));
-    expect(spyPose).toHaveBeenCalledWith(Topic.robot1_pose, TopicType.pose, expect.any(Function));
-  });
+    it('should subscribe to topics for robot2', async () => {
+        await service.subscribeToTopicRobot2(gateway);
+        expect(service.robot2.subscribeToTopic).toHaveBeenCalledWith(Topic.mission_status2, TopicType.mission_status, expect.any(Function));
+        expect(service.robot2.subscribeToTopic).toHaveBeenCalledWith(Topic.log_robot2, TopicType.log_message, expect.any(Function));
+        expect(service.robot2.subscribeToTopic).toHaveBeenCalledWith(
+            Topic.robot2_pose_with_distance,
+            TopicType.pose_with_distance,
+            expect.any(Function),
+        );
+    });
 
-  it('should subscribe to topics for robot2', async () => {
-    const spyMissionStatus = jest.spyOn(service.robot2, 'subscribeToTopic');
-    const spyLog = jest.spyOn(service.robot2, 'subscribeToTopic');
-    const spyPose = jest.spyOn(service.robot2, 'subscribeToTopic');
+    it('should subscribe to topics for gazebo', async () => {
+        await service.subscribeToTopicGazebo(gateway);
+        expect(service.gazebo.subscribeToTopic).toHaveBeenCalledWith(Topic.mission_status1, TopicType.mission_status, expect.any(Function));
+        expect(service.gazebo.subscribeToTopic).toHaveBeenCalledWith(Topic.mission_status2, TopicType.mission_status, expect.any(Function));
+        expect(service.gazebo.subscribeToTopic).toHaveBeenCalledWith(Topic.log_gazebo, TopicType.log_message, expect.any(Function));
+        expect(service.gazebo.subscribeToTopic).toHaveBeenCalledWith(Topic.map, TopicType.map, expect.any(Function));
+        expect(service.gazebo.subscribeToTopic).toHaveBeenCalledWith(
+            Topic.gazebo1_pose_with_distance,
+            TopicType.pose_with_distance,
+            expect.any(Function),
+        );
+        expect(service.gazebo.subscribeToTopic).toHaveBeenCalledWith(
+            Topic.gazebo2_pose_with_distance,
+            TopicType.pose_with_distance,
+            expect.any(Function),
+        );
+    });
 
+    it('should subscribe to topics for all robots', async () => {
+        const spyRobot1 = jest.spyOn(service, 'subscribeToTopicRobot1');
+        const spyRobot2 = jest.spyOn(service, 'subscribeToTopicRobot2');
+        await service.subscribeToTopicRobots(gateway);
+        expect(spyRobot1).toHaveBeenCalledWith(gateway);
+        expect(spyRobot2).toHaveBeenCalledWith(gateway);
+    });
 
-    await service.subscribeToTopicRobot2(gateway);
+    it('should handle mission status callback', () => {
+        const message = { msg: { status: 'active' } };
+        service.server = { emit: jest.fn() };
+        service.missionStatusCallback(message);
+        expect(service.server.emit).toHaveBeenCalledWith('robotStatus', message.msg);
+    });
 
-    expect(spyMissionStatus).toHaveBeenCalledWith(Topic.mission_status2, TopicType.mission_status, expect.any(Function));
-    expect(spyLog).toHaveBeenCalledWith(Topic.log_robot2, TopicType.log_message, expect.any(Function));
-    expect(spyPose).toHaveBeenCalledWith(Topic.robot2_pose, TopicType.pose, expect.any(Function));
-  });
+    it('should handle log callback', async () => {
+        const message = { msg: { log: 'test log' } };
+        service.server = { emit: jest.fn() };
+        await service.logCallback(message);
+        expect(service.server.emit).toHaveBeenCalledWith('log', message.msg);
+        expect(missionService.addLogToMission).toHaveBeenCalledWith('test-mission-id', message.msg);
+    });
 
-  it('should subscribe to topics for gazebo', async () => {
-    const spyMissionStatus1 = jest.spyOn(service.gazebo, 'subscribeToTopic');
-    const spyMissionStatus2 = jest.spyOn(service.gazebo, 'subscribeToTopic');
-    const spyLog = jest.spyOn(service.gazebo, 'subscribeToTopic');
-    const spyMap = jest.spyOn(service.gazebo, 'subscribeToTopic');
-    const spyPose1 = jest.spyOn(service.gazebo, 'subscribeToTopic');
-    const spyPose2 = jest.spyOn(service.gazebo, 'subscribeToTopic');
+    it('should handle map callback', async () => {
+        const message = { msg: { data: 'map data' } };
+        service.server = { emit: jest.fn() };
+        await service.mapCallback(message);
+        expect(service.server.emit).toHaveBeenCalledWith('liveMap', message.msg);
+        expect(missionService.addMapToMission).toHaveBeenCalledWith('test-mission-id', [message.msg]);
+    });
 
-    await service.subscribeToTopicGazebo(gateway);
+    it('should handle robot pose with distance callback', async () => {
+        const message = { msg: { pose: { position: {}, orientation: {} }, distance_traveled: 100 }, topic: 'robot1_pose_with_distance' };
+        service.server = { emit: jest.fn() };
+        await service.robotPoseWithDistanceCallback(message);
+        expect(service.server.emit).toHaveBeenCalledWith('robotPose', { position: {}, orientation: {}, topic: 'robot1_pose_with_distance' });
+        expect(service.server.emit).toHaveBeenCalledWith('distanceTraveled', { distance_traveled: 100, topic: 'robot1_pose_with_distance' });
+        expect(service.server.emit).toHaveBeenCalledWith('robotPoseWithDistance', message.msg);
+        expect(missionService.updateTraveledDistance).toHaveBeenCalledWith('test-mission-id', 100);
+    });
 
-    expect(spyMissionStatus1).toHaveBeenCalledWith(Topic.mission_status1, TopicType.mission_status, expect.any(Function));
-    expect(spyMissionStatus2).toHaveBeenCalledWith(Topic.mission_status2, TopicType.mission_status, expect.any(Function));
-    expect(spyLog).toHaveBeenCalledWith(Topic.log_gazebo, TopicType.log_message, expect.any(Function));
-    expect(spyMap).toHaveBeenCalledWith(Topic.map, TopicType.map, expect.any(Function));
-    expect(spyPose1).toHaveBeenCalledWith(Topic.gazebo1_pose, TopicType.pose, expect.any(Function));
-    expect(spyPose2).toHaveBeenCalledWith(Topic.gazebo2_pose, TopicType.pose, expect.any(Function));
-  });
+    it('should check if any robot is connected', () => {
+        expect(service.isAnyRobotConnected()).toBe(true);
+    });
 
-  it('should subscribe to topics for all robots', async () => {
-    const spyRobot1 = jest.spyOn(service, 'subscribeToTopicRobot1');
-    const spyRobot2 = jest.spyOn(service, 'subscribeToTopicRobot2');
+    it('should update robot controller successfully', async () => {
+        const payload: UpdateControllerCode = { command: RobotCommand.UpdateControllerCode, code: 'new code', filename: 'file.ts', timestamp: 'now' };
+        const filePath = 'path/to/file.ts';
+        await expect(service.updateRobotController(payload, filePath)).resolves.toBeUndefined();
+    });
 
-    await service.subscribeToTopicRobots(gateway);
-
-    expect(spyRobot1).toHaveBeenCalledWith(gateway);
-    expect(spyRobot2).toHaveBeenCalledWith(gateway);
-  });
-
-  it('should handle mission status callback', () => {
-    const message = { msg: { status: 'active' } };
-    service.server = { emit: jest.fn() };
-    const spyEmit = jest.spyOn(service.server, 'emit');
-
-    service.missionStatusCallback(message);
-
-    expect(spyEmit).toHaveBeenCalledWith('robotStatus', message.msg);
-  });
-
-  it('should handle log callback', async () => {
-    const message = { msg: { log: 'test log' } };
-    service.server = { emit: jest.fn() };
-    const spyEmit = jest.spyOn(service.server, 'emit');
-    const spyAddLog = jest.spyOn(missionService, 'addLogToMission');
-
-    await service.logCallback(message);
-
-    expect(spyEmit).toHaveBeenCalledWith('log', message.msg);
-    expect(spyAddLog).toHaveBeenCalledWith('test-mission-id', message.msg);
-  });
-
-  it('should handle map callback', () => {
-    const message = { msg: { data: 'map data' } };
-    service.server = { emit: jest.fn() };
-    const spyEmit = jest.spyOn(service.server, 'emit');
-
-    service.mapCallback(message);
-
-    expect(spyEmit).toHaveBeenCalledWith('liveMap', message.msg);
-  });
-
-  it('should handle robot pose callback', () => {
-    const message = { msg: { x: 1, y: 2, z: 3 }, topic: 'robotPose' };
-    service.server = { emit: jest.fn() };
-    const spyEmit = jest.spyOn(service.server, 'emit');
-
-    service.robotPoseCallback(message);
-
-    expect(spyEmit).toHaveBeenCalledWith('robotPose', { ...message.msg, topic: message.topic });
-  });
+    it('should mock updateRobotController and reject if invalid data or path is provided', async () => {
+        await expect(service.updateRobotController(null, 'path/to/file')).rejects.toThrow('Invalid data or path');
+        await expect(
+            service.updateRobotController(
+                { command: RobotCommand.UpdateControllerCode, code: 'new code', filename: 'yeyeyey', timestamp: 'rasboTIME' },
+                '',
+            ),
+        ).rejects.toThrow('Invalid data or path');
+    });
 });

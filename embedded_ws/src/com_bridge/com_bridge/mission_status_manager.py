@@ -9,6 +9,7 @@ from com_bridge.log import LoggerNode
 from std_msgs.msg import Bool
 
 BATTERY_CAPACITY = 12.0
+MIN_BATTERY_CAPACITY = 9.0
 BATTERY_THRESHOLD = 30
 MAX_BATTERY_LEVEL = 100
 
@@ -31,7 +32,9 @@ class MissionStatusManager(Node):
 
     def status_publication_callback(self, battery_data):
         try:
-            battery_level = round((battery_data.battery_voltage/BATTERY_CAPACITY)*MAX_BATTERY_LEVEL)
+            # calcule battery level with an interpolation between 0 and 100
+            battery_level = (battery_data.battery_voltage - MIN_BATTERY_CAPACITY)/(BATTERY_CAPACITY - MIN_BATTERY_CAPACITY)
+            battery_level = round(battery_level*MAX_BATTERY_LEVEL)
             mission_status = MissionStatus()
             mission_status.robot_id = os.getenv('ROBOT')[-1]
             mission_status.battery_level = battery_level

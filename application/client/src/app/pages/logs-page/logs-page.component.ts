@@ -14,8 +14,8 @@ import { FormsModule } from '@angular/forms';
     styleUrl: './logs-page.component.scss',
 })
 export class LogsPageComponent implements OnInit {
-    protected sortOption: string;
-    protected selectedType: string;
+    sortOption: string;
+    selectedType: string;
     @ViewChild('logTerminal') logTerminal!: ElementRef;
     missions: Mission[] = [];
     mission: Mission;

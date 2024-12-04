@@ -9,4 +9,6 @@ export enum TopicType {
     map = 'nav_msgs/msg/OccupancyGrid',
     update_code = 'common_msgs/msg/UpdateControllerCode',
     pose = 'geometry_msgs/msg/Pose',
+    geofence = 'common_msgs/msg/GeofenceBounds',
+    pose_with_distance = 'common_msgs/msg/PoseWithDistance',
 }

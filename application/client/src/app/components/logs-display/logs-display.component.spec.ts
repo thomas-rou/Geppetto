@@ -4,6 +4,8 @@ import { RobotCommunicationService } from '@app/services/robot-communication/rob
 import { of, Subject } from 'rxjs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LogsDisplayComponent } from './logs-display.component';
+// import { MissionType } from '@common/enums/MissionType';
+// import { OccupancyGrid } from '@common/interfaces/LiveMap';
 
 describe('LogsDisplayComponent', () => {
     let component: LogsDisplayComponent;
@@ -88,4 +90,52 @@ describe('LogsDisplayComponent', () => {
         clearLogsEvent.next();
         expect(component.clearLogs).toHaveBeenCalled();
     });
+
+    // it('should add all mission logs to the terminal', () => {
+    //     const mockOccupancyGrid: OccupancyGrid = {
+    //         header: {
+    //             stamp: { sec: 0, nsec: 0 },
+    //             frame_id: 'map'
+    //         },
+    //         info: {
+    //             width: 10,
+    //             height: 10,
+    //             resolution: 0.05,
+    //             origin: {
+    //                 position : {
+    //                     x: 0,
+    //                     y: 0,
+    //                     z: 0
+    //                 },
+    //                 orientation : {
+    //                     x: 0,
+    //                     y: 0,
+    //                     z: 0,
+    //                     w: 0
+    //                 },
+    //             }
+    //         },
+    //         data: new Int8Array(100)
+    //     };
+    //     component.mission = {
+    //         id: 'mission1',
+    //         map: [mockOccupancyGrid],
+    //         robots: ['robot1', 'robot2'],
+    //         missionType: MissionType.GAZEBO_SIMULATION,
+    //         missionDuration: '120',
+    //         traveledDistance: 500,
+    //         logs: [
+    //             { message: 'Log 1', source: 'source1', log_type: 'type1', date: '2024-01-01' },
+    //             { message: 'Log 2', source: 'source2', log_type: 'type2', date: '2024-01-01' }
+    //         ]
+    //     };
+    //     spyOn(component, 'addLogToTerminal');
+    //     component.ngOnInit();
+    //     for (const log of component.mission.logs) {
+    //         component.addLogToTerminal(JSON.stringify(log));
+    //     }
+    
+    //     expect(component.addLogToTerminal).toHaveBeenCalledWith(JSON.stringify(component.mission.logs[0]));
+    //     expect(component.addLogToTerminal).toHaveBeenCalledWith(JSON.stringify(component.mission.logs[1]));
+    // });
 });

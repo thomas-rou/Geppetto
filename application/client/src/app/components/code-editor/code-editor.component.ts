@@ -43,9 +43,6 @@ export class CodeEditorComponent implements OnInit {
       this.value = data;
       this.missionService.setInitialCode(this.value);
     });
-    this.socketService.on('codeFileError', (error: string) => {
-      console.error('Error loading code file:', error);
-    });
     this.loadCodeFile(this.missionService.getFileName());
 
     this.theme = this.themeService.getCurrentTheme();
