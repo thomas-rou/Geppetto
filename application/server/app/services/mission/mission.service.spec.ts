@@ -1,3 +1,4 @@
+// Tests partially generated with help of chat.gpt generative AI
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { MissionService } from './mission.service';
@@ -47,7 +48,6 @@ describe('MissionService', () => {
   });
 
   it('should create a mission', async () => {
-
     await service.createMission(mockMission);
     expect(model.create).toHaveBeenCalledWith(mockMission);
     expect(service.missionId).toBe(mockMission.id);
@@ -86,61 +86,51 @@ describe('MissionService', () => {
     await service.deleteAllMissions();
     expect(model.deleteMany).toHaveBeenCalledWith({});
   });
-});
-
-describe('MissionService Error Handling', () => {
-  let service: MissionService;
-  let model: Model<MissionDocument>;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        MissionService,
-        {
-          provide: getModelToken('Mission'),
-          useValue: {
-            create: jest.fn().mockRejectedValue(new Error('Create Error')),
-            updateOne: jest.fn().mockRejectedValue(new Error('Update Error')),
-            findOne: jest.fn().mockRejectedValue(new Error('Find One Error')),
-            find: jest.fn().mockRejectedValue(new Error('Find Error')),
-            deleteOne: jest.fn().mockRejectedValue(new Error('Delete One Error')),
-            deleteMany: jest.fn().mockRejectedValue(new Error('Delete Many Error')),
-          },
-        },
-      ],
-    }).compile();
-
-    service = module.get<MissionService>(MissionService);
-    model = module.get<Model<MissionDocument>>(getModelToken('Mission'));
-  });
 
   it('should handle error when creating a mission', async () => {
+    (model.create as jest.Mock).mockRejectedValueOnce(new Error('Create Error'));
     await expect(service.createMission(mockMission)).rejects.toEqual('Failed to create mission test-id');
   });
 
   it('should handle error when adding a log to a mission', async () => {
-    const log: LogMessage = {
-      message: 'test log',
-      log_type: 'string',
-      date: 'string',
-      source: 'ss'
-    };
+    const log: LogMessage = { message: 'test log', log_type: 'string', date: 'string', source: 'ss' };
+    (model.updateOne as jest.Mock).mockRejectedValueOnce(new Error('Update Error'));
     await expect(service.addLogToMission('test-id', log)).rejects.toEqual('Failed to add log to mission test-id');
   });
 
   it('should handle error when getting a mission', async () => {
+    (model.findOne as jest.Mock).mockRejectedValueOnce(new Error('Find One Error'));
     await expect(service.getMission('test-id')).rejects.toThrow('Find One Error');
   });
-  
+
   it('should handle error when getting all missions', async () => {
+    (model.find as jest.Mock).mockRejectedValueOnce(new Error('Find Error'));
     await expect(service.getAllMissions()).rejects.toThrow('Find Error');
   });
 
   it('should handle error when deleting a mission', async () => {
+    (model.deleteOne as jest.Mock).mockRejectedValueOnce(new Error('Delete One Error'));
     await expect(service.deleteMission('test-id')).rejects.toEqual('Failed to delete mission test-id');
   });
 
   it('should handle error when deleting all missions', async () => {
+    (model.deleteMany as jest.Mock).mockRejectedValueOnce(new Error('Delete Many Error'));
     await expect(service.deleteAllMissions()).rejects.toEqual('Failed to delete all missions');
   });
+
+  it('should check if mission is active', async () => {
+    service.missionId = 'test-id';
+    (model.findOne as jest.Mock).mockResolvedValueOnce({ id: 'test-id' });
+    const result = await service.isMissionActive();
+    expect(result).toBe(true);
+    expect(model.findOne).toHaveBeenCalledWith({ id: 'test-id' });
+  });
+
+  it('should return false if mission is inactive', async () => {
+    service.missionId = 'inactive-id';
+    (model.findOne as jest.Mock).mockResolvedValueOnce(null);
+    const result = await service.isMissionActive();
+    expect(result).toBe(false);
+  });
 });
+

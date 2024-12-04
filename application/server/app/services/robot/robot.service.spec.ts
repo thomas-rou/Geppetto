@@ -1,3 +1,4 @@
+// Tests partially generated with help of chat.gpt generative AI
 import { Test, TestingModule } from '@nestjs/testing';
 import { RobotService } from './robot.service';
 import { Logger } from '@nestjs/common';
@@ -14,42 +15,50 @@ describe('RobotService', () => {
   let service: RobotService;
   let logger: Logger;
   let ws: WebSocket;
+  let missionService: MissionService;
 
   beforeEach(async () => {
+    missionService = {
+      addRobotToMission: jest.fn(),
+      missionId: 'mock-mission-id',
+    } as unknown as MissionService;
+
     const module: TestingModule = await Test.createTestingModule({
-      imports: [MissionService],
       providers: [
         RobotService,
         { provide: 'robotIp', useValue: '127.0.0.1' },
         { provide: 'robotNb', useValue: RobotId.robot1 },
         { provide: Logger, useValue: new Logger() },
+        { provide: MissionService, useValue: missionService }, 
       ],
     }).compile();
 
     service = module.get<RobotService>(RobotService);
     logger = module.get<Logger>(Logger);
 
-    ws = new WebSocket('ws://127.0.0.1:9090');
-    ws.readyState = WebSocket.OPEN;
-    jest.spyOn(ws, 'send').mockImplementation((data) => {});
-    jest.spyOn(ws, 'addEventListener').mockImplementation((event, listener) => {});
 
-    Object.defineProperty(ws, 'onopen', {
-      value: jest.fn(() => {
-        ws.readyState = WebSocket.OPEN;
+    ws = {
+      readyState: WebSocket.OPEN,
+      send: jest.fn(),
+      addEventListener: jest.fn((event, listener) => {
+        if (event === 'open') {
+
+          setImmediate(() => listener());
+        }
       }),
-    });
-    Object.defineProperty(ws, 'onerror', {
-      value: jest.fn((error) => {}),
-    });
-    Object.defineProperty(ws, 'onclose', {
-      value: jest.fn(() => {}),
-    });
+      onopen: jest.fn(),
+      onerror: jest.fn(),
+      onclose: jest.fn(),
+    } as unknown as WebSocket;
+  
 
-    service['ws'] = ws;
+    service['ws'] = ws; 
+
 
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(logger, 'error').mockImplementation(() => {});
+
+    
   });
 
   it('should be defined', () => {
@@ -118,6 +127,7 @@ describe('RobotService', () => {
     const messageEvent = {
       data: JSON.stringify({ topic: Topic.start_mission, message: 'test' }),
     };
+
     ws.addEventListener.mock.calls[0][1](messageEvent);
     expect(handleIncomingMessage).toHaveBeenCalledWith({ topic: Topic.start_mission, message: 'test' });
   });

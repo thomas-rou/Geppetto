@@ -1,3 +1,4 @@
+// Tests partially generated with help of chat.gpt generative AI
 import { Test, TestingModule } from '@nestjs/testing';
 import { LogService } from './log.service';
 import { MissionService } from '../mission/mission.service';
@@ -36,8 +37,8 @@ describe('LogService', () => {
       ],
     }).compile();
 
-        service = module.get<LogService>(LogService);
-    });
+    service = module.get<LogService>(LogService);
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -75,6 +76,7 @@ describe('LogService', () => {
     expect(logMessage.log_type).toBe(LogType.INFO);
     expect(logMessage.message).toBe('test message');
     expect(logMessage.date).toBeDefined();
+    expect(new Date(logMessage.date)).toBeInstanceOf(Date);
   });
 
   it('should log to client and mission service', async () => {
@@ -84,10 +86,18 @@ describe('LogService', () => {
     expect(mockMissionService.addLogToMission).toHaveBeenCalledWith('testMissionId', expect.any(Object));
   });
 
-  it('should handle errors in logToClient', async () => {
+  it('should handle errors in logToClient gracefully', async () => {
     mockMissionService.addLogToMission.mockRejectedValueOnce(new Error('test error'));
     console.log = jest.fn();
     await service.logToClient(LogType.INFO, 'test message');
     expect(console.log).toHaveBeenCalledWith(expect.any(Error));
+  });
+
+  it('should handle logToClient without missionId', async () => {
+    mockMissionService.missionId = null;
+    await service.logToClient(LogType.INFO, 'test message');
+    expect(mockLogger.log).toHaveBeenCalledWith('test message');
+    expect(mockServer.emit).toHaveBeenCalledWith('log', expect.any(Object));
+    expect(mockMissionService.addLogToMission).not.toHaveBeenCalled();
   });
 });
