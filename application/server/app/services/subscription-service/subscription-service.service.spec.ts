@@ -1,4 +1,3 @@
-// Tests partially generated with help of chat.gpt generative AI
 import { Test, TestingModule } from '@nestjs/testing';
 import { SubscriptionServiceService } from './subscription-service.service';
 import { MissionService } from '../mission/mission.service';
@@ -31,7 +30,7 @@ describe('SubscriptionServiceService', () => {
                     provide: RobotService,
                     useValue: {
                         updateRobotController: jest.fn(),
-                        robotNb: 2, 
+                        robotNb: 2,
                         robotIp: '192.168.1.100',
                     },
                 },
@@ -66,14 +65,22 @@ describe('SubscriptionServiceService', () => {
         expect(service.robot1.subscribeToTopic).toHaveBeenCalledWith(Topic.mission_status1, TopicType.mission_status, expect.any(Function));
         expect(service.robot1.subscribeToTopic).toHaveBeenCalledWith(Topic.log_robot1, TopicType.log_message, expect.any(Function));
         expect(service.robot1.subscribeToTopic).toHaveBeenCalledWith(Topic.physical_robot_map, TopicType.map, expect.any(Function));
-        expect(service.robot1.subscribeToTopic).toHaveBeenCalledWith(Topic.robot1_pose_with_distance, TopicType.pose_with_distance, expect.any(Function));
+        expect(service.robot1.subscribeToTopic).toHaveBeenCalledWith(
+            Topic.robot1_pose_with_distance,
+            TopicType.pose_with_distance,
+            expect.any(Function),
+        );
     });
 
     it('should subscribe to topics for robot2', async () => {
         await service.subscribeToTopicRobot2(gateway);
         expect(service.robot2.subscribeToTopic).toHaveBeenCalledWith(Topic.mission_status2, TopicType.mission_status, expect.any(Function));
         expect(service.robot2.subscribeToTopic).toHaveBeenCalledWith(Topic.log_robot2, TopicType.log_message, expect.any(Function));
-        expect(service.robot2.subscribeToTopic).toHaveBeenCalledWith(Topic.robot2_pose_with_distance, TopicType.pose_with_distance, expect.any(Function));
+        expect(service.robot2.subscribeToTopic).toHaveBeenCalledWith(
+            Topic.robot2_pose_with_distance,
+            TopicType.pose_with_distance,
+            expect.any(Function),
+        );
     });
 
     it('should subscribe to topics for gazebo', async () => {
@@ -82,8 +89,16 @@ describe('SubscriptionServiceService', () => {
         expect(service.gazebo.subscribeToTopic).toHaveBeenCalledWith(Topic.mission_status2, TopicType.mission_status, expect.any(Function));
         expect(service.gazebo.subscribeToTopic).toHaveBeenCalledWith(Topic.log_gazebo, TopicType.log_message, expect.any(Function));
         expect(service.gazebo.subscribeToTopic).toHaveBeenCalledWith(Topic.map, TopicType.map, expect.any(Function));
-        expect(service.gazebo.subscribeToTopic).toHaveBeenCalledWith(Topic.gazebo1_pose_with_distance, TopicType.pose_with_distance, expect.any(Function));
-        expect(service.gazebo.subscribeToTopic).toHaveBeenCalledWith(Topic.gazebo2_pose_with_distance, TopicType.pose_with_distance, expect.any(Function));
+        expect(service.gazebo.subscribeToTopic).toHaveBeenCalledWith(
+            Topic.gazebo1_pose_with_distance,
+            TopicType.pose_with_distance,
+            expect.any(Function),
+        );
+        expect(service.gazebo.subscribeToTopic).toHaveBeenCalledWith(
+            Topic.gazebo2_pose_with_distance,
+            TopicType.pose_with_distance,
+            expect.any(Function),
+        );
     });
 
     it('should subscribe to topics for all robots', async () => {
@@ -118,6 +133,11 @@ describe('SubscriptionServiceService', () => {
 
     it('should mock updateRobotController and reject if invalid data or path is provided', async () => {
         await expect(service.updateRobotController(null, 'path/to/file')).rejects.toThrow('Invalid data or path');
-        await expect(service.updateRobotController({ command: RobotCommand.UpdateControllerCode, code: 'new code', filename: 'yeyeyey', timestamp: 'rasboTIME' }, '')).rejects.toThrow('Invalid data or path');
+        await expect(
+            service.updateRobotController(
+                { command: RobotCommand.UpdateControllerCode, code: 'new code', filename: 'yeyeyey', timestamp: 'rasboTIME' },
+                '',
+            ),
+        ).rejects.toThrow('Invalid data or path');
     });
 });

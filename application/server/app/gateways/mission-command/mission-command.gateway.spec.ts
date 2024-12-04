@@ -1,4 +1,3 @@
-// Tests partially generated with help of chat.gpt generative AI
 import { Test, TestingModule } from '@nestjs/testing';
 import { MissionCommandGateway } from './mission-command.gateway';
 import { SubscriptionServiceService } from '@app/services/subscription-service/subscription-service.service';
@@ -37,9 +36,29 @@ describe('MissionCommandGateway', () => {
                 {
                     provide: SubscriptionServiceService,
                     useValue: {
-                        robot1: { startMission: jest.fn(), stopMission: jest.fn(), identify: jest.fn(), returnToBase: jest.fn(), launch_p2p: jest.fn(), isConnected: jest.fn().mockReturnValue(true) },
-                        robot2: { startMission: jest.fn(), stopMission: jest.fn(), identify: jest.fn(), returnToBase: jest.fn(), launch_p2p: jest.fn(), isConnected: jest.fn().mockReturnValue(true) },
-                        gazebo: { startMission: jest.fn(), stopMission: jest.fn(), returnToBase: jest.fn(), initiateFence: jest.fn(), isConnected: jest.fn().mockReturnValue(true) },
+                        robot1: {
+                            startMission: jest.fn(),
+                            stopMission: jest.fn(),
+                            identify: jest.fn(),
+                            returnToBase: jest.fn(),
+                            launch_p2p: jest.fn(),
+                            isConnected: jest.fn().mockReturnValue(true),
+                        },
+                        robot2: {
+                            startMission: jest.fn(),
+                            stopMission: jest.fn(),
+                            identify: jest.fn(),
+                            returnToBase: jest.fn(),
+                            launch_p2p: jest.fn(),
+                            isConnected: jest.fn().mockReturnValue(true),
+                        },
+                        gazebo: {
+                            startMission: jest.fn(),
+                            stopMission: jest.fn(),
+                            returnToBase: jest.fn(),
+                            initiateFence: jest.fn(),
+                            isConnected: jest.fn().mockReturnValue(true),
+                        },
                         subscribeToTopicRobots: jest.fn(),
                         subscribeToTopicGazebo: jest.fn(),
                         updateRobotController: jest.fn(),
@@ -79,7 +98,9 @@ describe('MissionCommandGateway', () => {
 
     it('should get mission logs', async () => {
         const client = { id: 'client1', emit: jest.fn() } as unknown as Socket;
-        const missions: Mission[] = [{ id: '1', logs: [], map: [], missionType: MissionType.GAZEBO_SIMULATION, missionDuration: '1h', traveledDistance: 100, robots: [] }];
+        const missions: Mission[] = [
+            { id: '1', logs: [], map: [], missionType: MissionType.GAZEBO_SIMULATION, missionDuration: '1h', traveledDistance: 100, robots: [] },
+        ];
 
         jest.spyOn(missionService, 'getAllMissions').mockResolvedValue(missions);
 
@@ -102,15 +123,15 @@ describe('MissionCommandGateway', () => {
             },
             timestamp: new Date().toISOString(),
         };
-    
+
         await gateway.startMissionRobots(client, payload);
-    
+
         expect(subscriptionService.robot1.startMission).toHaveBeenCalled();
         expect(subscriptionService.robot2.startMission).toHaveBeenCalled();
         expect(subscriptionService.subscribeToTopicRobots).toHaveBeenCalledWith(gateway);
         expect(server.emit).toHaveBeenCalledWith('missionStatus', 'Mission started for robots');
     });
-    
+
     it('should stop mission for robots', async () => {
         const client = { id: 'client1', emit: jest.fn() } as unknown as Socket;
         const payload: EndMission = {
@@ -118,42 +139,42 @@ describe('MissionCommandGateway', () => {
             command: RobotCommand.EndMission,
             timestamp: new Date().toISOString(),
         };
-    
+
         await gateway.stopMissionFromRobots(client, payload);
-    
+
         expect(subscriptionService.robot1.stopMission).toHaveBeenCalled();
         expect(subscriptionService.robot2.stopMission).toHaveBeenCalled();
         expect(missionService.updateMissionDuration).toHaveBeenCalledWith('test-mission-id', expect.any(String));
         expect(server.emit).toHaveBeenCalledWith('missionStatus', 'Mission stopped for robots');
     });
-    
+
     it('should identify robot', async () => {
         const client = { id: 'client1', emit: jest.fn() } as unknown as Socket;
         const payload: IdentifyRobot = {
             target: RobotId.robot2,
             command: RobotCommand.IdentifyRobot,
         };
-    
+
         await gateway.identifyRobot(client, payload);
-    
+
         expect(subscriptionService.robot2.identify).toHaveBeenCalled();
         expect(server.emit).toHaveBeenCalledWith('robotIdentification', 'Robot 2 was identified');
     });
-    
+
     it('should handle return to base command', async () => {
         const client = { id: 'client1', emit: jest.fn() } as unknown as Socket;
         const payload: ReturnToBase = {
             command: RobotCommand.ReturnToBase,
             timestamp: new Date().toISOString(),
         };
-    
+
         await gateway.returnToBase(client, payload);
-    
+
         expect(subscriptionService.robot1.returnToBase).toHaveBeenCalled();
         expect(subscriptionService.robot2.returnToBase).toHaveBeenCalled();
         expect(subscriptionService.gazebo.returnToBase).toHaveBeenCalled();
     });
-    
+
     it('should update controller code', async () => {
         const client = { id: 'client1', emit: jest.fn() } as unknown as Socket;
         const payload: UpdateControllerCode = {
@@ -163,27 +184,25 @@ describe('MissionCommandGateway', () => {
             timestamp: new Date().toISOString(),
         };
         const filePath = path.resolve(gateway.pathToAllFiles, payload.filename);
-    
+
         await gateway.updateControllerCode(client, payload);
-    
+
         expect(subscriptionService.updateRobotController).toHaveBeenCalledWith(payload, filePath);
         expect(client.emit).toHaveBeenCalledWith('updateSuccess', 'Mise à jour du code réussie');
     });
-    
+
     it('should handle geofence creation', async () => {
         const client = { id: 'client1', emit: jest.fn() } as unknown as Socket;
         const payload: SetGeofence = {
             command: RobotCommand.SetGeofence,
-            geofence_coordinates: { x_min: 0, y_min: 0 , x_max: 1, y_max: 1 },
+            geofence_coordinates: { x_min: 0, y_min: 0, x_max: 1, y_max: 1 },
             timestamp: new Date().toISOString(),
         };
-    
+
         await gateway.handleGeofence(client, payload);
-    
+
         expect(subscriptionService.gazebo.initiateFence).toHaveBeenCalledWith(payload);
     });
-    
-
 
     it('should handle P2P initiation', async () => {
         const client = { id: 'client1', emit: jest.fn() } as unknown as Socket;
