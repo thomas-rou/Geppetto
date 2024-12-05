@@ -16,7 +16,7 @@ from time import sleep
 
 TIME_TO_GATHER_TOUGHTS = 3
 GLOBAL_FRAME_ID = "world"
-GEOFENCE_POSE_Z = -0.12
+GEOFENCE_POSE_Z = -0.0946
 GEOFENCE_SCALE = 2
 
 

@@ -25,8 +25,10 @@ from launch_ros.actions import Node
 current_dir = os.path.dirname(__file__)
 sys.path.append(current_dir)
 
+ros_gz_bringup_dir = get_package_share_directory("ros_gz_example_bringup")
+
 helpers_dir = os.path.join(
-    get_package_share_directory("ros_gz_example_bringup"),
+    ros_gz_bringup_dir,
     "helpers",
 )
 sys.path.append(helpers_dir)
@@ -44,15 +46,20 @@ robots = [
 ]
 
 # fmt: off
-boundary_walls = [
-    Wall(pose=Pose(y= MAP_HEIGHT/2,                    z=WALL_HEIGHT),  size=Size(x=MAP_WIDTH,  z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # west wall
-    Wall(pose=Pose(y=-MAP_HEIGHT/2,                    z=WALL_HEIGHT),  size=Size(x=MAP_WIDTH,  z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # east wall
-    Wall(pose=Pose(x= MAP_WIDTH/2, yaw=HORIZONTAL_YAW, z=WALL_HEIGHT),  size=Size(x=MAP_HEIGHT, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # north wall
-    Wall(pose=Pose(x=-MAP_WIDTH/2, yaw=HORIZONTAL_YAW, z=WALL_HEIGHT),  size=Size(x=MAP_HEIGHT, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # south wall
-]
+# boundary_walls = [
+#     Wall(pose=Pose(y= MAP_HEIGHT/2,                    z=WALL_HEIGHT),  size=Size(x=MAP_WIDTH,  z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # west wall
+#     Wall(pose=Pose(y=-MAP_HEIGHT/2,                    z=WALL_HEIGHT),  size=Size(x=MAP_WIDTH,  z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # east wall
+#     Wall(pose=Pose(x= MAP_WIDTH/2, yaw=HORIZONTAL_YAW, z=WALL_HEIGHT),  size=Size(x=MAP_HEIGHT, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # north wall
+#     Wall(pose=Pose(x=-MAP_WIDTH/2, yaw=HORIZONTAL_YAW, z=WALL_HEIGHT),  size=Size(x=MAP_HEIGHT, z=WALL_HEIGHT), starter_wall=True, wall_type=Wall_Type.LOGO), # south wall
+# ]
 # fmt: on
 
-sand_table = Sand_Table(size=Size(MAP_WIDTH, MAP_HEIGHT))
+# sand_table = Sand_Table(size=Size(MAP_WIDTH, MAP_HEIGHT))
+moon = Moon(Pose(z=0.07))
+
+
+# Spawn random wall obstacles
+# Wall.generate_random_wall_obstacles(N_WALL_OBSTACLES)
 
 
 def generate_launch_description():
@@ -71,12 +78,10 @@ def generate_launch_description():
                     "worlds",
                     "diff_drive.sdf",
                 ]
-            )
+            ).perform(None)
+            + " -r"
         }.items(),
     )
-
-    # Spawn random wall obstacles
-    Wall.generate_random_wall_obstacles(N_WALL_OBSTACLES)
 
     # Bridge ROS topics and Gazebo messages for establishing communication
     bridge = Node(
@@ -85,16 +90,38 @@ def generate_launch_description():
         parameters=[
             {
                 "config_file": os.path.join(
-                    get_package_share_directory("ros_gz_example_bringup"),
+                    ros_gz_bringup_dir,
                     "config",
                     "ros_gz_example_bridge.yaml",
                 ),
                 "qos_overrides./tf_static.publisher.durability": "transient_local",
+                "expand_gz_topic_names": True,
             }
         ],
         output="screen",
     )
 
+    update_node = Node(
+        package="com_bridge",
+        executable="update_code_node",
+        name="update_code_node",
+        output="screen",
+    )
+
+    # map_merge launch file
+    map_merge = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros_gz_bringup_dir, "launch", "map_merge.launch.py")
+        )
+    )
+
     return LaunchDescription(
-        [gz_sim, bridge, *Robot.nodes, *Entity.spawned_entities_nodes]
+        [
+            gz_sim,
+            bridge,
+            *Robot.nodes,
+            *Entity.spawned_entities_nodes,
+            update_node,
+            map_merge,
+        ]
     )

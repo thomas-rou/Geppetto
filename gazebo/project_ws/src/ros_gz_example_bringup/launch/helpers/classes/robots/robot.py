@@ -140,8 +140,18 @@ class Robot(Entity):
             output="screen",
         )
 
+        low_battery_node = Node(
+            package="com_bridge",
+            executable="low_battery",
+            name="low_battery",
+            parameters=[{"robot_id": self.name}],
+            output="screen",
+        )
+
         Robot.nodes.append(battery_node)
         Robot.nodes.append(mission_node)
         Robot.nodes.append(robot_pose_node)
         Robot.nodes.append(geofence_node)
+        Robot.nodes.append(low_battery_node)
+
         # Robot.nodes.append(sensor_logger_node)

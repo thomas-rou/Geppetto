@@ -55,13 +55,13 @@
       </link>
     </model>
     
-    <!-- <model name="limo">
+    <model name="rock">
       <self_collide>true</self_collide>
       <pose>0 0 0.35 0 0 0</pose>
       <include merge="true">
-        <uri>package://ros_gz_example_description/models/limo_diff_drive</uri>
+        <uri>package://ros_gz_example_description/models/rock</uri>
       </include>
-    </model> -->
+    </model>
 
   </world>
 </sdf>

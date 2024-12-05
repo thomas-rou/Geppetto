@@ -15,10 +15,11 @@ import { Mission } from '@common/interfaces/Mission';
 })
 export class LogsDisplayComponent implements OnInit, OnDestroy, AfterViewInit {
     private clearLogsSubscription: Subscription;
-    @Input()mission: Mission;
+    @Input() mission: Mission;
     @ViewChild('logTerminal') logTerminal!: ElementRef;
 
-    isCollapsed : boolean = true;
+    isCollapsed: boolean = true;
+    logs: string[] = [];
 
     constructor(
         private robotCommunicationService: RobotCommunicationService,
@@ -33,9 +34,11 @@ export class LogsDisplayComponent implements OnInit, OnDestroy, AfterViewInit {
 
     ngAfterViewInit() {
         this.robotCommunicationService.onLog().subscribe((log) => {
+            if (this.logs.includes(log)) return;
+            this.logs.push(log);
             this.addLogToTerminal(log);
         });
-        if(this.mission){
+        if (this.mission) {
             for (const log of this.mission.logs) {
                 this.addLogToTerminal(JSON.stringify(log));
             }

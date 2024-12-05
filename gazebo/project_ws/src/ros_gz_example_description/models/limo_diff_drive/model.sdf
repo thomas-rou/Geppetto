@@ -55,7 +55,7 @@
                     </cylinder>
                 </geometry>
             </collision>
-            <visual name='base_footprint_fixed_joint_lump__base_link_visual'>
+            <!--visual name='base_footprint_fixed_joint_lump__base_link_visual'>
                 <pose>0 0 0.15 0 0 0</pose>
                 <geometry>
                     <box>
@@ -87,8 +87,8 @@
                         <radius>0.032000000000000001</radius>
                     </cylinder>
                 </geometry>
-            </visual>
-            <!--visual name='base_footprint_fixed_joint_lump__base_link_visual'>
+            </visual-->
+            <visual name='base_footprint_fixed_joint_lump__base_link_visual'>
                 <pose>0 0 0 0 0 1.57</pose>
                 <geometry>
                     <mesh>
@@ -133,7 +133,7 @@
                     <diffuse>0 0 0 1</diffuse>
                     <ambient>0 0 0 1</ambient>
                 </material>
-            </visual-->
+            </visual>
             <sensor name='sensor_camera' type='depth_camera'>
                 <topic>/limo{index}/depth/image_raw</topic>
                 <always_on>true</always_on>

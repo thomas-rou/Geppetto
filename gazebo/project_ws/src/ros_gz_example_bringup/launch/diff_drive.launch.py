@@ -37,21 +37,21 @@ from helpers import *
 
 # Starter entities
 
-robots = [
-    Robot(name=name, pose=pose) for name, pose in zip(ROBOT_NAMES, ROBOT_STARTER_POSES)
-]
+# robots = [
+#     Robot(name=name, pose=pose) for name, pose in zip(ROBOT_NAMES, ROBOT_STARTER_POSES)
+# ]
 
 # fmt: off
-boundary_walls = [
-    Wall(pose=Pose(y= MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # west wall
-    Wall(pose=Pose(y=-MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # east wall
-    Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # north wall
-    Wall(pose=Pose(x=-MAP_WIDTH/2 + WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # south wall
-]
+# boundary_walls = [
+#     Wall(pose=Pose(y= MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # west wall
+#     Wall(pose=Pose(y=-MAP_HEIGHT/2),                                         size=Size(x=MAP_WIDTH,            z=WALL_HEIGHT), starter_wall=True), # east wall
+#     Wall(pose=Pose(x= MAP_WIDTH/2 - WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # north wall
+#     Wall(pose=Pose(x=-MAP_WIDTH/2 + WALL_THICKNESS/2, yaw=HORIZONTAL_YAW),  size=Size(x=MAP_WIDTH - WALL_GAP, z=WALL_HEIGHT), starter_wall=True), # south wall
+# ]
 # fmt: on
 
 # Spawn random wall obstacles
-Wall.generate_random_wall_obstacles(N_WALL_OBSTACLES)
+# Wall.generate_random_wall_obstacles(N_WALL_OBSTACLES)
 
 
 def generate_launch_description():

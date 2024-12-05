@@ -75,7 +75,7 @@ class MissionServerGazebo(Node):
         )
 
         self.return_base_subscription = self.create_subscription(
-            ReturnBase,
+            Bool,
             "return_to_base",
             self.return_to_base_callback,
             GlobalConst.QUEUE_SIZE,
@@ -114,6 +114,10 @@ class MissionServerGazebo(Node):
             msg.data = True
             if get_robot_name() == "gazebo":
                 self.start_mission_publisher.publish(msg)
+                sleep(0.5)
+                self.start_mission_publisher.publish(msg)
+                sleep(0.5)
+                self.start_mission_publisher.publish(msg)
 
         except Exception as e:
             self.logger.log_message(LogType.INFO, f"Failed to start mission: {e}")
@@ -131,13 +135,17 @@ class MissionServerGazebo(Node):
             self.navigator.goToPose(pose)
             self.logger.log_message(
                 LogType.INFO,
-                f"Returning {self.robot_id} to base at (0, {self.y})",
+                f"Returning {self.robot_id} to base at (0.0, {self.y})",
             )
 
         except Exception as e:
             self.logger.log_message(LogType.ERROR, f"Failed to navigate to base: {e}")
 
     def return_to_base_callback(self, msg: ReturnBase):
+        self.logger.log_message(
+            LogType.WARNING,
+            f"{self.robot_id} Battery below threshold of 30, returning to base...",
+        )
         self.stop_robot()
         self.returning_home = True
         time.sleep(1)
@@ -161,6 +169,10 @@ class MissionServerGazebo(Node):
             msg = Bool()
             msg.data = False
             if get_robot_name() == "gazebo":
+                self.start_mission_publisher.publish(msg)
+                sleep(0.5)
+                self.start_mission_publisher.publish(msg)
+                sleep(0.5)
                 self.start_mission_publisher.publish(msg)
 
     def create_pose_stamped(self, target_x: float, target_y: float) -> PoseStamped:
